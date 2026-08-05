@@ -246,6 +246,65 @@ app.post("/api/line/notify", async (req, res) => {
   }
 });
 
+// LINE OA Messaging API Push Proxy
+app.post("/api/line/oa/push", async (req, res) => {
+  try {
+    const { channelAccessToken, lineUserId, message, flexMessage } = req.body;
+    if (!channelAccessToken) {
+      return res.status(400).json({ success: false, error: "กรุณาระบุ Channel Access Token ของ LINE OA" });
+    }
+    if (!lineUserId) {
+      return res.status(400).json({ success: false, error: "กรุณาระบุ LINE User ID ของลูกค้า" });
+    }
+
+    const messages = [];
+    if (flexMessage) {
+      messages.push(flexMessage);
+    } else if (message) {
+      messages.push({
+        type: "text",
+        text: message,
+      });
+    } else {
+      return res.status(400).json({ success: false, error: "กรุณาระบุข้อความที่ต้องการส่ง" });
+    }
+
+    const lineRes = await fetch("https://api.line.me/v2/bot/message/push", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${channelAccessToken.trim()}`,
+      },
+      body: JSON.stringify({
+        to: lineUserId.trim(),
+        messages: messages,
+      }),
+    });
+
+    const data = await lineRes.json();
+    if (lineRes.ok) {
+      return res.json({
+        success: true,
+        message: "ส่งข้อความ LINE OA เข้าไลน์ลูกค้าสำเร็จแล้ว! 💬",
+        lineResponse: data,
+      });
+    } else {
+      console.error("LINE OA Push Error:", data);
+      return res.status(lineRes.status).json({
+        success: false,
+        error: data.message || "ไม่สามารถส่งข้อความ LINE OA ได้ กรุณาตรวจสอบ Channel Access Token หรือ LINE User ID",
+        details: data,
+      });
+    }
+  } catch (err: any) {
+    console.error("LINE OA Proxy Error:", err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ LINE OA",
+    });
+  }
+});
+
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

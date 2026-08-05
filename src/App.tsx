@@ -483,6 +483,7 @@ export default function App() {
         <DocumentDetailView
           doc={selectedDoc}
           seller={seller}
+          customers={customers}
           onClose={() => setSelectedDoc(null)}
           onUpdateStatus={handleUpdateDocStatus}
           onConvertDoc={handleConvertDoc}

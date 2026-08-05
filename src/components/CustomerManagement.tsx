@@ -24,6 +24,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [taxId, setTaxId] = useState('');
+  const [lineUserId, setLineUserId] = useState('');
   const [note, setNote] = useState('');
 
   const handleOpenAddModal = () => {
@@ -33,6 +34,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
     setEmail('');
     setAddress('');
     setTaxId('');
+    setLineUserId('');
     setNote('');
     setIsModalOpen(true);
   };
@@ -44,6 +46,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
     setEmail(c.email || '');
     setAddress(c.address);
     setTaxId(c.taxId || '');
+    setLineUserId(c.lineUserId || '');
     setNote(c.note || '');
     setIsModalOpen(true);
   };
@@ -62,6 +65,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
       email,
       address,
       taxId,
+      lineUserId,
       note,
       createdAt: editingCustomer
         ? editingCustomer.createdAt
@@ -181,6 +185,15 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
                       💳 เลขผู้เสียภาษี: {c.taxId}
                     </p>
                   )}
+                  {c.lineUserId ? (
+                    <p className="text-[11px] text-emerald-700 pl-5 font-mono font-bold flex items-center gap-1">
+                      <span>💬 LINE User ID: {c.lineUserId}</span>
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-slate-400 pl-5 italic">
+                      ยังไม่มี LINE User ID (ระบุเพื่อส่งบิลผ่าน LINE OA)
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between text-xs pt-1 border-t border-rose-50">
@@ -263,17 +276,32 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
                 ></textarea>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                  เลขผู้เสียภาษี / เลขบัตรประชาชน
-                </label>
-                <input
-                  type="text"
-                  placeholder="13 หลัก"
-                  value={taxId}
-                  onChange={(e) => setTaxId(e.target.value)}
-                  className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    เลขผู้เสียภาษี / บัตรประชาชน
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="13 หลัก"
+                    value={taxId}
+                    onChange={(e) => setTaxId(e.target.value)}
+                    className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-emerald-800 mb-1 flex items-center gap-1">
+                    <span>💬 LINE User ID (สำหรับ LINE OA)</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="เช่น U1234567890abcdef..."
+                    value={lineUserId}
+                    onChange={(e) => setLineUserId(e.target.value)}
+                    className="w-full bg-emerald-50/50 border border-emerald-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
               </div>
 
               <div>

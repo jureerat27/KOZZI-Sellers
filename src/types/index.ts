@@ -14,6 +14,8 @@ export interface SellerProfile {
   bankAccountNo: string;
   bankAccountName: string;
   lineNotifyToken: string;
+  lineOaChannelAccessToken?: string;
+  lineOaBasicId?: string;
   logoUrl: string;
   signatureUrl: string;
   googleSheetId?: string;
@@ -43,6 +45,7 @@ export interface Customer {
   email?: string;
   address: string;
   taxId?: string;
+  lineUserId?: string;
   note?: string;
   createdAt: string;
 }
