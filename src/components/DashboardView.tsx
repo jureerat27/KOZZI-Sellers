@@ -53,32 +53,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 }) => {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '6m' | '1y'>('6m');
 
-  const currentMonthStr = new Date().toISOString().substring(0, 7); // YYYY-MM
-
-  // Monthly Calculations
-  const monthlyPaidDocs = documents.filter(
-    (d) => (d.status === 'PAID' || d.status === 'APPROVED') && d.date.startsWith(currentMonthStr)
+  // Real Calculations from actual State Data
+  const paidDocs = documents.filter(
+    (d) => d.status === 'PAID' || d.status === 'APPROVED'
   );
 
-  const totalMonthlySales = monthlyPaidDocs.reduce((acc, d) => acc + d.grandTotal, 0);
-
-  const monthlyExpenses = expenses.filter((e) => e.date.startsWith(currentMonthStr));
-  const totalMonthlyExpenses = monthlyExpenses.reduce((acc, e) => acc + e.amount, 0);
-
-  const netProfit = totalMonthlySales - totalMonthlyExpenses;
+  const totalSales = paidDocs.reduce((acc, d) => acc + d.grandTotal, 0);
+  const totalExpenses = expenses.reduce((acc, e) => acc + e.amount, 0);
+  const netProfit = totalSales - totalExpenses;
 
   // Low Stock Items
   const lowStockProducts = products.filter((p) => p.stock <= p.minStock);
 
-  // Doughnut Chart Data (Matching reference image)
+  // Dynamic Doughnut Chart Data based on actual data
+  const totalChartSum = totalSales + totalExpenses + (netProfit > 0 ? netProfit : 0);
+  const salesPct = totalChartSum > 0 ? Math.round((totalSales / totalChartSum) * 100) : 0;
+  const expPct = totalChartSum > 0 ? Math.round((totalExpenses / totalChartSum) * 100) : 0;
+  const profitPct = totalChartSum > 0 ? Math.max(0, 100 - salesPct - expPct) : 0;
+
   const pieData = [
-    { name: 'ยอดขาย', value: 271650, percentage: 43, color: '#00B754' },
-    { name: 'รายจ่าย', value: 164850, percentage: 26, color: '#2563EB' },
-    { name: 'กำไรสุทธิ', value: 106800, percentage: 31, color: '#F97316' },
+    { name: 'ยอดขาย', value: totalSales, percentage: salesPct, color: '#00B754' },
+    { name: 'รายจ่าย', value: totalExpenses, percentage: expPct, color: '#2563EB' },
+    { name: 'กำไรสุทธิ', value: Math.max(0, netProfit), percentage: profitPct, color: '#F97316' },
   ];
 
   const handleNotifyLowStockLINE = () => {
-    if (lowStockProducts.length === 0) return;
+    if (lowStockProducts.length === 0) {
+      onSendLineNotify(`📦 สต็อกสินค้า ร้าน ${seller.name}: สินค้าทุกรายการอยู่ในระดับปกติ มีสต็อกพร้อมขายค่ะ/ครับ`);
+      return;
+    }
     let msg = `⚠️ แจ้งเตือนสินค้าใกล้หมดสต็อก ร้าน ${seller.name}\n`;
     lowStockProducts.forEach((p, idx) => {
       msg += `${idx + 1}. ${p.name} (คงเหลือ ${p.stock} ${p.unit})\n`;
@@ -86,64 +89,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     onSendLineNotify(msg);
   };
 
-  // Recent Documents (from state or default fallback matching the image)
-  const recentDocuments = documents.length > 0 ? documents.slice(0, 3) : [
-    {
-      id: 'doc-1',
-      docNumber: 'INV-2025-0008',
-      type: 'INVOICE' as const,
-      customerName: 'บริษัท ปิ๊ปโป้ จำกัด',
-      date: '15 พ.ค. 2569',
-      grandTotal: 12500,
-      status: 'PAID' as const,
-    },
-    {
-      id: 'doc-2',
-      docNumber: 'QUO-2025-0012',
-      type: 'QUOTATION' as const,
-      customerName: 'คุณเอีกา ใจดี',
-      date: '14 พ.ค. 2569',
-      grandTotal: 88900,
-      status: 'SENT' as const,
-    },
-    {
-      id: 'doc-3',
-      docNumber: 'INV-2025-0007',
-      type: 'INVOICE' as const,
-      customerName: 'หจก. สมหวังเทรดดิ้ง',
-      date: '13 พ.ค. 2569',
-      grandTotal: 5200,
-      status: 'PAID' as const,
-    },
-  ];
+  // Real Recent Documents (Top 5)
+  const recentDocuments = documents.slice(0, 5);
 
-  // Pending Actions List (matching the reference image)
-  const pendingActions = [
-    {
-      id: 'p-1',
-      title: 'ใบเสนอราคา QUO-2025-0013',
-      customer: 'คุณสมชาย ใจดี',
-      date: '17 พ.ค. 2569',
-      status: 'รอดำเนินการ',
-      statusType: 'warning',
-    },
-    {
-      id: 'p-2',
-      title: 'ใบแจ้งหนี้ INV-2025-0009',
-      customer: 'บริษัท เอ ปี ซี จำกัด',
-      date: '18 พ.ค. 2569',
-      status: 'ค้างชำระ',
-      statusType: 'danger',
-    },
-    {
-      id: 'p-3',
-      title: 'ใบเสนอราคา QUO-2025-0011',
-      customer: 'ร้านกาแฟสบายใจ',
-      date: '19 พ.ค. 2569',
-      status: 'รอดำเนินการ',
-      statusType: 'warning',
-    },
-  ];
+  // Real Pending Actions
+  const pendingActions = documents.filter(
+    (d) => d.status === 'PENDING' || d.status === 'SENT' || d.status === 'DRAFT' || d.status === 'UNPAID'
+  );
 
   return (
     <div className="space-y-5 pb-12">
@@ -158,7 +110,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               strokeWidth="4"
               fill="#18539B"
             />
-            <rect x="30" y="60" width="30" height="40" fill="#0D2B52" />
             <circle cx="140" cy="70" r="15" fill="#0D2B52" />
           </svg>
         </div>
@@ -178,7 +129,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-[#0D2B52]">
-                {seller.name || 'สมชาย ใจดี (ร้านค้าสมชายออนไลน์)'}
+                {seller.name || 'ร้านค้าของฉัน'}
               </h2>
               <CheckCircle2 className="w-4 h-4 text-[#2563EB] fill-[#2563EB] text-white shrink-0" />
             </div>
@@ -187,10 +138,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <MapPin className="w-3.5 h-3.5 text-[#52627A]" />
                 <span>ร้านค้าบุคคลธรรมดา</span>
               </span>
-              <span className="text-slate-300">•</span>
-              <span>
-                เลขผู้เสียภาษี: {seller.taxId || '1100200300401'}
-              </span>
+              {seller.taxId && (
+                <>
+                  <span className="text-slate-300">•</span>
+                  <span>เลขผู้เสียภาษี: {seller.taxId}</span>
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -201,8 +154,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             className="px-5 py-2.5 bg-[#0D2B52] hover:bg-[#081E3B] text-white rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all shadow-xs active:scale-98"
           >
             <MessageSquare className="w-4 h-4 fill-white stroke-none" />
-            <span>ส่งเข้า LINE</span>
-            <ChevronDown className="w-3.5 h-3.5 text-white/70" />
+            <span>ส่งแจ้งเตือนเข้า LINE</span>
           </button>
 
           <button
@@ -216,46 +168,63 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* 2. Low Stock Alert Banner */}
-      <div className="bg-[#FFF8EE] border border-[#FED7AA] rounded-2xl p-4 sm:p-4 text-[#0D2B52] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
-        <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-9 h-9 rounded-xl bg-[#F97316] text-white flex items-center justify-center shrink-0 shadow-2xs">
-            <AlertTriangle className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-black text-xs sm:text-sm text-[#0D2B52]">
-                แจ้งเตือน: สินค้าใกล้หมดสต็อก
-              </span>
-              <span className="bg-[#FFEDD5] text-[#C2410C] text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-[#FDBA74]/50">
-                {lowStockProducts.length || 2} รายการ
-              </span>
+      {lowStockProducts.length > 0 ? (
+        <div className="bg-[#FFF8EE] border border-[#FED7AA] rounded-2xl p-4 text-[#0D2B52] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-9 h-9 rounded-xl bg-[#F97316] text-white flex items-center justify-center shrink-0 shadow-2xs">
+              <AlertTriangle className="w-5 h-5 text-white" />
             </div>
-            <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1 font-medium">
-              {lowStockProducts.length > 0
-                ? lowStockProducts.map((p) => `${p.name} (${p.stock} ${p.unit})`).join(', ')
-                : 'แก้วน้ำเก็บอุณหภูมิ สแตนเลส 304 (750ml) (4 ใบ), สายชาร์จเร็ว Fast Charge Type-C (2 เมตร) (3 เส้น)'}
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-black text-xs sm:text-sm text-[#0D2B52]">
+                  แจ้งเตือน: สินค้าใกล้หมดสต็อก
+                </span>
+                <span className="bg-[#FFEDD5] text-[#C2410C] text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-[#FDBA74]/50">
+                  {lowStockProducts.length} รายการ
+                </span>
+              </div>
+              <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1 font-medium">
+                {lowStockProducts.map((p) => `${p.name} (คงเหลือ ${p.stock} ${p.unit})`).join(', ')}
+              </p>
+            </div>
           </div>
-        </div>
 
-        <button
-          onClick={onGoToProducts}
-          className="self-end sm:self-center px-4 py-2 bg-white hover:bg-[#FFF1F2] border border-[#FED7AA] text-[#C2410C] rounded-full text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-2xs shrink-0 active:scale-98"
-        >
-          <span>ดูรายละเอียด</span>
-          <ArrowRight className="w-3.5 h-3.5 text-[#C2410C]" />
-        </button>
-      </div>
+          <button
+            onClick={onGoToProducts}
+            className="self-end sm:self-center px-4 py-2 bg-white hover:bg-[#FFF1F2] border border-[#FED7AA] text-[#C2410C] rounded-full text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-2xs shrink-0 active:scale-98"
+          >
+            <span>เติมสต็อกสินค้า</span>
+            <ArrowRight className="w-3.5 h-3.5 text-[#C2410C]" />
+          </button>
+        </div>
+      ) : (
+        <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl p-4 text-[#166534] flex items-center justify-between gap-4 shadow-2xs">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[#22C55E] text-white flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-xs font-bold">
+              สินค้าทุกรายการมีสต็อกเพียงพอ (ไม่มีสินค้าใกล้หมดสต็อก)
+            </span>
+          </div>
+          <button
+            onClick={onGoToProducts}
+            className="px-3.5 py-1.5 bg-white border border-[#BBF7D0] text-[#166534] rounded-full text-xs font-bold hover:bg-[#DCFCE7]"
+          >
+            คลังสินค้า ({products.length} รายการ)
+          </button>
+        </div>
+      )}
 
       {/* 3. Row 1: 4 KPI Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: ยอดขายเดือนนี้ (Green #00B754) */}
+        {/* Card 1: ยอดขายรวม (Green #00B754) */}
         <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-extrabold text-[#64748B] block">ยอดขายเดือนนี้</span>
+              <span className="text-xs font-extrabold text-[#64748B] block">ยอดขายรวม</span>
               <div className="text-2xl sm:text-3xl font-black text-[#00B754] tracking-tight mt-1">
-                ฿{totalMonthlySales > 0 ? totalMonthlySales.toLocaleString() : '1,950'}
+                ฿{totalSales.toLocaleString()}
               </div>
             </div>
             <div className="w-11 h-11 rounded-full bg-[#00B754] text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -264,20 +233,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
             <span className="text-[#00B754] font-bold flex items-center gap-0.5">
-              <ArrowUpRight className="w-3.5 h-3.5 text-[#00B754]" />
-              <span>12% จากเดือนที่แล้ว</span>
+              <span>ชำระเงินแล้ว</span>
             </span>
-            <span className="text-slate-400 font-medium">11 ใบเสร็จแล้ว</span>
+            <span className="text-slate-400 font-medium">{paidDocs.length} ใบเสร็จ/บิล</span>
           </div>
         </div>
 
-        {/* Card 2: รายจ่ายเดือนนี้ (Blue #2563EB) */}
+        {/* Card 2: รายจ่ายรวม (Blue #2563EB) */}
         <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-extrabold text-[#64748B] block">รายจ่ายเดือนนี้</span>
+              <span className="text-xs font-extrabold text-[#64748B] block">รายจ่ายรวม</span>
               <div className="text-2xl sm:text-3xl font-black text-[#2563EB] tracking-tight mt-1">
-                ฿{totalMonthlyExpenses > 0 ? totalMonthlyExpenses.toLocaleString() : '11,770'}
+                ฿{totalExpenses.toLocaleString()}
               </div>
             </div>
             <div className="w-11 h-11 rounded-full bg-[#2563EB] text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -286,32 +254,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
             <span className="text-[#2563EB] font-bold flex items-center gap-0.5">
-              <ArrowDownRight className="w-3.5 h-3.5 text-[#2563EB]" />
-              <span>8% จากเดือนที่แล้ว</span>
+              <span>บันทึกแล้ว</span>
             </span>
-            <span className="text-slate-400 font-medium">4 รายการจ่าย</span>
+            <span className="text-slate-400 font-medium">{expenses.length} รายการจ่าย</span>
           </div>
         </div>
 
-        {/* Card 3: กำไรสุทธิเดือนนี้ (Orange #F97316) */}
+        {/* Card 3: กำไรสุทธิ (Orange #F97316) */}
         <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-extrabold text-[#64748B] block">กำไรสุทธิเดือนนี้</span>
-              <div className="text-2xl sm:text-3xl font-black text-[#F97316] tracking-tight mt-1">
-                ฿{netProfit.toLocaleString() === '0' ? '-9,820' : netProfit.toLocaleString()}
+              <span className="text-xs font-extrabold text-[#64748B] block">กำไรสุทธิ</span>
+              <div className={`text-2xl sm:text-3xl font-black tracking-tight mt-1 ${netProfit >= 0 ? 'text-[#F97316]' : 'text-rose-600'}`}>
+                ฿{netProfit.toLocaleString()}
               </div>
             </div>
-            <div className="w-11 h-11 rounded-full bg-[#F97316] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <div className={`w-11 h-11 rounded-full text-white flex items-center justify-center shrink-0 shadow-xs ${netProfit >= 0 ? 'bg-[#F97316]' : 'bg-rose-600'}`}>
               <Coins className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
           </div>
           <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-[#F97316] font-bold flex items-center gap-0.5">
-              <ArrowDownRight className="w-3.5 h-3.5 text-[#F97316]" />
-              <span>รายจ่ายสูงกว่ารายรับ</span>
+            <span className={`font-bold ${netProfit >= 0 ? 'text-[#F97316]' : 'text-rose-600'}`}>
+              {netProfit >= 0 ? 'กำไรสุทธิจากการดำเนินงาน' : 'ขาดทุนสุทธิ'}
             </span>
-            <span className="text-slate-400 font-medium">ยังไม่รวมรายจ่ายค้างจ่าย</span>
+            <span className="text-slate-400 font-medium">ยอดขาย - รายจ่าย</span>
           </div>
         </div>
 
@@ -321,7 +287,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div>
               <span className="text-xs font-extrabold text-[#64748B] block">สินค้าใกล้หมด</span>
               <div className="text-2xl sm:text-3xl font-black text-[#7C3AED] tracking-tight mt-1">
-                {lowStockProducts.length || 2}{' '}
+                {lowStockProducts.length}{' '}
                 <span className="text-sm font-bold text-[#7C3AED]">รายการ</span>
               </div>
             </div>
@@ -333,12 +299,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-[#7C3AED] font-bold flex items-center gap-1">
               <span>จากสินค้าทั้งหมด</span>
             </span>
-            <span className="text-[#7C3AED] font-extrabold">{products.length || 5} รายการ</span>
+            <span className="text-[#7C3AED] font-extrabold">{products.length} รายการ</span>
           </div>
         </div>
       </div>
 
-      {/* 4. Row 2: Full Width Doughnut Chart Card */}
+      {/* 4. Row 2: Dynamic Doughnut Chart Card */}
       <div className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2">
@@ -348,7 +314,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <HelpCircle className="w-4 h-4 text-slate-400 cursor-pointer" />
           </div>
 
-          {/* Time Filter Pills */}
           <div className="flex items-center gap-1 bg-[#F1F5F9] p-1 rounded-xl shrink-0">
             {(['7d', '30d', '6m', '1y'] as const).map((key) => {
               const labels = { '7d': '7 วัน', '30d': '30 วัน', '6m': '6 เดือน', '1y': '1 ปี' };
@@ -373,49 +338,52 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
           {/* Doughnut Ring Chart */}
           <div className="md:col-span-6 relative h-64 sm:h-72 flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={70}
-                  outerRadius={105}
-                  paddingAngle={3}
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="#FFFFFF" strokeWidth={3} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#FFFFFF',
-                    borderColor: '#E2E8F0',
-                    borderRadius: '16px',
-                    color: '#0D2B52',
-                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                  }}
-                  formatter={(value: any, name: any) => [
-                    `฿${Number(value).toLocaleString()} (${
-                      pieData.find((p) => p.name === name)?.percentage
-                    }%)`,
-                    name,
-                  ]}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            {totalChartSum > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={105}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} stroke="#FFFFFF" strokeWidth={3} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#FFFFFF',
+                      borderColor: '#E2E8F0',
+                      borderRadius: '16px',
+                      color: '#0D2B52',
+                      boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                    }}
+                    formatter={(value: any, name: any) => [
+                      `฿${Number(value).toLocaleString()} (${
+                        pieData.find((p) => p.name === name)?.percentage
+                      }%)`,
+                      name,
+                    ]}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-48 h-48 rounded-full border-8 border-slate-100 flex items-center justify-center text-slate-300 font-bold text-xs">
+                ไม่มีข้อมูลยอดทางการเงิน
+              </div>
+            )}
 
             {/* Inner Ring Center Text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-              <span className="text-xs font-extrabold text-[#0D2B52]">ภาพรวม</span>
+              <span className="text-xs font-extrabold text-[#0D2B52]">สรุปข้อมูล</span>
               <span className="text-base sm:text-lg font-black text-[#0D2B52] tracking-tight">
-                6 เดือนล่าสุด
-              </span>
-              <span className="text-[11px] font-medium text-slate-400 mt-0.5">
-                (มี.ค. 2569 - ส.ค. 2569)
+                ตามจริงในระบบ
               </span>
             </div>
           </div>
@@ -457,7 +425,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm sm:text-base font-extrabold text-[#0D2B52]">
-              เอกสารล่าสุด
+              เอกสารล่าสุด ({documents.length})
             </h3>
             <button
               onClick={onGoToDocuments}
@@ -467,70 +435,76 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </button>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-slate-100 text-slate-400 font-bold">
-                  <th className="pb-3 font-bold">เลขที่เอกสาร</th>
-                  <th className="pb-3 font-bold">ประเภท</th>
-                  <th className="pb-3 font-bold">ลูกค้า</th>
-                  <th className="pb-3 font-bold">วันที่</th>
-                  <th className="pb-3 font-bold text-right">ยอดเงิน</th>
-                  <th className="pb-3 font-bold text-center">สถานะ</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {recentDocuments.map((doc, idx) => {
-                  const isPaid = doc.status === 'PAID';
-                  return (
-                    <tr
-                      key={doc.id || idx}
-                      onClick={() => onOpenDocDetail(doc as SalesDocument)}
-                      className="hover:bg-slate-50 cursor-pointer transition-colors"
-                    >
-                      <td className="py-3 font-extrabold text-[#2563EB]">
-                        {doc.docNumber}
-                      </td>
-                      <td className="py-3 text-slate-600 font-medium">
-                        {doc.type === 'INVOICE'
-                          ? 'ใบแจ้งหนี้'
-                          : doc.type === 'QUOTATION'
-                          ? 'ใบเสนอราคา'
-                          : 'ใบเสร็จ'}
-                      </td>
-                      <td className="py-3 text-slate-800 font-bold truncate max-w-[120px]">
-                        {doc.customerName}
-                      </td>
-                      <td className="py-3 text-slate-400 font-medium whitespace-nowrap">
-                        {doc.date}
-                      </td>
-                      <td className="py-3 font-extrabold text-[#0D2B52] text-right whitespace-nowrap">
-                        ฿{doc.grandTotal.toLocaleString()}
-                      </td>
-                      <td className="py-3 text-center whitespace-nowrap">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[11px] font-black inline-block ${
-                            isPaid
-                              ? 'bg-[#DCFCE7] text-[#15803D]'
-                              : 'bg-[#FEF3C7] text-[#D97706]'
-                          }`}
-                        >
-                          {isPaid ? 'ชำระแล้ว' : 'รอดำเนินการ'}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          {recentDocuments.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 text-slate-400 font-bold">
+                    <th className="pb-3 font-bold">เลขที่เอกสาร</th>
+                    <th className="pb-3 font-bold">ประเภท</th>
+                    <th className="pb-3 font-bold">ลูกค้า</th>
+                    <th className="pb-3 font-bold">วันที่</th>
+                    <th className="pb-3 font-bold text-right">ยอดเงิน</th>
+                    <th className="pb-3 font-bold text-center">สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {recentDocuments.map((doc) => {
+                    const isPaid = doc.status === 'PAID';
+                    return (
+                      <tr
+                        key={doc.id}
+                        onClick={() => onOpenDocDetail(doc)}
+                        className="hover:bg-slate-50 cursor-pointer transition-colors"
+                      >
+                        <td className="py-3 font-extrabold text-[#2563EB]">
+                          {doc.docNumber}
+                        </td>
+                        <td className="py-3 text-slate-600 font-medium">
+                          {doc.type === 'INVOICE'
+                            ? 'ใบแจ้งหนี้'
+                            : doc.type === 'QUOTATION'
+                            ? 'ใบเสนอราคา'
+                            : 'ใบเสร็จ'}
+                        </td>
+                        <td className="py-3 text-slate-800 font-bold truncate max-w-[120px]">
+                          {doc.customerName}
+                        </td>
+                        <td className="py-3 text-slate-400 font-medium whitespace-nowrap">
+                          {doc.date}
+                        </td>
+                        <td className="py-3 font-extrabold text-[#0D2B52] text-right whitespace-nowrap">
+                          ฿{doc.grandTotal.toLocaleString()}
+                        </td>
+                        <td className="py-3 text-center whitespace-nowrap">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-black inline-block ${
+                              isPaid
+                                ? 'bg-[#DCFCE7] text-[#15803D]'
+                                : 'bg-[#FEF3C7] text-[#D97706]'
+                            }`}
+                          >
+                            {isPaid ? 'ชำระแล้ว' : 'รอดำเนินการ'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="py-12 text-center text-slate-400 text-xs font-medium">
+              ยังไม่มีเอกสารขายในระบบ
+            </div>
+          )}
         </div>
 
         {/* Right Column: รายการใกล้ดำเนินการ */}
         <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm sm:text-base font-extrabold text-[#0D2B52]">
-              รายการใกล้ดำเนินการ
+              รายการใกล้ดำเนินการ ({pendingActions.length})
             </h3>
             <button
               onClick={onGoToDocuments}
@@ -540,41 +514,42 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </button>
           </div>
 
-          <div className="space-y-3">
-            {pendingActions.map((item) => (
-              <div
-                key={item.id}
-                className="p-3.5 bg-[#F8FAFC] hover:bg-slate-100 border border-[#E2E8F0] rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center shrink-0 shadow-2xs font-black">
-                    <DollarSign className="w-5 h-5 text-white" />
+          {pendingActions.length > 0 ? (
+            <div className="space-y-3">
+              {pendingActions.map((doc) => (
+                <div
+                  key={doc.id}
+                  onClick={() => onOpenDocDetail(doc)}
+                  className="p-3.5 bg-[#F8FAFC] hover:bg-slate-100 border border-[#E2E8F0] rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center shrink-0 shadow-2xs font-black">
+                      <DollarSign className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <span className="text-xs sm:text-sm font-extrabold text-[#2563EB] hover:underline block">
+                        {doc.type === 'QUOTATION' ? 'ใบเสนอราคา' : 'ใบแจ้งหนี้'} {doc.docNumber}
+                      </span>
+                      <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
+                        ลูกค้า: {doc.customerName} (฿{doc.grandTotal.toLocaleString()})
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-xs sm:text-sm font-extrabold text-[#2563EB] hover:underline block">
-                      {item.title}
-                    </span>
-                    <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
-                      ลูกค้า: {item.customer}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="text-right shrink-0">
-                  <div className="text-xs font-medium text-slate-400 mb-1">{item.date}</div>
-                  <span
-                    className={`px-2.5 py-0.5 rounded-md text-[11px] font-black inline-block ${
-                      item.statusType === 'danger'
-                        ? 'bg-[#FEE2E2] text-[#DC2626]'
-                        : 'bg-[#FEF3C7] text-[#D97706]'
-                    }`}
-                  >
-                    {item.status}
-                  </span>
+                  <div className="text-right shrink-0">
+                    <div className="text-xs font-medium text-slate-400 mb-1">{doc.date}</div>
+                    <span className="px-2.5 py-0.5 rounded-md text-[11px] font-black inline-block bg-[#FEF3C7] text-[#D97706]">
+                      รอดำเนินการ
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-12 text-center text-slate-400 text-xs font-medium">
+              ไม่มีเอกสารค้างดำเนินการในขณะนี้ ✨
+            </div>
+          )}
         </div>
       </div>
     </div>
