@@ -1,0 +1,6 @@
+{
+  "name": "SellersApp - ระบบขายสินค้าและใบเสร็จ",
+  "description": "ระบบจัดการการขายสินค้าออนไลน์ ออกใบเสนอราคา ใบแจ้งหนี้ ใบเสร็จ คลังสินค้า รายรับ-รายจ่าย สำรองข้อมูล และแจ้งเตือน LINE",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
