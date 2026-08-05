@@ -11,6 +11,7 @@ import {
   Receipt,
   FilePlus,
   CheckCircle,
+  Edit3,
 } from 'lucide-react';
 import { DocumentStatus, DocumentType, SalesDocument } from '../types';
 
@@ -21,6 +22,7 @@ interface DocumentsViewProps {
   onDeleteDoc: (docId: string) => void;
   onShowPromptPayQR: (amount: number, docNum: string) => void;
   onSendLineNotify: (message: string) => void;
+  onEditDoc?: (doc: SalesDocument) => void;
 }
 
 export const DocumentsView: React.FC<DocumentsViewProps> = ({
@@ -30,6 +32,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
   onDeleteDoc,
   onShowPromptPayQR,
   onSendLineNotify,
+  onEditDoc,
 }) => {
   const [typeFilter, setTypeFilter] = useState<'ALL' | DocumentType>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | DocumentStatus>('ALL');
@@ -225,6 +228,17 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                       <Eye className="w-3.5 h-3.5" />
                       <span>ดู/พิมพ์ 🖨️</span>
                     </button>
+
+                    {onEditDoc && (
+                      <button
+                        onClick={() => onEditDoc(doc)}
+                        className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold border border-amber-200 flex items-center gap-1 transition-all"
+                        title="แก้ไขเอกสาร"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>แก้ไข</span>
+                      </button>
+                    )}
 
                     <button
                       onClick={() => onShowPromptPayQR(doc.grandTotal, doc.docNumber)}

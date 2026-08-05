@@ -11,6 +11,7 @@ import {
   Upload,
   ArrowRight,
   Share2,
+  Edit3,
 } from 'lucide-react';
 import { SalesDocument, SellerProfile } from '../types';
 import { generatePromptPayQRDataUrl } from '../utils/promptpay';
@@ -25,6 +26,7 @@ interface DocumentDetailViewProps {
   onUpdateStatus: (docId: string, newStatus: any, paymentSlipUrl?: string) => void;
   onConvertDoc: (doc: SalesDocument, targetType: 'INVOICE' | 'RECEIPT') => void;
   onSendLineNotify: (message: string) => void;
+  onEditDoc?: (doc: SalesDocument) => void;
 }
 
 export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
@@ -35,6 +37,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   onUpdateStatus,
   onConvertDoc,
   onSendLineNotify,
+  onEditDoc,
 }) => {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
@@ -45,19 +48,19 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   const [isSendingOa, setIsSendingOa] = useState(false);
 
   useEffect(() => {
-    if (seller.promptPayNumber) {
+    if (doc.type !== 'RECEIPT' && seller.promptPayNumber) {
       generatePromptPayQRDataUrl(seller.promptPayNumber, doc.grandTotal)
         .then((url) => setQrCodeDataUrl(url))
         .catch((err) => console.error(err));
     }
-  }, [seller.promptPayNumber, doc.grandTotal]);
+  }, [seller.promptPayNumber, doc.grandTotal, doc.type]);
 
   const docTitle =
     doc.type === 'QUOTATION'
-      ? 'ใบเสนอราคา (Quotation)'
+      ? 'ใบเสนอราคา'
       : doc.type === 'INVOICE'
-      ? 'ใบแจ้งหนี้ / ใบวางบิล (Invoice)'
-      : 'ใบเสร็จรับเงิน / ใบกำกับภาษีอย่างย่อ (Receipt)';
+      ? 'ใบแจ้งหนี้'
+      : 'ใบเสร็จรับเงิน';
 
   const handleDownloadPdf = async () => {
     setIsExporting(true);
@@ -155,6 +158,17 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            {onEditDoc && (
+              <button
+                onClick={() => onEditDoc(doc)}
+                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-lg flex items-center gap-1.5 shadow transition-all active:scale-95"
+                title="แก้ไขข้อมูลใบเสร็จ/เอกสาร"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>{doc.type === 'RECEIPT' ? 'แก้ไขใบเสร็จ' : 'แก้ไขเอกสาร'}</span>
+              </button>
+            )}
+
             <button
               onClick={handleCopyLineText}
               className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 flex items-center gap-1.5"
@@ -237,13 +251,24 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                 </div>
               </div>
 
+              {/* Document Header Info Box with Prominent Date at Top */}
               <div className="text-right sm:text-right w-full sm:w-auto">
-                <span className="inline-block px-3 py-1 rounded-md bg-slate-900 text-white font-extrabold text-xs uppercase tracking-wider mb-1">
-                  {docTitle}
-                </span>
-                <p className="text-sm font-bold text-slate-800 mt-1">{doc.docNumber}</p>
-                <p className="text-xs text-slate-500">วันที่: {doc.date}</p>
-                <p className="text-xs text-slate-500">กำหนดชำระ: {doc.dueDate}</p>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-right space-y-1.5 shadow-xs min-w-[210px] inline-block">
+                  <span className="inline-block px-3 py-1 rounded-md bg-slate-900 text-white font-extrabold text-xs uppercase tracking-wider">
+                    {docTitle}
+                  </span>
+                  <p className="text-sm font-extrabold text-slate-800">{doc.docNumber}</p>
+                  
+                  {/* Date Box Brought to Top Header */}
+                  <div className="bg-amber-50 border border-amber-200/80 rounded-lg p-2 text-center text-xs">
+                    <span className="text-[10px] font-bold text-amber-800 uppercase block">วันที่ออกเอกสาร</span>
+                    <span className="font-extrabold text-amber-950 text-xs">{doc.date}</span>
+                  </div>
+
+                  {doc.type !== 'RECEIPT' && doc.dueDate && (
+                    <p className="text-[11px] text-slate-500 pt-0.5">กำหนดชำระ: {doc.dueDate}</p>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -300,12 +325,12 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                     <tr key={idx} className="hover:bg-slate-50">
                       <td className="py-3 px-3 text-slate-400 font-medium">{idx + 1}</td>
                       <td className="py-3 px-3 font-semibold text-slate-800">
-                        {item.productName}
-                        {item.sku && (
-                          <span className="block text-[10px] text-slate-400 font-normal">
-                            รหัส: {item.sku}
-                          </span>
-                        )}
+                        <div>{item.productName}</div>
+                        {item.description ? (
+                          <div className="text-[11px] text-slate-500 font-normal mt-0.5 leading-snug">
+                            {item.description}
+                          </div>
+                        ) : null}
                       </td>
                       <td className="py-3 px-3 text-center font-bold text-slate-700">
                         {item.quantity}
@@ -324,9 +349,9 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
 
             {/* Summary & PromptPay Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-200">
-              {/* Payment Info & PromptPay QR */}
+              {/* Payment Info & PromptPay QR (Hidden for Receipts as payment is already complete) */}
               <div className="space-y-3">
-                {seller.promptPayNumber && (
+                {doc.type !== 'RECEIPT' && seller.promptPayNumber && (
                   <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-4">
                     {qrCodeDataUrl ? (
                       <img
@@ -353,6 +378,18 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                           {seller.bankName} ({seller.bankAccountNo})
                         </p>
                       )}
+                    </div>
+                  </div>
+                )}
+
+                {doc.type === 'RECEIPT' && (
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3">
+                    <CheckCircle className="w-6 h-6 text-emerald-600 shrink-0" />
+                    <div className="text-xs text-emerald-900">
+                      <p className="font-bold">ได้รับเงินชำระเรียบร้อยแล้ว</p>
+                      <p className="text-[11px] text-emerald-700">
+                        เอกสารนี้ออกเพื่อยืนยันการรับชำระเงินเรียบร้อยแล้ว
+                      </p>
                     </div>
                   </div>
                 )}

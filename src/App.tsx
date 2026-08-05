@@ -54,6 +54,7 @@ export default function App() {
   // Modal States
   const [isCreateDocOpen, setIsCreateDocOpen] = useState(false);
   const [createDocType, setCreateDocType] = useState<DocumentType>('QUOTATION');
+  const [editingDoc, setEditingDoc] = useState<SalesDocument | null>(null);
 
   const [selectedDoc, setSelectedDoc] = useState<SalesDocument | null>(null);
 
@@ -140,27 +141,46 @@ export default function App() {
   };
 
   const handleCreateDocument = (type: DocumentType) => {
+    setEditingDoc(null);
     setCreateDocType(type);
     setIsCreateDocOpen(true);
   };
 
-  const handleSaveDocument = (doc: SalesDocument) => {
-    const updated = [doc, ...documents];
+  const handleEditDocument = (doc: SalesDocument) => {
+    setEditingDoc(doc);
+    setCreateDocType(doc.type);
+    setIsCreateDocOpen(true);
+  };
+
+  const handleSaveDocument = (savedDoc: SalesDocument) => {
+    const existingIndex = documents.findIndex((d) => d.id === savedDoc.id);
+    let updated: SalesDocument[];
+    if (existingIndex >= 0) {
+      updated = [...documents];
+      updated[existingIndex] = savedDoc;
+    } else {
+      updated = [savedDoc, ...documents];
+    }
     setDocuments(updated);
     saveDocuments(updated);
     setIsCreateDocOpen(false);
+    setEditingDoc(null);
+
+    if (selectedDoc && selectedDoc.id === savedDoc.id) {
+      setSelectedDoc(savedDoc);
+    }
 
     // Update product stock if document status is SENT or PAID or APPROVED
-    if (doc.status === 'PAID' || doc.status === 'SENT' || doc.status === 'APPROVED') {
-      updateStockForDocument(doc);
+    if (savedDoc.status === 'PAID' || savedDoc.status === 'SENT' || savedDoc.status === 'APPROVED') {
+      updateStockForDocument(savedDoc);
       setProducts(getProducts());
     }
 
     // Trigger LINE Notify if token present
-    if (seller.lineNotifyToken) {
+    if (seller.lineNotifyToken && existingIndex < 0) {
       sendLineNotification(
         seller.lineNotifyToken,
-        `📄 มีการออกเอกสารใหม่ (${doc.docNumber})\nประเภท: ${doc.type}\nลูกค้า: ${doc.customerName}\nยอดรวม: ฿${doc.grandTotal.toLocaleString()}`
+        `📄 มีการออกเอกสารใหม่ (${savedDoc.docNumber})\nประเภท: ${savedDoc.type}\nลูกค้า: ${savedDoc.customerName}\nยอดรวม: ฿${savedDoc.grandTotal.toLocaleString()}`
       );
     }
 
@@ -423,6 +443,7 @@ export default function App() {
               setPromptPayModalData({ amount, docNumber })
             }
             onSendLineNotify={handleSendLineNotify}
+            onEditDoc={handleEditDocument}
           />
         )}
 
@@ -469,10 +490,14 @@ export default function App() {
       {isCreateDocOpen && (
         <DocumentCreateModal
           initialType={createDocType}
+          editingDoc={editingDoc}
           products={products}
           customers={customers}
           seller={seller}
-          onClose={() => setIsCreateDocOpen(false)}
+          onClose={() => {
+            setIsCreateDocOpen(false);
+            setEditingDoc(null);
+          }}
           onSave={handleSaveDocument}
           onAddCustomer={handleSaveCustomer}
         />
@@ -488,6 +513,7 @@ export default function App() {
           onUpdateStatus={handleUpdateDocStatus}
           onConvertDoc={handleConvertDoc}
           onSendLineNotify={handleSendLineNotify}
+          onEditDoc={handleEditDocument}
         />
       )}
 

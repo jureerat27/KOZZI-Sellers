@@ -54,6 +54,7 @@ export interface DocumentItem {
   productId: string;
   productName: string;
   sku: string;
+  description?: string;
   price: number;
   costPrice: number;
   quantity: number;

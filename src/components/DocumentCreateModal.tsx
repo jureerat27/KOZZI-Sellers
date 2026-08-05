@@ -23,6 +23,7 @@ import { generateDocNumber } from '../utils/storage';
 
 interface DocumentCreateModalProps {
   initialType: DocumentType;
+  editingDoc?: SalesDocument | null;
   products: Product[];
   customers: Customer[];
   seller: SellerProfile;
@@ -33,6 +34,7 @@ interface DocumentCreateModalProps {
 
 export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
   initialType,
+  editingDoc,
   products,
   customers,
   seller,
@@ -40,35 +42,39 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
   onSave,
   onAddCustomer,
 }) => {
-  const [docType, setDocType] = useState<DocumentType>(initialType);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
-  const [customerName, setCustomerName] = useState<string>('');
-  const [customerPhone, setCustomerPhone] = useState<string>('');
-  const [customerAddress, setCustomerAddress] = useState<string>('');
-  const [customerTaxId, setCustomerTaxId] = useState<string>('');
+  const [docType, setDocType] = useState<DocumentType>(editingDoc ? editingDoc.type : initialType);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>(editingDoc ? editingDoc.customerId : '');
+  const [customerName, setCustomerName] = useState<string>(editingDoc ? editingDoc.customerName : '');
+  const [customerPhone, setCustomerPhone] = useState<string>(editingDoc ? editingDoc.customerPhone : '');
+  const [customerAddress, setCustomerAddress] = useState<string>(editingDoc ? editingDoc.customerAddress : '');
+  const [customerTaxId, setCustomerTaxId] = useState<string>(editingDoc ? editingDoc.customerTaxId || '' : '');
 
   const [docDate, setDocDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
+    editingDoc ? editingDoc.date : new Date().toISOString().split('T')[0]
   );
   const [dueDate, setDueDate] = useState<string>(
-    new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]
+    editingDoc ? editingDoc.dueDate : new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]
   );
 
-  const [items, setItems] = useState<DocumentItem[]>([]);
-  const [shippingFee, setShippingFee] = useState<number>(0);
-  const [discountAmount, setDiscountAmount] = useState<number>(0);
-  const [vatRate, setVatRate] = useState<number>(0); // 0 or 7
+  const [items, setItems] = useState<DocumentItem[]>(editingDoc ? editingDoc.items : []);
+  const [shippingFee, setShippingFee] = useState<number>(editingDoc ? editingDoc.shippingFee : 0);
+  const [discountAmount, setDiscountAmount] = useState<number>(editingDoc ? editingDoc.discountAmount : 0);
+  const [vatRate, setVatRate] = useState<number>(editingDoc ? editingDoc.vatRate : 0); // 0 or 7
   const [notes, setNotes] = useState<string>(
-    docType === 'QUOTATION'
-      ? 'ใบเสนอราคามีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร'
-      : docType === 'INVOICE'
-      ? 'ชำระเงินตามวันกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านธนาคาร'
-      : 'ได้รับเงินถูกต้องเรียบร้อยแล้ว ขอบคุณที่อุดหนุนครับ'
+    editingDoc ? (editingDoc.notes || '') : (
+      docType === 'QUOTATION'
+        ? 'ใบเสนอราคามีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร'
+        : docType === 'INVOICE'
+        ? 'ชำระเงินตามวันกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านธนาคาร'
+        : 'ได้รับเงินถูกต้องเรียบร้อยแล้ว ขอบคุณที่อุดหนุนครับ'
+    )
   );
   const [status, setStatus] = useState<DocumentStatus>(
-    docType === 'RECEIPT' ? 'PAID' : 'SENT'
+    editingDoc ? editingDoc.status : (docType === 'RECEIPT' ? 'PAID' : 'SENT')
   );
-  const [paymentMethod, setPaymentMethod] = useState<string>('PromptPay QR');
+  const [paymentMethod, setPaymentMethod] = useState<string>(
+    editingDoc ? (editingDoc.paymentMethod || 'PromptPay QR') : 'PromptPay QR'
+  );
 
   // New Quick Customer Inline Modal
   const [showQuickCustomer, setShowQuickCustomer] = useState(false);
@@ -103,6 +109,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
           productId: product.id,
           productName: product.name,
           sku: product.sku,
+          description: product.description || '',
           price: product.price,
           costPrice: product.costPrice,
           quantity: 1,
@@ -115,15 +122,16 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
   const handleUpdateItem = (
     index: number,
-    field: 'quantity' | 'price' | 'discount',
-    val: number
+    field: 'quantity' | 'price' | 'discount' | 'description',
+    val: number | string
   ) => {
     const updated = [...items];
     const item = { ...updated[index] };
 
-    if (field === 'quantity') item.quantity = Math.max(1, val);
-    if (field === 'price') item.price = Math.max(0, val);
-    if (field === 'discount') item.discount = Math.max(0, val);
+    if (field === 'quantity') item.quantity = Math.max(1, typeof val === 'number' ? val : 1);
+    if (field === 'price') item.price = Math.max(0, typeof val === 'number' ? val : 0);
+    if (field === 'discount') item.discount = Math.max(0, typeof val === 'number' ? val : 0);
+    if (field === 'description') item.description = String(val);
 
     item.total = (item.price - item.discount) * item.quantity;
     updated[index] = item;
@@ -169,9 +177,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
       return;
     }
 
-    const docNum = generateDocNumber(docType);
-    const newDoc: SalesDocument = {
-      id: `doc-${Date.now()}`,
+    const docNum = editingDoc ? editingDoc.docNumber : generateDocNumber(docType);
+    const savedDoc: SalesDocument = {
+      id: editingDoc ? editingDoc.id : `doc-${Date.now()}`,
       docNumber: docNum,
       type: docType,
       date: docDate,
@@ -190,12 +198,14 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
       grandTotal,
       status,
       paymentMethod,
+      paymentSlipUrl: editingDoc?.paymentSlipUrl,
+      paymentDate: editingDoc?.paymentDate,
       notes,
-      createdAt: new Date().toISOString(),
+      createdAt: editingDoc ? editingDoc.createdAt : new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    onSave(newDoc);
+    onSave(savedDoc);
   };
 
   return (
@@ -209,10 +219,10 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
             </div>
             <div>
               <h2 className="font-bold text-base text-slate-100">
-                สร้างเอกสารการขายใหม่ (ในนามบุคคล)
+                {editingDoc ? `แก้ไขเอกสาร (${editingDoc.docNumber})` : 'สร้างเอกสารการขายใหม่ (ในนามบุคคล)'}
               </h2>
               <p className="text-xs text-slate-400">
-                ออกเอกสารโดย: {seller.name}
+                ผู้ออกเอกสาร: {seller.name}
               </p>
             </div>
           </div>
@@ -438,9 +448,17 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                     key={idx}
                     className="p-3 bg-slate-900 border border-slate-700/80 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
                   >
-                    <div className="flex-1">
+                    <div className="flex-1 space-y-1 w-full sm:w-auto">
                       <p className="font-bold text-slate-100">{item.productName}</p>
-                      <span className="text-[10px] text-slate-400">SKU: {item.sku}</span>
+                      <input
+                        type="text"
+                        placeholder="รายละเอียดสินค้า (แสดงแทนรหัสสินค้า)"
+                        value={item.description || ''}
+                        onChange={(e) =>
+                          handleUpdateItem(idx, 'description', e.target.value)
+                        }
+                        className="w-full bg-slate-800 border border-slate-700/80 rounded px-2 py-1 text-[11px] text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                      />
                     </div>
 
                     <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
