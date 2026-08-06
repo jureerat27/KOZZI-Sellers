@@ -421,10 +421,10 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                         {item.quantity}
                       </td>
                       <td className="py-3 px-3 text-right text-slate-600">
-                        ฿{formatCurrency(item.price)}
+                        {formatCurrency(item.price)}
                       </td>
                       <td className="py-3 px-3 text-right font-bold text-slate-900">
-                        ฿{formatCurrency(item.total)}
+                        {formatCurrency(item.total)}
                       </td>
                     </tr>
                   ))}
@@ -519,7 +519,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                             ยอดเงินที่ชำระ
                           </span>
                           <span className="font-extrabold text-emerald-700 text-xs">
-                            ฿{formatCurrency(pay.amount)} บาท
+                            {formatCurrency(pay.amount)} บาท
                           </span>
                         </div>
                       </div>
@@ -532,34 +532,34 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               <div className="space-y-2 text-xs text-slate-600">
                 <div className="flex justify-between py-1 border-b border-slate-100">
                   <span className="font-medium text-slate-700">รวมเป็นเงินทั้งสิ้น:</span>
-                  <span className="font-bold text-slate-900">฿{formatCurrency(doc.subtotal)}</span>
+                  <span className="font-bold text-slate-900">{formatCurrency(doc.subtotal)}</span>
                 </div>
 
                 <div className="flex justify-between py-1 border-b border-slate-100 text-slate-700">
                   <span className="font-medium">หัก ส่วนลดพิเศษ:</span>
                   <span className="font-bold text-rose-600">
-                    {doc.discountAmount > 0 ? `-฿${formatCurrency(doc.discountAmount)}` : '฿0.00'}
+                    {doc.discountAmount > 0 ? `-${formatCurrency(doc.discountAmount)}` : '0.00'}
                   </span>
                 </div>
 
                 <div className="flex justify-between py-1 border-b border-slate-100 text-slate-700">
                   <span className="font-medium">บวก ค่าจัดส่ง:</span>
                   <span className="font-bold text-slate-900">
-                    {doc.shippingFee > 0 ? `฿${formatCurrency(doc.shippingFee)}` : '฿0.00'}
+                    {doc.shippingFee > 0 ? `${formatCurrency(doc.shippingFee)}` : '0.00'}
                   </span>
                 </div>
 
                 {doc.vatAmount > 0 && (
                   <div className="flex justify-between py-1 border-b border-slate-100 text-slate-700">
                     <span className="font-medium">ภาษีมูลค่าเพิ่ม VAT 7%:</span>
-                    <span className="font-bold text-slate-900">฿{formatCurrency(doc.vatAmount)}</span>
+                    <span className="font-bold text-slate-900">{formatCurrency(doc.vatAmount)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between py-2 border-t-2 border-slate-900 text-sm font-black text-slate-900 bg-slate-100 px-3 rounded-lg mt-2">
                   <span>จำนวนเงินสุทธิทั้งสิ้น:</span>
                   <span className="text-emerald-700 text-base font-black">
-                    ฿{formatCurrency(doc.grandTotal)}
+                    {formatCurrency(doc.grandTotal)}
                   </span>
                 </div>
               </div>
@@ -856,7 +856,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                 <div className="text-slate-400 font-bold">รายละเอียดเอกสารที่จะส่ง:</div>
                 <div className="font-bold text-white text-sm">{doc.docNumber} ({docTitle})</div>
                 <div className="text-slate-300">ลูกค้า: <strong className="text-emerald-400">{doc.customerName}</strong></div>
-                <div className="text-emerald-400 font-bold">ยอดสุทธิ: ฿{formatCurrency(doc.grandTotal)} บาท</div>
+                <div className="text-emerald-400 font-bold">ยอดสุทธิ: {formatCurrency(doc.grandTotal)} บาท</div>
               </div>
 
               <div>

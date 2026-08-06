@@ -20,6 +20,7 @@ import {
   SellerProfile,
 } from '../types';
 import { generateDocNumber } from '../utils/storage';
+import { formatCurrency } from '../utils/format';
 
 interface DocumentCreateModalProps {
   initialType: DocumentType;
@@ -493,7 +494,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
                       <div className="text-right min-w-[70px]">
                         <span className="font-extrabold text-emerald-400 text-sm">
-                          ฿{item.total.toLocaleString()}
+                          {formatCurrency(item.total)}
                         </span>
                       </div>
 
@@ -556,14 +557,14 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
             <div className="pt-3 border-t border-slate-700/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <div className="text-xs text-slate-400 space-y-1">
-                <p>รวมราคาตั้งต้น: ฿{subtotal.toLocaleString()}</p>
-                {vatAmount > 0 && <p>ภาษี VAT 7%: ฿{vatAmount.toLocaleString()}</p>}
+                <p>รวมราคาตั้งต้น: {formatCurrency(subtotal)}</p>
+                {vatAmount > 0 && <p>ภาษี VAT 7%: {formatCurrency(vatAmount)}</p>}
               </div>
 
               <div className="text-right">
                 <span className="text-xs text-slate-400 block">ยอดรวมสุทธิทั้งสิ้น</span>
                 <span className="text-2xl font-black text-emerald-400">
-                  ฿{grandTotal.toLocaleString()}
+                  {formatCurrency(grandTotal)}
                 </span>
               </div>
             </div>
