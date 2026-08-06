@@ -12,6 +12,9 @@ import {
   ArrowRight,
   Share2,
   Edit3,
+  CreditCard,
+  Building2,
+  Banknote,
 } from 'lucide-react';
 import { SalesDocument, SellerProfile } from '../types';
 import { generatePromptPayQRDataUrl } from '../utils/promptpay';
@@ -46,6 +49,12 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   const [showLineOaModal, setShowLineOaModal] = useState(false);
   const [lineUserIdInput, setLineUserIdInput] = useState('');
   const [isSendingOa, setIsSendingOa] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'BANK_TRANSFER' | 'CASH'>(
+    doc.paymentMethod === 'CASH' || doc.paymentMethod === 'เงินสด' ? 'CASH' : 'BANK_TRANSFER'
+  );
+  const [selectedPaymentDate, setSelectedPaymentDate] = useState<string>(
+    doc.paymentDate || doc.date || new Date().toISOString().split('T')[0]
+  );
 
   useEffect(() => {
     if (doc.type !== 'RECEIPT' && seller.promptPayNumber) {
@@ -229,13 +238,15 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
           >
             {/* Header: Seller Info & Document Title */}
             <div className="flex flex-col sm:flex-row print:flex-row justify-between items-start gap-4 border-b border-slate-200 pb-6">
-              <div className="flex items-start gap-3.5 max-w-md">
+              <div className="space-y-2 max-w-md">
                 {seller.logoUrl && (
-                  <img
-                    src={seller.logoUrl}
-                    alt="Store Logo"
-                    className="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0 p-0.5"
-                  />
+                  <div className="mb-1">
+                    <img
+                      src={seller.logoUrl}
+                      alt="Store Logo"
+                      className="max-h-16 w-auto max-w-[220px] object-contain rounded-lg shrink-0"
+                    />
+                  </div>
                 )}
                 <div className="space-y-1">
                   <h1 className="text-xl font-bold text-slate-900 leading-tight">
@@ -278,39 +289,89 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               </div>
             </div>
 
-            {/* Customer Details Box */}
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col sm:flex-row print:flex-row justify-between gap-4">
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            {/* Customer Details & Payment Status Box (2 Columns in 1 Box) */}
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4 divide-y sm:divide-y-0 print:divide-y-0 sm:divide-x print:divide-x divide-slate-200">
+              {/* Left Column: Customer Information */}
+              <div className="space-y-1 pr-0 sm:pr-4 print:pr-4">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                   ลูกค้า / ผู้สั่งซื้อ
                 </span>
                 <h3 className="font-bold text-sm text-slate-900">{doc.customerName}</h3>
-                <p className="text-xs text-slate-600">{doc.customerAddress}</p>
+                <p className="text-xs text-slate-600 leading-relaxed">{doc.customerAddress}</p>
                 <p className="text-xs text-slate-600">
                   โทร: {doc.customerPhone}{' '}
                   {doc.customerTaxId ? `• เลขผู้เสียภาษี: ${doc.customerTaxId}` : ''}
                 </p>
               </div>
 
-              <div className="text-right flex flex-col justify-between sm:items-end print:items-end">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  สถานะเอกสาร
+              {/* Right Column: Payment Status */}
+              <div className="pt-3 sm:pt-0 print:pt-0 pl-0 sm:pl-4 print:pl-4 flex flex-col justify-between items-start sm:items-end print:items-end text-left sm:text-right print:text-right">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  สถานะการชำระเงิน
                 </span>
-                <span
-                  className={`text-xs font-bold px-3 py-1 rounded-full border inline-block mt-1 ${
-                    doc.status === 'PAID'
-                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                      : doc.status === 'SENT' || doc.status === 'APPROVED'
-                      ? 'bg-blue-100 text-blue-800 border-blue-300'
-                      : 'bg-slate-200 text-slate-800 border-slate-300'
-                  }`}
-                >
-                  {doc.status === 'PAID'
-                    ? '✓ ชำระเงินเรียบร้อยแล้ว'
-                    : doc.status === 'SENT'
-                    ? 'รอชำระเงิน'
-                    : doc.status}
+                <div className="mt-1">
+                  <span
+                    className={`text-xs font-bold px-3 py-1.5 rounded-full border inline-flex items-center gap-1 ${
+                      doc.status === 'PAID'
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                        : doc.status === 'SENT' || doc.status === 'APPROVED'
+                        ? 'bg-blue-100 text-blue-800 border-blue-300'
+                        : 'bg-slate-200 text-slate-800 border-slate-300'
+                    }`}
+                  >
+                    {doc.status === 'PAID'
+                      ? '✓ ชำระเงินเรียบร้อยแล้ว'
+                      : doc.status === 'SENT'
+                      ? 'รอชำระเงิน'
+                      : doc.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Information Box (ข้อมูลการชำระเงิน: ช่องทางชำระ, วันที่โอนเงิน, ยอดเงิน) */}
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <CreditCard className="w-4 h-4 text-emerald-600" />
+                  ข้อมูลการชำระเงิน
                 </span>
+                {doc.status === 'PAID' && (
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md">
+                    ✓ ชำระเงินเรียบร้อยแล้ว
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-3 text-xs pt-1">
+                <div>
+                  <span className="text-[10px] font-semibold text-slate-400 block uppercase">
+                    ช่องทางการชำระเงิน
+                  </span>
+                  <span className="font-bold text-slate-800">
+                    {selectedPaymentMethod === 'CASH'
+                      ? '💵 เงินสด (Cash)'
+                      : '🏦 โอนเข้าธนาคาร (Bank Transfer)'}
+                  </span>
+                  {selectedPaymentMethod === 'BANK_TRANSFER' && seller.bankName && (
+                    <span className="block text-[11px] text-slate-500 mt-0.5">
+                      {seller.bankName} {seller.bankAccountNo ? `(${seller.bankAccountNo})` : ''}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <span className="text-[10px] font-semibold text-slate-400 block uppercase">
+                    วันที่โอน / ชำระเงิน
+                  </span>
+                  <span className="font-bold text-slate-800">{selectedPaymentDate}</span>
+                </div>
+                <div className="text-left sm:text-right print:text-right">
+                  <span className="text-[10px] font-semibold text-slate-400 block uppercase">
+                    ยอดเงินที่ชำระ
+                  </span>
+                  <span className="font-extrabold text-emerald-700 text-sm">
+                    ฿{doc.grandTotal.toLocaleString()} บาท
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -463,8 +524,55 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
           <div className="max-w-3xl mx-auto mt-6 bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4 no-print">
             <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
               <FileCheck className="w-4 h-4 text-emerald-400" />
-              <span>การเปลี่ยนสถานะและการสลิปชำระเงิน</span>
+              <span>การตั้งค่าข้อมูลการชำระเงินและสลิป</span>
             </h4>
+
+            {/* Interactive Payment Method & Date Controls */}
+            <div className="bg-slate-950/80 p-3 rounded-lg border border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+                  เลือกช่องทางการชำระเงิน
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPaymentMethod('BANK_TRANSFER')}
+                    className={`flex-1 py-1.5 px-3 rounded-lg font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                      selectedPaymentMethod === 'BANK_TRANSFER'
+                        ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
+                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                    }`}
+                  >
+                    <Building2 className="w-3.5 h-3.5" />
+                    <span>โอนเข้าธนาคาร</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPaymentMethod('CASH')}
+                    className={`flex-1 py-1.5 px-3 rounded-lg font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                      selectedPaymentMethod === 'CASH'
+                        ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
+                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                    }`}
+                  >
+                    <Banknote className="w-3.5 h-3.5" />
+                    <span>เงินสด</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+                  วันที่โอน / ชำระเงิน
+                </label>
+                <input
+                  type="date"
+                  value={selectedPaymentDate}
+                  onChange={(e) => setSelectedPaymentDate(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-lg px-3 py-1.5 focus:outline-none focus:border-emerald-500 font-sans"
+                />
+              </div>
+            </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               {/* Slip uploader */}
