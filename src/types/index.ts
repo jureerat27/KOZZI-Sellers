@@ -18,6 +18,7 @@ export interface SellerProfile {
   lineOaBasicId?: string;
   logoUrl: string;
   signatureUrl: string;
+  defaultDocumentNotes?: string;
   googleSheetId?: string;
   autoSync: boolean;
 }

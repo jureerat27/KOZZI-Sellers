@@ -514,6 +514,7 @@ export default function App() {
           onConvertDoc={handleConvertDoc}
           onSendLineNotify={handleSendLineNotify}
           onEditDoc={handleEditDocument}
+          onSaveDocument={handleSaveDocument}
         />
       )}
 

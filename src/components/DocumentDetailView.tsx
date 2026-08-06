@@ -30,6 +30,7 @@ interface DocumentDetailViewProps {
   onConvertDoc: (doc: SalesDocument, targetType: 'INVOICE' | 'RECEIPT') => void;
   onSendLineNotify: (message: string) => void;
   onEditDoc?: (doc: SalesDocument) => void;
+  onSaveDocument?: (updatedDoc: SalesDocument) => void;
 }
 
 export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
@@ -41,6 +42,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   onConvertDoc,
   onSendLineNotify,
   onEditDoc,
+  onSaveDocument,
 }) => {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
@@ -67,7 +69,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
     },
   ]);
   const [customNotes, setCustomNotes] = useState<string>(
-    doc.notes || 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้ใจเลือกใช้ราวตากผ้าของเรา'
+    doc.notes || seller.defaultDocumentNotes || 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา'
   );
 
   useEffect(() => {
@@ -168,6 +170,32 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
     }
   };
 
+  const handleSaveDocumentEdits = () => {
+    const firstPayment = paymentRecords[0];
+    const mainPaymentMethod =
+      paymentRecords.length > 1
+        ? `โอนเงินหลายช่องทาง (${paymentRecords.map((r) => `${r.method === 'CASH' ? 'เงินสด' : 'โอน'}: ฿${r.amount}`).join(', ')})`
+        : firstPayment.method === 'CASH'
+        ? 'เงินสด'
+        : 'โอนเงินผ่านธนาคาร / พร้อมเพย์';
+
+    const updatedDoc: SalesDocument = {
+      ...doc,
+      notes: customNotes,
+      paymentMethod: mainPaymentMethod,
+      paymentDate: firstPayment?.date || doc.paymentDate || new Date().toISOString().split('T')[0],
+      paymentSlipUrl: slipUrl || doc.paymentSlipUrl,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (onSaveDocument) {
+      onSaveDocument(updatedDoc);
+    } else {
+      onUpdateStatus(doc.id, doc.status, slipUrl);
+    }
+    alert('✅ บันทึกข้อมูลการแก้ไขเอกสารเรียบร้อยแล้ว!');
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:bg-transparent print:p-0 print:m-0 print:overflow-visible print:block">
       <div className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl w-full max-w-4xl max-h-[95vh] flex flex-col shadow-2xl overflow-hidden my-auto print:bg-transparent print:border-none print:shadow-none print:max-w-full print:max-h-none print:p-0 print:m-0 print:overflow-visible">
@@ -181,6 +209,14 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={handleSaveDocumentEdits}
+              className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold rounded-lg flex items-center gap-1.5 shadow transition-all active:scale-95"
+              title="บันทึกการแก้ไขข้อมูลและการชำระเงิน"
+            >
+              <span>💾 บันทึกเอกสาร</span>
+            </button>
+
             {onEditDoc && (
               <button
                 onClick={() => onEditDoc(doc)}
@@ -527,25 +563,56 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             </div>
 
             {/* Signature & Personal Terms Footer */}
-            <div className="pt-8 border-t border-slate-200 grid grid-cols-2 gap-6 text-center text-xs text-slate-600">
-              <div className="space-y-8">
-                <p>ลงชื่อ ...........................................................</p>
-                <p>({doc.customerName})<br />ผู้รับสินค้า / ลูกค้า</p>
+            <div className="pt-8 border-t border-slate-200 grid grid-cols-2 gap-6 text-center text-xs text-slate-600 items-end">
+              <div className="space-y-3 flex flex-col items-center justify-end min-h-[90px]">
+                <div className="pt-6">
+                  <p className="text-slate-500">ลงชื่อ ...........................................................</p>
+                </div>
+                <p className="font-semibold text-slate-800">
+                  ({doc.customerName})<br />
+                  <span className="font-normal text-slate-500">ผู้รับสินค้า / ลูกค้า</span>
+                </p>
               </div>
 
-              <div className="space-y-8">
-                <p>ลงชื่อ ...........................................................</p>
-                <p>({seller.name})<br />ผู้ออกเอกสาร / ผู้ขาย</p>
+              <div className="space-y-3 flex flex-col items-center justify-end min-h-[90px]">
+                {seller.signatureUrl ? (
+                  <div className="flex flex-col items-center justify-center min-h-[50px] mb-1">
+                    <img
+                      src={seller.signatureUrl}
+                      alt="ลายเซ็นผู้ขาย"
+                      className="max-h-16 max-w-[170px] object-contain"
+                    />
+                    <p className="text-[10px] text-slate-300 font-mono -mt-1">-----------------------------------</p>
+                  </div>
+                ) : (
+                  <div className="pt-6">
+                    <p className="text-slate-500">ลงชื่อ ...........................................................</p>
+                  </div>
+                )}
+                <p className="font-semibold text-slate-800">
+                  ({seller.name})<br />
+                  <span className="font-normal text-slate-500">ผู้ออกเอกสาร / ผู้ขาย</span>
+                </p>
               </div>
             </div>
           </div>
 
           {/* Payment Slip Upload & Status Controls */}
           <div className="max-w-3xl mx-auto mt-6 bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4 no-print">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-              <FileCheck className="w-4 h-4 text-emerald-400" />
-              <span>การตั้งค่าข้อมูลการชำระเงินและหมายเหตุเอกสาร</span>
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                <FileCheck className="w-4 h-4 text-emerald-400" />
+                <span>การตั้งค่าข้อมูลการชำระเงินและหมายเหตุเอกสาร</span>
+              </h4>
+
+              <button
+                type="button"
+                onClick={handleSaveDocumentEdits}
+                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold rounded-xl shadow flex items-center gap-1.5 active:scale-95 transition-all"
+              >
+                <span>💾 บันทึกการแก้ไขเอกสาร</span>
+              </button>
+            </div>
 
             {/* Interactive Payment Method & Notes Controls */}
             <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-3 text-xs">

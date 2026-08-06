@@ -54,6 +54,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [testLineUserId, setTestLineUserId] = useState('');
   const [isTestingOa, setIsTestingOa] = useState(false);
   const [logoUrl, setLogoUrl] = useState(seller.logoUrl || '');
+  const [signatureUrl, setSignatureUrl] = useState(seller.signatureUrl || '');
+  const [defaultDocumentNotes, setDefaultDocumentNotes] = useState(
+    seller.defaultDocumentNotes || 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา'
+  );
 
   const handleLogoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,9 +75,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
+  const handleSignatureFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 3 * 1024 * 1024) {
+        alert('ขนาดไฟล์รูปภาพใหญ่เกินไป (กรุณาเลือกไฟล์ขนาดไม่เกิน 3MB)');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setSignatureUrl(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleDeleteLogo = () => {
     if (confirm('คุณต้องการลบโลโก้ร้านค้านี้ใช่หรือไม่?')) {
       setLogoUrl('');
+    }
+  };
+
+  const handleDeleteSignature = () => {
+    if (confirm('คุณต้องการลบลายเซ็นร้านค้านี้ใช่หรือไม่?')) {
+      setSignatureUrl('');
     }
   };
 
@@ -122,6 +148,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       lineOaChannelAccessToken,
       lineOaBasicId,
       logoUrl,
+      signatureUrl,
+      defaultDocumentNotes,
     };
     onSaveSeller(updated);
     alert('บันทึกการตั้งค่าร้านค้าเรียบร้อยแล้ว');
@@ -334,6 +362,101 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
                 ></textarea>
               </div>
+            </div>
+
+            {/* Signature Manager Box */}
+            <div className="bg-white border border-[#CBD7E6] rounded-2xl p-4 space-y-3 shadow-2xs mt-4">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-extrabold text-[#0D2B52] flex items-center gap-2">
+                  <span className="text-base">✍️</span>
+                  <span>ลายเซ็นร้านค้า/ผู้ขาย (Embedded Signature for Documents)</span>
+                </label>
+                {signatureUrl && (
+                  <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    ✓ มีลายเซ็นตั้งค่าอยู่
+                  </span>
+                )}
+              </div>
+
+              {signatureUrl ? (
+                <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#F8FAFC] p-3.5 rounded-xl border border-slate-200">
+                  <div className="shrink-0 bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
+                    <img
+                      src={signatureUrl}
+                      alt="Store Signature Preview"
+                      className="max-h-16 max-w-[160px] object-contain"
+                    />
+                  </div>
+
+                  <div className="flex-1 space-y-2 text-center sm:text-left">
+                    <div className="text-xs font-bold text-[#0D2B52]">
+                      ลายเซ็นดิจิทัลที่จะแสดงบนเอกสาร
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      ลายเซ็นนี้จะประทับอยู่เหนือชื่อผู้ขายในส่วนท้ายของใบเสนอราคา ใบแจ้งหนี้ และใบเสร็จรับเงิน
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-2 pt-1 justify-center sm:justify-start">
+                      <label className="px-3.5 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-extrabold rounded-xl cursor-pointer transition-all flex items-center gap-1.5 shadow-2xs active:scale-98">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>เปลี่ยนรูปหรือไฟล์ลายเซ็น</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleSignatureFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={handleDeleteSignature}
+                        className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 active:scale-98"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                        <span>ลบลายเซ็น</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 border-2 border-dashed border-[#CBD7E6] hover:border-[#2563EB] rounded-2xl bg-[#F8FAFC] hover:bg-blue-50/40 transition-all text-center space-y-2">
+                  <div className="text-xs font-extrabold text-[#0D2B52]">
+                    ยังไม่ได้ใส่ลายเซ็นของร้านค้า
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    อัปโหลดรูปภาพลายเซ็น (ไฟล์ PNG พื้นหลังใส หรือรูปถ่ายลายเซ็น) เพื่อให้แสดงบนเอกสารโดยอัตโนมัติ
+                  </p>
+                  <label className="inline-flex px-4 py-2 bg-[#0D2B52] hover:bg-[#081E3B] text-white text-xs font-extrabold rounded-xl cursor-pointer transition-all items-center gap-2 shadow-xs active:scale-98">
+                    <Upload className="w-4 h-4 text-white" />
+                    <span>อัปโหลดลายเซ็นผู้ขาย</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleSignatureFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+
+            {/* Default Document Notes Box */}
+            <div className="bg-white border border-[#CBD7E6] rounded-2xl p-4 space-y-2 shadow-2xs mt-4">
+              <label className="text-xs font-extrabold text-[#0D2B52] flex items-center gap-2">
+                <span className="text-base">📝</span>
+                <span>ข้อความหมายเหตุเอกสารเริ่มต้น (Default Document Notes)</span>
+              </label>
+              <p className="text-[11px] text-slate-500">
+                ข้อความนี้จะถูกนำไปใช้เป็นหมายเหตุเริ่มต้นในเอกสารขายทุกใบ (ใบเสนอราคา, ใบแจ้งหนี้, ใบเสร็จรับเงิน)
+              </p>
+              <textarea
+                rows={3}
+                value={defaultDocumentNotes}
+                onChange={(e) => setDefaultDocumentNotes(e.target.value)}
+                placeholder="เช่น ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา"
+                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB] leading-relaxed font-sans"
+              />
             </div>
           </div>
 

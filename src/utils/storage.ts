@@ -31,6 +31,7 @@ const DEFAULT_SELLER: SellerProfile = {
   lineNotifyToken: '',
   logoUrl: '',
   signatureUrl: '',
+  defaultDocumentNotes: 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา',
   autoSync: true,
 };
 
