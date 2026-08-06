@@ -257,7 +257,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                   <img
                     src={seller.logoUrl}
                     alt="Store Logo"
-                    className="max-h-16 w-auto max-w-[220px] object-contain shrink-0"
+                    className="max-h-12 w-auto max-w-[180px] object-contain shrink-0"
                   />
                 </div>
               )}
@@ -278,8 +278,8 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
 
                 {/* Document Header Info Section (Aligned with First Line of Store Name) */}
                 <div className="flex flex-col items-start sm:items-start print:items-start text-left space-y-2">
-                  {/* Title in Black Box with White Text */}
-                  <div className="bg-slate-900 text-white font-black text-lg sm:text-xl px-7 py-2.5 rounded-xl text-center shadow-md min-w-[210px] tracking-wide">
+                  {/* Title in Black Box with White Text - Expanded Vertical Height & Pill Rounded Corners */}
+                  <div className="bg-slate-900 text-white font-extrabold text-lg sm:text-xl px-8 py-3.5 sm:py-4 rounded-2xl text-center shadow-md min-w-[220px] tracking-wide">
                     {docTitle}
                   </div>
 
