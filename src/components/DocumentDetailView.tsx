@@ -530,19 +530,19 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
 
               {/* Grand Total Breakdown */}
               <div className="space-y-2 text-xs text-slate-600">
-                <div className="flex justify-between py-1 border-b border-slate-100">
+                <div className="flex justify-between py-1 px-3 border-b border-slate-100">
                   <span className="font-medium text-slate-700">รวมเป็นเงินทั้งสิ้น:</span>
                   <span className="font-bold text-slate-900">{formatCurrency(doc.subtotal)}</span>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-slate-100 text-slate-700">
+                <div className="flex justify-between py-1 px-3 border-b border-slate-100 text-slate-700">
                   <span className="font-medium">หัก ส่วนลดพิเศษ:</span>
                   <span className="font-bold text-rose-600">
                     {doc.discountAmount > 0 ? `-${formatCurrency(doc.discountAmount)}` : '0.00'}
                   </span>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-slate-100 text-slate-700">
+                <div className="flex justify-between py-1 px-3 border-b border-slate-100 text-slate-700">
                   <span className="font-medium">บวก ค่าจัดส่ง:</span>
                   <span className="font-bold text-slate-900">
                     {doc.shippingFee > 0 ? `${formatCurrency(doc.shippingFee)}` : '0.00'}
@@ -550,7 +550,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                 </div>
 
                 {doc.vatAmount > 0 && (
-                  <div className="flex justify-between py-1 border-b border-slate-100 text-slate-700">
+                  <div className="flex justify-between py-1 px-3 border-b border-slate-100 text-slate-700">
                     <span className="font-medium">ภาษีมูลค่าเพิ่ม VAT 7%:</span>
                     <span className="font-bold text-slate-900">{formatCurrency(doc.vatAmount)}</span>
                   </div>
