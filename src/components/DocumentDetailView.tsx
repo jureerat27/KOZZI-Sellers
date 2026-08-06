@@ -21,6 +21,7 @@ import { generatePromptPayQRDataUrl } from '../utils/promptpay';
 import { exportElementToPdf, printDocument } from '../utils/pdf';
 import { formatDocumentForLine, generateFlexReceipt, sendLineOaPushNotification } from '../utils/line';
 import { formatCurrency, formatDate } from '../utils/format';
+import { DatePicker } from './DatePicker';
 
 interface DocumentDetailViewProps {
   doc: SalesDocument;
@@ -711,17 +712,16 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
 
                     <div>
                       <label className="block text-[10px] text-slate-400 mb-1">
-                        วันที่ชำระเงิน {rec.date && <span className="text-emerald-400 font-bold ml-1">({formatDate(rec.date)})</span>}
+                        วันที่ชำระเงิน (วัน-เดือน-ปี)
                       </label>
-                      <input
-                        type="date"
+                      <DatePicker
                         value={rec.date}
-                        onChange={(e) => {
+                        onChange={(val) => {
                           const next = [...paymentRecords];
-                          next[idx].date = e.target.value;
+                          next[idx].date = val;
                           setPaymentRecords(next);
                         }}
-                        className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded px-2 py-1 text-xs"
+                        className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded px-2.5 py-1.5 text-xs font-bold"
                       />
                     </div>
 

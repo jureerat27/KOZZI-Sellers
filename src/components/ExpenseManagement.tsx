@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Expense, ExpenseCategory } from '../types';
 import { formatCurrency, formatDate } from '../utils/format';
+import { DatePicker } from './DatePicker';
 
 interface ExpenseManagementProps {
   expenses: Expense[];
@@ -211,14 +212,13 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
             <form onSubmit={handleFormSubmit} className="space-y-3">
               <div>
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                  วันที่ทำรายการ {date && <span className="text-pink-600 font-bold ml-1">({formatDate(date)})</span>}
+                  วันที่ทำรายการ (วัน-เดือน-ปี)
                 </label>
-                <input
-                  type="date"
-                  required
+                <DatePicker
                   value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800"
+                  onChange={(val) => setDate(val)}
+                  required
+                  className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-bold"
                 />
               </div>
 

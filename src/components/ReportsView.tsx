@@ -35,6 +35,7 @@ import {
 } from 'recharts';
 import { Expense, Product, SalesDocument, SellerProfile } from '../types';
 import { formatCurrency, formatDate } from '../utils/format';
+import { DatePicker } from './DatePicker';
 
 interface ReportsViewProps {
   documents: SalesDocument[];
@@ -231,33 +232,19 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             </span>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1.5">
-                <input
-                  type="date"
-                  value={inputStartDate}
-                  onChange={(e) => setInputStartDate(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleApplySearch()}
-                  className="bg-white border border-[#E2E8F0] text-xs font-bold text-[#172B4D] px-3 py-2 rounded-xl focus:outline-none focus:border-[#0759A6] shadow-2xs"
-                />
-                <span className="text-[11px] font-bold text-[#0759A6] bg-slate-100 px-1.5 py-1 rounded">
-                  {formatDate(inputStartDate)}
-                </span>
-              </div>
+              <DatePicker
+                value={inputStartDate}
+                onChange={(val) => setInputStartDate(val)}
+                className="bg-white border border-[#E2E8F0] text-xs font-bold text-[#172B4D] px-3 py-2 rounded-xl focus:outline-none focus:border-[#0759A6] shadow-2xs min-w-[135px]"
+              />
 
               <span className="text-xs text-[#6B7A90] font-bold">ถึง</span>
 
-              <div className="flex items-center gap-1.5">
-                <input
-                  type="date"
-                  value={inputEndDate}
-                  onChange={(e) => setInputEndDate(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleApplySearch()}
-                  className="bg-white border border-[#E2E8F0] text-xs font-bold text-[#172B4D] px-3 py-2 rounded-xl focus:outline-none focus:border-[#0759A6] shadow-2xs"
-                />
-                <span className="text-[11px] font-bold text-[#0759A6] bg-slate-100 px-1.5 py-1 rounded">
-                  {formatDate(inputEndDate)}
-                </span>
-              </div>
+              <DatePicker
+                value={inputEndDate}
+                onChange={(val) => setInputEndDate(val)}
+                className="bg-white border border-[#E2E8F0] text-xs font-bold text-[#172B4D] px-3 py-2 rounded-xl focus:outline-none focus:border-[#0759A6] shadow-2xs min-w-[135px]"
+              />
 
               <button
                 type="button"

@@ -21,6 +21,7 @@ import {
 } from '../types';
 import { generateDocNumber } from '../utils/storage';
 import { formatCurrency, formatDate } from '../utils/format';
+import { DatePicker } from './DatePicker';
 
 interface DocumentCreateModalProps {
   initialType: DocumentType;
@@ -573,26 +574,24 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
           {/* Payment Status & Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">
-                วันที่ออกเอกสาร {docDate && <span className="text-emerald-400 font-bold ml-1">({formatDate(docDate)})</span>}
+              <label className="block text-[11px] text-slate-400 mb-1 font-medium">
+                วันที่ออกเอกสาร (วัน-เดือน-ปี)
               </label>
-              <input
-                type="date"
+              <DatePicker
                 value={docDate}
-                onChange={(e) => setDocDate(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"
+                onChange={(val) => setDocDate(val)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-bold hover:border-emerald-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">
-                วันครบกำหนดชำระ {dueDate && <span className="text-emerald-400 font-bold ml-1">({formatDate(dueDate)})</span>}
+              <label className="block text-[11px] text-slate-400 mb-1 font-medium">
+                วันครบกำหนดชำระ (วัน-เดือน-ปี)
               </label>
-              <input
-                type="date"
+              <DatePicker
                 value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"
+                onChange={(val) => setDueDate(val)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-bold hover:border-emerald-500 transition-colors"
               />
             </div>
 
