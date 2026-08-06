@@ -1,5 +1,5 @@
 import { Product, SalesDocument, SellerProfile } from '../types';
-import { formatCurrency } from './format';
+import { formatCurrency, formatDate } from './format';
 
 export async function sendLineNotification(
   token: string,
@@ -132,7 +132,7 @@ export function generateFlexReceipt(doc: SalesDocument, seller: SellerProfile): 
           },
           {
             type: 'text',
-            text: `วันที่ออกเอกสาร: ${doc.date}`,
+            text: `วันที่ออกเอกสาร: ${formatDate(doc.date)}`,
             size: 'xs',
             color: '#64748B',
             margin: 'xs',
@@ -233,7 +233,7 @@ export function formatDocumentForLine(doc: SalesDocument, seller: SellerProfile)
   let text = `${typeText} (${doc.docNumber})\n`;
   text += `ร้าน: ${seller.name}\n`;
   text += `ลูกค้า: ${doc.customerName}\n`;
-  text += `วันที่: ${doc.date}\n`;
+  text += `วันที่: ${formatDate(doc.date)}\n`;
   text += `--------------------------------\n`;
   doc.items.forEach((item, index) => {
     text += `${index + 1}. ${item.productName}\n   ${item.quantity} x ฿${formatCurrency(item.price)} = ฿${formatCurrency(item.total)}\n`;

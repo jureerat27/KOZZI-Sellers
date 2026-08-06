@@ -14,7 +14,7 @@ import {
   Edit3,
 } from 'lucide-react';
 import { DocumentStatus, DocumentType, SalesDocument } from '../types';
-import { formatCurrency } from '../utils/format';
+import { formatCurrency, formatDate } from '../utils/format';
 
 interface DocumentsViewProps {
   documents: SalesDocument[];
@@ -208,7 +208,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                       👤 ลูกค้า: {doc.customerName}
                     </p>
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      📅 ออกเมื่อ: {doc.date} • 📦 รายการสินค้า ({doc.items.length} รายการ)
+                      📅 ออกเมื่อ: {formatDate(doc.date)} • 📦 รายการสินค้า ({doc.items.length} รายการ)
                     </p>
                   </div>
                 </div>

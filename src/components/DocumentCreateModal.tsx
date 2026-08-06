@@ -573,7 +573,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
           {/* Payment Status & Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">วันที่ออกเอกสาร</label>
+              <label className="block text-[11px] text-slate-400 mb-1">
+                วันที่ออกเอกสาร {docDate && <span className="text-emerald-400 font-bold ml-1">({formatDate(docDate)})</span>}
+              </label>
               <input
                 type="date"
                 value={docDate}
@@ -583,7 +585,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">วันครบกำหนดชำระ</label>
+              <label className="block text-[11px] text-slate-400 mb-1">
+                วันครบกำหนดชำระ {dueDate && <span className="text-emerald-400 font-bold ml-1">({formatDate(dueDate)})</span>}
+              </label>
               <input
                 type="date"
                 value={dueDate}

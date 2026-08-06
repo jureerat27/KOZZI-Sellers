@@ -24,7 +24,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { Customer, Expense, Product, SalesDocument, SellerProfile } from '../types';
-import { formatCurrency } from '../utils/format';
+import { formatCurrency, formatDate } from '../utils/format';
 
 interface DashboardViewProps {
   documents: SalesDocument[];
@@ -472,7 +472,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           {doc.customerName}
                         </td>
                         <td className="py-3 text-slate-400 font-medium whitespace-nowrap">
-                          {doc.date}
+                          {formatDate(doc.date)}
                         </td>
                         <td className="py-3 font-extrabold text-[#0D2B52] text-right whitespace-nowrap">
                           ฿{formatCurrency(doc.grandTotal)}
@@ -538,7 +538,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
 
                   <div className="text-right shrink-0">
-                    <div className="text-xs font-medium text-slate-400 mb-1">{doc.date}</div>
+                    <div className="text-xs font-medium text-slate-400 mb-1">{formatDate(doc.date)}</div>
                     <span className="px-2.5 py-0.5 rounded-md text-[11px] font-black inline-block bg-[#FEF3C7] text-[#D97706]">
                       รอดำเนินการ
                     </span>

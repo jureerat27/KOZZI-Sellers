@@ -20,7 +20,7 @@ import { SalesDocument, SellerProfile } from '../types';
 import { generatePromptPayQRDataUrl } from '../utils/promptpay';
 import { exportElementToPdf, printDocument } from '../utils/pdf';
 import { formatDocumentForLine, generateFlexReceipt, sendLineOaPushNotification } from '../utils/line';
-import { formatCurrency } from '../utils/format';
+import { formatCurrency, formatDate } from '../utils/format';
 
 interface DocumentDetailViewProps {
   doc: SalesDocument;
@@ -340,12 +340,12 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                     </p>
                     <p className="text-slate-700">
                       <span className="font-semibold text-slate-500 mr-1.5">วันที่ออกเอกสาร:</span>
-                      <span className="font-bold text-slate-900">{doc.date}</span>
+                      <span className="font-bold text-slate-900">{formatDate(doc.date)}</span>
                     </p>
                     {doc.type !== 'RECEIPT' && doc.dueDate && (
                       <p className="text-slate-700">
                         <span className="font-semibold text-slate-500 mr-1.5">กำหนดชำระ:</span>
-                        <span className="font-bold text-slate-900">{doc.dueDate}</span>
+                        <span className="font-bold text-slate-900">{formatDate(doc.dueDate)}</span>
                       </p>
                     )}
                   </div>
@@ -512,7 +512,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                           <span className="text-[10px] font-semibold text-slate-400 uppercase">
                             วันที่โอน / ชำระเงิน
                           </span>
-                          <span className="font-bold text-slate-800">{pay.date}</span>
+                          <span className="font-bold text-slate-800">{formatDate(pay.date)}</span>
                         </div>
                         <div className="flex justify-between items-center border-t border-slate-100 pt-0.5 mt-0.5">
                           <span className="text-[10px] font-semibold text-slate-400 uppercase">
@@ -710,7 +710,9 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-[10px] text-slate-400 mb-1">วันที่ชำระเงิน</label>
+                      <label className="block text-[10px] text-slate-400 mb-1">
+                        วันที่ชำระเงิน {rec.date && <span className="text-emerald-400 font-bold ml-1">({formatDate(rec.date)})</span>}
+                      </label>
                       <input
                         type="date"
                         value={rec.date}

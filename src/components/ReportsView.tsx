@@ -33,7 +33,7 @@ import {
   Cell,
 } from 'recharts';
 import { Expense, Product, SalesDocument, SellerProfile } from '../types';
-import { formatCurrency } from '../utils/format';
+import { formatCurrency, formatDate } from '../utils/format';
 
 interface ReportsViewProps {
   documents: SalesDocument[];
@@ -162,13 +162,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     csv += `--- รายการใบเสร็จรับเงิน ---\n`;
     csv += `เลขที่ใบเสร็จ,วันที่,ชื่อลูกค้า,ยอดรวม (บาท),สถานะ\n`;
     filteredReceipts.forEach((r) => {
-      csv += `${r.docNumber},${r.date},"${r.customerName}",${r.grandTotal},${r.status}\n`;
+      csv += `${r.docNumber},${formatDate(r.date)},"${r.customerName}",${r.grandTotal},${r.status}\n`;
     });
 
     csv += `\n--- รายการค่าใช้จ่าย ---\n`;
     csv += `วันที่,หมวดหมู่,รายละเอียด,ผู้รับเงิน,จำนวนเงิน (บาท)\n`;
     filteredExpenses.forEach((e) => {
-      csv += `${e.date},${categoryTranslation[e.category] || e.category},"${e.description}","${
+      csv += `${formatDate(e.date)},${categoryTranslation[e.category] || e.category},"${e.description}","${
         e.recipient || '-'
       }",${e.amount}\n`;
     });
@@ -217,7 +217,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-xs font-extrabold text-[#172B4D] flex items-center gap-1.5 shrink-0">
               <Calendar className="w-4 h-4 text-[#123B6D]" />
-              <span>เลือกระยะวันที่:</span>
+              <span>เลือกระยะวันที่ ({formatDate(startDate)} ถึง {formatDate(endDate)}):</span>
             </span>
 
             <div className="flex items-center gap-2">
@@ -598,7 +598,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                           <tr key={r.id}>
                             <td className="p-2.5">{i + 1}</td>
                             <td className="p-2.5 font-bold text-slate-900">{r.docNumber}</td>
-                            <td className="p-2.5">{r.date}</td>
+                            <td className="p-2.5">{formatDate(r.date)}</td>
                             <td className="p-2.5">{r.customerName}</td>
                             <td className="p-2.5">{r.paymentMethod || 'เงินโอน / PromptPay'}</td>
                             <td className="p-2.5 text-right font-bold text-[#16A394]">
@@ -651,7 +651,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                         filteredExpenses.map((e, i) => (
                           <tr key={e.id}>
                             <td className="p-2.5">{i + 1}</td>
-                            <td className="p-2.5">{e.date}</td>
+                            <td className="p-2.5">{formatDate(e.date)}</td>
                             <td className="p-2.5 font-bold text-slate-800">
                               {categoryTranslation[e.category] || e.category}
                             </td>

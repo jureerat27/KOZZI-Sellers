@@ -11,7 +11,7 @@ import {
   Tag,
 } from 'lucide-react';
 import { Expense, ExpenseCategory } from '../types';
-import { formatCurrency } from '../utils/format';
+import { formatCurrency, formatDate } from '../utils/format';
 
 interface ExpenseManagementProps {
   expenses: Expense[];
@@ -168,7 +168,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                     <span className="px-2 py-0.5 bg-rose-50 border border-rose-200 rounded-md text-rose-700 font-bold">
                       {CATEGORY_LABELS[exp.category]}
                     </span>
-                    <span>• 📅 {exp.date}</span>
+                    <span>• 📅 {formatDate(exp.date)}</span>
                     {exp.recipient && <span>• 👤 ผู้รับ: {exp.recipient}</span>}
                   </div>
                 </div>
@@ -210,7 +210,9 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
 
             <form onSubmit={handleFormSubmit} className="space-y-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">วันที่ทำรายการ</label>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  วันที่ทำรายการ {date && <span className="text-pink-600 font-bold ml-1">({formatDate(date)})</span>}
+                </label>
                 <input
                   type="date"
                   required
