@@ -146,8 +146,8 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl w-full max-w-4xl max-h-[95vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:bg-transparent print:p-0 print:m-0 print:overflow-visible print:block">
+      <div className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl w-full max-w-4xl max-h-[95vh] flex flex-col shadow-2xl overflow-hidden my-auto print:bg-transparent print:border-none print:shadow-none print:max-w-full print:max-h-none print:p-0 print:m-0 print:overflow-visible">
         {/* Top Header Actions */}
         <div className="px-5 py-3 border-b border-slate-800 bg-slate-900 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-20 no-print">
           <div className="flex items-center gap-2">
@@ -222,10 +222,10 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
         </div>
 
         {/* Scrollable Document Canvas Container */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-950">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-950 print:bg-transparent print:p-0 print:m-0 print:overflow-visible">
           <div
             id="printable-document-container"
-            className="bg-white text-slate-900 rounded-xl p-6 sm:p-10 max-w-3xl mx-auto shadow-2xl border border-slate-200 space-y-6 font-sans"
+            className="bg-white text-slate-900 rounded-xl p-6 sm:p-10 max-w-3xl mx-auto shadow-2xl border border-slate-200 space-y-6 font-sans print:shadow-none print:max-w-full print:p-6 print:m-0 print:border print:border-slate-300 print:rounded-xl"
           >
             {/* Header: Seller Info & Document Title */}
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-slate-200 pb-6">

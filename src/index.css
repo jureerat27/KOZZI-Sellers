@@ -14,16 +14,37 @@
 
 /* Custom Print styles for receipts/invoices */
 @media print {
-  /* Hide everything outside printable document */
-  body > * {
+  /* Enforce exact background & color rendering */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html, body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Hide app header, sidebars, background dashboard elements */
+  #root > div > *:not(:has(#printable-document-container)) {
+    display: none !important;
+  }
+
+  /* Force hide all .no-print elements */
+  .no-print,
+  .no-print * {
+    display: none !important;
     visibility: hidden !important;
   }
 
-  /* Reset modal containers, overlays, and backdrops so they don't show borders, scrollbars, or dark bg */
+  /* Reset outer modal backdrops and fixed dark overlay containers */
   .fixed,
-  .backdrop-blur-md,
-  div[class*="bg-slate"],
-  div[class*="border-slate"] {
+  .backdrop-blur-md {
     position: static !important;
     background: transparent !important;
     background-color: transparent !important;
@@ -38,39 +59,22 @@
     width: 100% !important;
   }
 
-  /* Force hide all .no-print elements */
-  .no-print,
-  .no-print * {
-    display: none !important;
-    visibility: hidden !important;
-  }
-
-  html, body {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-    color: #000000 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  /* Position printable receipt container cleanly at top of A4 page */
+  /* Printable document container positioned cleanly on paper */
   #printable-document-container {
     visibility: visible !important;
-    position: absolute !important;
+    position: relative !important;
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    margin: 0 !important;
-    padding: 15px !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
     box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
     background-color: #ffffff !important;
     background: #ffffff !important;
-    color: #000000 !important;
+    color: #0f172a !important;
   }
 
   #printable-document-container * {
