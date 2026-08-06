@@ -251,22 +251,28 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                 </div>
               </div>
 
-              {/* Document Header Info Box with Prominent Date at Top */}
-              <div className="text-right sm:text-right print:text-right w-full sm:w-auto print:w-auto">
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-right space-y-1.5 shadow-xs min-w-[210px] inline-block">
-                  <span className="inline-block px-3 py-1 rounded-md bg-slate-900 text-white font-extrabold text-xs uppercase tracking-wider">
-                    {docTitle}
-                  </span>
-                  <p className="text-sm font-extrabold text-slate-800">{doc.docNumber}</p>
-                  
-                  {/* Date Box Brought to Top Header */}
-                  <div className="bg-amber-50 border border-amber-200/80 rounded-lg p-2 text-center text-xs">
-                    <span className="text-[10px] font-bold text-amber-800 uppercase block">วันที่ออกเอกสาร</span>
-                    <span className="font-extrabold text-amber-950 text-xs">{doc.date}</span>
-                  </div>
+              {/* Document Header Info Section */}
+              <div className="text-right sm:text-right print:text-right w-full sm:w-auto print:w-auto space-y-2 inline-block sm:block">
+                {/* Title in Black Box with White Text */}
+                <div className="bg-slate-900 text-white font-extrabold text-sm sm:text-base px-5 py-2 rounded-lg text-center shadow-xs min-w-[190px] inline-block">
+                  {docTitle}
+                </div>
 
+                {/* Separate Info Lines (No Boxes) */}
+                <div className="text-right text-xs space-y-1 pt-0.5">
+                  <p className="text-slate-700">
+                    <span className="font-semibold text-slate-500 mr-1.5">เลขที่เอกสาร:</span>
+                    <span className="font-extrabold text-slate-900">{doc.docNumber}</span>
+                  </p>
+                  <p className="text-slate-700">
+                    <span className="font-semibold text-slate-500 mr-1.5">วันที่ออกเอกสาร:</span>
+                    <span className="font-bold text-slate-900">{doc.date}</span>
+                  </p>
                   {doc.type !== 'RECEIPT' && doc.dueDate && (
-                    <p className="text-[11px] text-slate-500 pt-0.5">กำหนดชำระ: {doc.dueDate}</p>
+                    <p className="text-slate-700">
+                      <span className="font-semibold text-slate-500 mr-1.5">กำหนดชำระ:</span>
+                      <span className="font-bold text-slate-900">{doc.dueDate}</span>
+                    </p>
                   )}
                 </div>
               </div>
