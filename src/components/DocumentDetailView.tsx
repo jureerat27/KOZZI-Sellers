@@ -245,46 +245,48 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
         </div>
 
         {/* Scrollable Document Canvas Container */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-900 print:bg-transparent print:p-0 print:m-0 print:overflow-visible">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-900 print:bg-white print:p-0 print:m-0 print:overflow-visible">
           <div
             id="printable-document-container"
             className="bg-white text-slate-900 p-6 sm:p-10 max-w-3xl mx-auto font-sans shadow-md print:shadow-none print:max-w-full print:p-6 print:m-0 print:border-none print:rounded-none space-y-6"
           >
             {/* Header: Seller Info & Document Title */}
-            <div className="border-b border-slate-200 pb-6 space-y-3">
-              {seller.logoUrl && (
-                <div>
-                  <img
-                    src={seller.logoUrl}
-                    alt="Store Logo"
-                    className="max-h-9 sm:max-h-10 w-auto max-w-[150px] object-contain shrink-0"
-                  />
-                </div>
-              )}
-
+            <div className="border-b border-slate-200 pb-6">
               <div className="flex flex-col sm:flex-row print:flex-row justify-between items-start gap-4">
+                {/* Left Column: Logo + Store Info */}
                 <div className="space-y-1 max-w-md">
+                  {seller.logoUrl && (
+                    <div className="mb-2">
+                      <img
+                        src={seller.logoUrl}
+                        alt="Store Logo"
+                        className="max-h-9 sm:max-h-10 w-auto max-w-[150px] object-contain shrink-0"
+                      />
+                    </div>
+                  )}
                   <h1 className="text-xl font-bold text-slate-900 leading-tight">
                     {seller.name || 'ร้านค้าออนไลน์บุคคลธรรมดา'}
                   </h1>
-                  <p className="text-xs text-slate-600">
-                    {seller.taxId && `เลขประจำตัวผู้เสียภาษี/เลขบัตรประชาชน: ${seller.taxId}`}
-                  </p>
+                  {seller.taxId && (
+                    <p className="text-xs text-slate-600">
+                      เลขประจำตัวผู้เสียภาษี/เลขบัตรประชาชน: {seller.taxId}
+                    </p>
+                  )}
                   <p className="text-xs text-slate-600 leading-relaxed">{seller.address}</p>
                   <p className="text-xs text-slate-600">
                     โทร: {seller.phone} {seller.email ? `• อีเมล: ${seller.email}` : ''}
                   </p>
                 </div>
 
-                {/* Document Header Info Section (Aligned with First Line of Store Name) */}
-                <div className="flex flex-col items-start sm:items-start print:items-start text-left space-y-2">
-                  {/* Title in Black Box with White Text - Expanded Vertical Height & Pill Rounded Corners */}
+                {/* Right Column: Title Box (Aligned at top with Logo) + Document Metadata */}
+                <div className="flex flex-col items-start sm:items-start print:items-start text-left space-y-2 shrink-0">
+                  {/* Title in Black Box - Aligned at top with Logo */}
                   <div className="doc-title-box bg-slate-900 text-white font-extrabold text-lg sm:text-xl px-8 py-3.5 sm:py-4 rounded-2xl text-center shadow-md min-w-[220px] tracking-wide">
                     {docTitle}
                   </div>
 
-                  {/* Separate Info Lines - Left-Aligned with Title Box */}
-                  <div className="text-left text-xs space-y-1 pt-1 pl-1">
+                  {/* Metadata lines - "เลขที่เอกสาร" aligned across from address, "วันที่ออกเอกสาร" aligned across from phone */}
+                  <div className="text-left text-xs space-y-1 pt-2 sm:pt-3 print:pt-3 pl-1">
                     <p className="text-slate-700">
                       <span className="font-semibold text-slate-500 mr-1.5">เลขที่เอกสาร:</span>
                       <span className="font-extrabold text-slate-900">{doc.docNumber}</span>

@@ -26,7 +26,7 @@
     margin: 8mm;
   }
 
-  html, body {
+  html, body, #root, #root > div {
     background-color: #ffffff !important;
     background: #ffffff !important;
     color: #0f172a !important;
