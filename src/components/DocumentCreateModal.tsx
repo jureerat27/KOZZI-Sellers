@@ -20,7 +20,7 @@ import {
   SellerProfile,
 } from '../types';
 import { generateDocNumber } from '../utils/storage';
-import { formatCurrency } from '../utils/format';
+import { formatCurrency, formatDate } from '../utils/format';
 
 interface DocumentCreateModalProps {
   initialType: DocumentType;
