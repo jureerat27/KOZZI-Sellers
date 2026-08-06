@@ -18,6 +18,7 @@ import {
   Eye,
   Store,
   ChevronRight,
+  Search,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -57,8 +58,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     .substring(0, 10);
   const todayStr = now.toISOString().substring(0, 10);
 
+  const [inputStartDate, setInputStartDate] = useState<string>(firstDayOfCurrentMonth);
+  const [inputEndDate, setInputEndDate] = useState<string>(todayStr);
   const [startDate, setStartDate] = useState<string>(firstDayOfCurrentMonth);
   const [endDate, setEndDate] = useState<string>(todayStr);
+
+  // Apply date search
+  const handleApplySearch = () => {
+    setStartDate(inputStartDate);
+    setEndDate(inputEndDate);
+  };
 
   // Modal print state
   const [printModalType, setPrintModalType] = useState<'RECEIPTS' | 'EXPENSES' | 'SUMMARY' | null>(null);
@@ -66,29 +75,27 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   // Preset handlers
   const handleSetPreset = (preset: 'THIS_MONTH' | 'LAST_MONTH' | 'LAST_30' | 'THIS_YEAR') => {
     const d = new Date();
+    let start = '';
+    let end = '';
     if (preset === 'THIS_MONTH') {
-      const start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().substring(0, 10);
-      const end = d.toISOString().substring(0, 10);
-      setStartDate(start);
-      setEndDate(end);
+      start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().substring(0, 10);
+      end = d.toISOString().substring(0, 10);
     } else if (preset === 'LAST_MONTH') {
-      const start = new Date(d.getFullYear(), d.getMonth() - 1, 1).toISOString().substring(0, 10);
-      const end = new Date(d.getFullYear(), d.getMonth(), 0).toISOString().substring(0, 10);
-      setStartDate(start);
-      setEndDate(end);
+      start = new Date(d.getFullYear(), d.getMonth() - 1, 1).toISOString().substring(0, 10);
+      end = new Date(d.getFullYear(), d.getMonth(), 0).toISOString().substring(0, 10);
     } else if (preset === 'LAST_30') {
-      const end = d.toISOString().substring(0, 10);
+      end = d.toISOString().substring(0, 10);
       const startD = new Date();
       startD.setDate(startD.getDate() - 30);
-      const start = startD.toISOString().substring(0, 10);
-      setStartDate(start);
-      setEndDate(end);
+      start = startD.toISOString().substring(0, 10);
     } else if (preset === 'THIS_YEAR') {
-      const start = `${d.getFullYear()}-01-01`;
-      const end = d.toISOString().substring(0, 10);
-      setStartDate(start);
-      setEndDate(end);
+      start = `${d.getFullYear()}-01-01`;
+      end = d.toISOString().substring(0, 10);
     }
+    setInputStartDate(start);
+    setInputEndDate(end);
+    setStartDate(start);
+    setEndDate(end);
   };
 
   // Filtered documents (Paid / Approved Sales Receipts) in selected date range
@@ -217,23 +224,49 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-xs font-extrabold text-[#172B4D] flex items-center gap-1.5 shrink-0">
               <Calendar className="w-4 h-4 text-[#123B6D]" />
-              <span>เลือกระยะวันที่ ({formatDate(startDate)} ถึง {formatDate(endDate)}):</span>
+              <span>เลือกระยะวันที่ (วัน-เดือน-ปี):</span>
+              <span className="bg-[#E2EEFF] text-[#0759A6] px-2 py-0.5 rounded-md font-black text-xs">
+                {formatDate(startDate)} ถึง {formatDate(endDate)}
+              </span>
             </span>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="bg-white border border-[#E2E8F0] text-xs font-bold text-[#172B4D] px-3 py-2 rounded-xl focus:outline-none focus:border-[#0759A6] shadow-2xs"
-              />
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="date"
+                  value={inputStartDate}
+                  onChange={(e) => setInputStartDate(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleApplySearch()}
+                  className="bg-white border border-[#E2E8F0] text-xs font-bold text-[#172B4D] px-3 py-2 rounded-xl focus:outline-none focus:border-[#0759A6] shadow-2xs"
+                />
+                <span className="text-[11px] font-bold text-[#0759A6] bg-slate-100 px-1.5 py-1 rounded">
+                  {formatDate(inputStartDate)}
+                </span>
+              </div>
+
               <span className="text-xs text-[#6B7A90] font-bold">ถึง</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="bg-white border border-[#E2E8F0] text-xs font-bold text-[#172B4D] px-3 py-2 rounded-xl focus:outline-none focus:border-[#0759A6] shadow-2xs"
-              />
+
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="date"
+                  value={inputEndDate}
+                  onChange={(e) => setInputEndDate(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleApplySearch()}
+                  className="bg-white border border-[#E2E8F0] text-xs font-bold text-[#172B4D] px-3 py-2 rounded-xl focus:outline-none focus:border-[#0759A6] shadow-2xs"
+                />
+                <span className="text-[11px] font-bold text-[#0759A6] bg-slate-100 px-1.5 py-1 rounded">
+                  {formatDate(inputEndDate)}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleApplySearch}
+                className="px-4 py-2 bg-[#0759A6] hover:bg-[#064B8B] text-white text-xs font-extrabold rounded-xl flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer ml-1"
+              >
+                <Search className="w-4 h-4" />
+                <span>ค้นหา</span>
+              </button>
             </div>
           </div>
 
