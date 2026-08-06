@@ -329,52 +329,6 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               </div>
             </div>
 
-            {/* Payment Information Box (ข้อมูลการชำระเงิน: ช่องทางชำระ, วันที่โอนเงิน, ยอดเงิน) */}
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <CreditCard className="w-4 h-4 text-emerald-600" />
-                  ข้อมูลการชำระเงิน
-                </span>
-                {doc.status === 'PAID' && (
-                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md">
-                    ✓ ชำระเงินเรียบร้อยแล้ว
-                  </span>
-                )}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-3 text-xs pt-1">
-                <div>
-                  <span className="text-[10px] font-semibold text-slate-400 block uppercase">
-                    ช่องทางการชำระเงิน
-                  </span>
-                  <span className="font-bold text-slate-800">
-                    {selectedPaymentMethod === 'CASH'
-                      ? '💵 เงินสด (Cash)'
-                      : '🏦 โอนเข้าธนาคาร (Bank Transfer)'}
-                  </span>
-                  {selectedPaymentMethod === 'BANK_TRANSFER' && seller.bankName && (
-                    <span className="block text-[11px] text-slate-500 mt-0.5">
-                      {seller.bankName} {seller.bankAccountNo ? `(${seller.bankAccountNo})` : ''}
-                    </span>
-                  )}
-                </div>
-                <div>
-                  <span className="text-[10px] font-semibold text-slate-400 block uppercase">
-                    วันที่โอน / ชำระเงิน
-                  </span>
-                  <span className="font-bold text-slate-800">{selectedPaymentDate}</span>
-                </div>
-                <div className="text-left sm:text-right print:text-right">
-                  <span className="text-[10px] font-semibold text-slate-400 block uppercase">
-                    ยอดเงินที่ชำระ
-                  </span>
-                  <span className="font-extrabold text-emerald-700 text-sm">
-                    ฿{doc.grandTotal.toLocaleString()} บาท
-                  </span>
-                </div>
-              </div>
-            </div>
-
             {/* Itemized Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left">
@@ -414,9 +368,9 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               </table>
             </div>
 
-            {/* Summary & PromptPay Section */}
+            {/* Summary & PromptPay / Payment Info Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6 pt-4 border-t border-slate-200">
-              {/* Payment Info & PromptPay QR (Hidden for Receipts as payment is already complete) */}
+              {/* Payment Info & PromptPay QR */}
               <div className="space-y-3">
                 {doc.type !== 'RECEIPT' && seller.promptPayNumber && (
                   <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-4">
@@ -449,24 +403,51 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                   </div>
                 )}
 
-                {doc.type === 'RECEIPT' && (
-                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3">
-                    <CheckCircle className="w-6 h-6 text-emerald-600 shrink-0" />
-                    <div className="text-xs text-emerald-900">
-                      <p className="font-bold">ได้รับเงินชำระเรียบร้อยแล้ว</p>
-                      <p className="text-[11px] text-emerald-700">
-                        เอกสารนี้ออกเพื่อยืนยันการรับชำระเงินเรียบร้อยแล้ว
-                      </p>
+                {/* Payment Information Box (ข้อมูลการชำระเงิน: ช่องทางชำระ, วันที่โอนเงิน, ยอดเงิน) */}
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-3.5 space-y-2">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
+                    <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                      <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+                      ข้อมูลการชำระเงิน
+                    </span>
+                    {doc.status === 'PAID' && (
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                        ✓ ชำระเงินเรียบร้อยแล้ว
+                      </span>
+                    )}
+                  </div>
+                  <div className="space-y-1 text-xs pt-0.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase">
+                        ช่องทางการชำระเงิน
+                      </span>
+                      <span className="font-bold text-slate-800">
+                        {selectedPaymentMethod === 'CASH'
+                          ? '💵 เงินสด (Cash)'
+                          : '🏦 โอนเข้าธนาคาร (Bank Transfer)'}
+                      </span>
+                    </div>
+                    {selectedPaymentMethod === 'BANK_TRANSFER' && seller.bankName && (
+                      <div className="text-right text-[11px] text-slate-500">
+                        {seller.bankName} {seller.bankAccountNo ? `(${seller.bankAccountNo})` : ''}
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase">
+                        วันที่โอน / ชำระเงิน
+                      </span>
+                      <span className="font-bold text-slate-800">{selectedPaymentDate}</span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-slate-200 pt-1 mt-1">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase">
+                        ยอดเงินที่ชำระ
+                      </span>
+                      <span className="font-extrabold text-emerald-700 text-xs">
+                        ฿{doc.grandTotal.toLocaleString()} บาท
+                      </span>
                     </div>
                   </div>
-                )}
-
-                {doc.notes && (
-                  <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                    <span className="font-bold text-slate-700 block mb-0.5">หมายเหตุ:</span>
-                    {doc.notes}
-                  </div>
-                )}
+                </div>
               </div>
 
               {/* Grand Total Breakdown */}
@@ -505,6 +486,14 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Full Width Notes / Remarks Box */}
+            {doc.notes && (
+              <div className="text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200 w-full mt-3">
+                <span className="font-bold text-slate-800 block mb-0.5">หมายเหตุ:</span>
+                <p className="whitespace-pre-line leading-relaxed">{doc.notes}</p>
+              </div>
+            )}
 
             {/* Signature & Personal Terms Footer */}
             <div className="pt-8 border-t border-slate-200 grid grid-cols-2 gap-6 text-center text-xs text-slate-600">
