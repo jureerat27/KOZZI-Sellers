@@ -245,24 +245,25 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
         </div>
 
         {/* Scrollable Document Canvas Container */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-950 print:bg-transparent print:p-0 print:m-0 print:overflow-visible">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-900 print:bg-transparent print:p-0 print:m-0 print:overflow-visible">
           <div
             id="printable-document-container"
-            className="bg-white text-slate-900 rounded-xl p-6 sm:p-10 max-w-3xl mx-auto shadow-2xl border border-slate-200 space-y-6 font-sans print:shadow-none print:max-w-full print:p-6 print:m-0 print:border print:border-slate-300 print:rounded-xl"
+            className="bg-white text-slate-900 p-6 sm:p-10 max-w-3xl mx-auto font-sans shadow-md print:shadow-none print:max-w-full print:p-6 print:m-0 print:border-none print:rounded-none space-y-6"
           >
             {/* Header: Seller Info & Document Title */}
-            <div className="flex flex-col sm:flex-row print:flex-row justify-between items-start gap-4 border-b border-slate-200 pb-6">
-              <div className="space-y-2 max-w-md">
-                {seller.logoUrl && (
-                  <div className="mb-1">
-                    <img
-                      src={seller.logoUrl}
-                      alt="Store Logo"
-                      className="max-h-16 w-auto max-w-[220px] object-contain rounded-lg shrink-0"
-                    />
-                  </div>
-                )}
-                <div className="space-y-1">
+            <div className="border-b border-slate-200 pb-6 space-y-3">
+              {seller.logoUrl && (
+                <div>
+                  <img
+                    src={seller.logoUrl}
+                    alt="Store Logo"
+                    className="max-h-16 w-auto max-w-[220px] object-contain shrink-0"
+                  />
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row print:flex-row justify-between items-start gap-4">
+                <div className="space-y-1 max-w-md">
                   <h1 className="text-xl font-bold text-slate-900 leading-tight">
                     {seller.name || 'ร้านค้าออนไลน์บุคคลธรรมดา'}
                   </h1>
@@ -274,31 +275,31 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                     โทร: {seller.phone} {seller.email ? `• อีเมล: ${seller.email}` : ''}
                   </p>
                 </div>
-              </div>
 
-              {/* Document Header Info Section (Larger Title Box & Left-Aligned Text) */}
-              <div className="flex flex-col items-start sm:items-start print:items-start text-left space-y-2">
-                {/* Title in Black Box with White Text */}
-                <div className="bg-slate-900 text-white font-black text-lg sm:text-xl px-7 py-2.5 rounded-xl text-center shadow-md min-w-[210px] tracking-wide">
-                  {docTitle}
-                </div>
+                {/* Document Header Info Section (Aligned with First Line of Store Name) */}
+                <div className="flex flex-col items-start sm:items-start print:items-start text-left space-y-2">
+                  {/* Title in Black Box with White Text */}
+                  <div className="bg-slate-900 text-white font-black text-lg sm:text-xl px-7 py-2.5 rounded-xl text-center shadow-md min-w-[210px] tracking-wide">
+                    {docTitle}
+                  </div>
 
-                {/* Separate Info Lines - Left-Aligned with Title Box */}
-                <div className="text-left text-xs space-y-1 pt-1 pl-1">
-                  <p className="text-slate-700">
-                    <span className="font-semibold text-slate-500 mr-1.5">เลขที่เอกสาร:</span>
-                    <span className="font-extrabold text-slate-900">{doc.docNumber}</span>
-                  </p>
-                  <p className="text-slate-700">
-                    <span className="font-semibold text-slate-500 mr-1.5">วันที่ออกเอกสาร:</span>
-                    <span className="font-bold text-slate-900">{doc.date}</span>
-                  </p>
-                  {doc.type !== 'RECEIPT' && doc.dueDate && (
+                  {/* Separate Info Lines - Left-Aligned with Title Box */}
+                  <div className="text-left text-xs space-y-1 pt-1 pl-1">
                     <p className="text-slate-700">
-                      <span className="font-semibold text-slate-500 mr-1.5">กำหนดชำระ:</span>
-                      <span className="font-bold text-slate-900">{doc.dueDate}</span>
+                      <span className="font-semibold text-slate-500 mr-1.5">เลขที่เอกสาร:</span>
+                      <span className="font-extrabold text-slate-900">{doc.docNumber}</span>
                     </p>
-                  )}
+                    <p className="text-slate-700">
+                      <span className="font-semibold text-slate-500 mr-1.5">วันที่ออกเอกสาร:</span>
+                      <span className="font-bold text-slate-900">{doc.date}</span>
+                    </p>
+                    {doc.type !== 'RECEIPT' && doc.dueDate && (
+                      <p className="text-slate-700">
+                        <span className="font-semibold text-slate-500 mr-1.5">กำหนดชำระ:</span>
+                        <span className="font-bold text-slate-900">{doc.dueDate}</span>
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
