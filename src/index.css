@@ -18,6 +18,12 @@
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    transform: none !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
   }
 
   html, body {
@@ -26,8 +32,10 @@
     color: #0f172a !important;
     margin: 0 !important;
     padding: 0 !important;
+    width: 100% !important;
     height: auto !important;
     overflow: visible !important;
+    zoom: 1 !important;
   }
 
   /* Hide app header, sidebars, background dashboard elements */
@@ -42,10 +50,13 @@
     visibility: hidden !important;
   }
 
-  /* Reset outer modal backdrops and fixed dark overlay containers */
+  /* Reset outer modal backdrops and fixed dark overlay containers (remove vertical centering and outer spacing) */
   .fixed,
-  .backdrop-blur-md {
+  .backdrop-blur-md,
+  div[class*="bg-slate-900"],
+  div[class*="bg-slate-950"] {
     position: static !important;
+    display: block !important;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -57,24 +68,33 @@
     max-height: none !important;
     height: auto !important;
     width: 100% !important;
+    max-width: none !important;
+    transform: none !important;
+    zoom: 1 !important;
   }
 
-  /* Printable document container positioned cleanly on paper */
+  /* Printable document container fills 194mm printable area (210mm - 16mm margins) cleanly starting from top */
   #printable-document-container {
     visibility: visible !important;
     position: relative !important;
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
+    min-width: 100% !important;
     max-width: 100% !important;
-    margin: 0 auto !important;
-    padding: 20px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 24px 28px !important;
     box-shadow: none !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
     background-color: #ffffff !important;
     background: #ffffff !important;
     color: #0f172a !important;
+    transform: none !important;
+    zoom: 1 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   #printable-document-container * {
@@ -127,11 +147,6 @@
 
   #printable-document-container .text-amber-950 {
     color: #451a03 !important;
-  }
-
-  @page {
-    size: A4 portrait;
-    margin: 8mm;
   }
 }
 
