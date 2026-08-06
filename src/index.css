@@ -81,6 +81,54 @@
     visibility: visible !important;
   }
 
+  /* Preserve background colors and badge fills in print output */
+  #printable-document-container .bg-slate-900 {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+  }
+
+  #printable-document-container .bg-slate-100 {
+    background-color: #f1f5f9 !important;
+  }
+
+  #printable-document-container .bg-slate-50 {
+    background-color: #f8fafc !important;
+  }
+
+  #printable-document-container .bg-amber-50 {
+    background-color: #fffbeb !important;
+    border-color: #fde68a !important;
+  }
+
+  #printable-document-container .bg-emerald-100 {
+    background-color: #d1fae5 !important;
+    border-color: #6ee7b7 !important;
+    color: #065f46 !important;
+  }
+
+  #printable-document-container .bg-emerald-50 {
+    background-color: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+  }
+
+  #printable-document-container .bg-blue-100 {
+    background-color: #dbeafe !important;
+    border-color: #93c5fd !important;
+    color: #1e40af !important;
+  }
+
+  #printable-document-container .text-emerald-700 {
+    color: #047857 !important;
+  }
+
+  #printable-document-container .text-amber-800 {
+    color: #92400e !important;
+  }
+
+  #printable-document-container .text-amber-950 {
+    color: #451a03 !important;
+  }
+
   @page {
     size: A4 portrait;
     margin: 8mm;

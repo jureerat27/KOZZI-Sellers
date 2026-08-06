@@ -228,7 +228,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             className="bg-white text-slate-900 rounded-xl p-6 sm:p-10 max-w-3xl mx-auto shadow-2xl border border-slate-200 space-y-6 font-sans print:shadow-none print:max-w-full print:p-6 print:m-0 print:border print:border-slate-300 print:rounded-xl"
           >
             {/* Header: Seller Info & Document Title */}
-            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-slate-200 pb-6">
+            <div className="flex flex-col sm:flex-row print:flex-row justify-between items-start gap-4 border-b border-slate-200 pb-6">
               <div className="flex items-start gap-3.5 max-w-md">
                 {seller.logoUrl && (
                   <img
@@ -252,7 +252,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               </div>
 
               {/* Document Header Info Box with Prominent Date at Top */}
-              <div className="text-right sm:text-right w-full sm:w-auto">
+              <div className="text-right sm:text-right print:text-right w-full sm:w-auto print:w-auto">
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-right space-y-1.5 shadow-xs min-w-[210px] inline-block">
                   <span className="inline-block px-3 py-1 rounded-md bg-slate-900 text-white font-extrabold text-xs uppercase tracking-wider">
                     {docTitle}
@@ -273,7 +273,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             </div>
 
             {/* Customer Details Box */}
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col sm:flex-row justify-between gap-4">
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col sm:flex-row print:flex-row justify-between gap-4">
               <div className="space-y-0.5">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   ลูกค้า / ผู้สั่งซื้อ
@@ -286,7 +286,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                 </p>
               </div>
 
-              <div className="text-right flex flex-col justify-between">
+              <div className="text-right flex flex-col justify-between sm:items-end print:items-end">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   สถานะเอกสาร
                 </span>
@@ -348,7 +348,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             </div>
 
             {/* Summary & PromptPay Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6 pt-4 border-t border-slate-200">
               {/* Payment Info & PromptPay QR (Hidden for Receipts as payment is already complete) */}
               <div className="space-y-3">
                 {doc.type !== 'RECEIPT' && seller.promptPayNumber && (
