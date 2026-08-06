@@ -11,6 +11,7 @@ import {
   Tag,
 } from 'lucide-react';
 import { Expense, ExpenseCategory } from '../types';
+import { formatCurrency } from '../utils/format';
 
 interface ExpenseManagementProps {
   expenses: Expense[];
@@ -108,7 +109,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
         <div>
           <span className="text-xs text-slate-500 font-medium">รวมรายจ่ายเดือนนี้ ({currentMonthStr}) 🗓️</span>
           <p className="text-2xl font-extrabold text-rose-500 mt-0.5">
-            ฿{totalMonthlyExpense.toLocaleString()}
+            ฿{formatCurrency(totalMonthlyExpense)}
           </p>
         </div>
         <div className="w-11 h-11 rounded-xl bg-rose-50 border border-rose-100 text-rose-500 flex items-center justify-center">
@@ -175,7 +176,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
 
               <div className="flex items-center gap-3">
                 <span className="font-extrabold text-base text-rose-600">
-                  -฿{exp.amount.toLocaleString()}
+                  -฿{formatCurrency(exp.amount)}
                 </span>
                 <button
                   onClick={() => onDeleteExpense(exp.id)}

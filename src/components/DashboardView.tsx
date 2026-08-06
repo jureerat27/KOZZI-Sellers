@@ -24,6 +24,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { Customer, Expense, Product, SalesDocument, SellerProfile } from '../types';
+import { formatCurrency } from '../utils/format';
 
 interface DashboardViewProps {
   documents: SalesDocument[];
@@ -224,7 +225,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div>
               <span className="text-xs font-extrabold text-[#64748B] block">ยอดขายรวม</span>
               <div className="text-2xl sm:text-3xl font-black text-[#00B754] tracking-tight mt-1">
-                ฿{totalSales.toLocaleString()}
+                ฿{formatCurrency(totalSales)}
               </div>
             </div>
             <div className="w-11 h-11 rounded-full bg-[#00B754] text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -245,7 +246,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div>
               <span className="text-xs font-extrabold text-[#64748B] block">รายจ่ายรวม</span>
               <div className="text-2xl sm:text-3xl font-black text-[#2563EB] tracking-tight mt-1">
-                ฿{totalExpenses.toLocaleString()}
+                ฿{formatCurrency(totalExpenses)}
               </div>
             </div>
             <div className="w-11 h-11 rounded-full bg-[#2563EB] text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -266,7 +267,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div>
               <span className="text-xs font-extrabold text-[#64748B] block">กำไรสุทธิ</span>
               <div className={`text-2xl sm:text-3xl font-black tracking-tight mt-1 ${netProfit >= 0 ? 'text-[#F97316]' : 'text-rose-600'}`}>
-                ฿{netProfit.toLocaleString()}
+                ฿{formatCurrency(netProfit)}
               </div>
             </div>
             <div className={`w-11 h-11 rounded-full text-white flex items-center justify-center shrink-0 shadow-xs ${netProfit >= 0 ? 'bg-[#F97316]' : 'bg-rose-600'}`}>
@@ -365,7 +366,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       fontWeight: '700',
                     }}
                     formatter={(value: any, name: any) => [
-                      `฿${Number(value).toLocaleString()} (${
+                      `฿${formatCurrency(Number(value))} (${
                         pieData.find((p) => p.name === name)?.percentage
                       }%)`,
                       name,
@@ -407,7 +408,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                 <div className="flex items-center gap-6">
                   <span className="text-sm sm:text-base font-black text-[#0D2B52]">
-                    ฿{item.value.toLocaleString()}
+                    ฿{formatCurrency(item.value)}
                   </span>
                   <span className="text-xs font-black text-slate-500 w-8 text-right">
                     {item.percentage}%
@@ -474,7 +475,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           {doc.date}
                         </td>
                         <td className="py-3 font-extrabold text-[#0D2B52] text-right whitespace-nowrap">
-                          ฿{doc.grandTotal.toLocaleString()}
+                          ฿{formatCurrency(doc.grandTotal)}
                         </td>
                         <td className="py-3 text-center whitespace-nowrap">
                           <span
@@ -531,7 +532,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {doc.type === 'QUOTATION' ? 'ใบเสนอราคา' : 'ใบแจ้งหนี้'} {doc.docNumber}
                       </span>
                       <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
-                        ลูกค้า: {doc.customerName} (฿{doc.grandTotal.toLocaleString()})
+                        ลูกค้า: {doc.customerName} (฿{formatCurrency(doc.grandTotal)})
                       </span>
                     </div>
                   </div>

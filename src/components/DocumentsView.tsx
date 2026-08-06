@@ -14,6 +14,7 @@ import {
   Edit3,
 } from 'lucide-react';
 import { DocumentStatus, DocumentType, SalesDocument } from '../types';
+import { formatCurrency } from '../utils/format';
 
 interface DocumentsViewProps {
   documents: SalesDocument[];
@@ -216,7 +217,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   <div className="text-left sm:text-right">
                     <span className="text-[10px] text-slate-500 block">ยอดรวมทั้งสิ้น</span>
                     <span className="font-extrabold text-pink-600 text-base">
-                      ฿{doc.grandTotal.toLocaleString()}
+                      ฿{formatCurrency(doc.grandTotal)}
                     </span>
                   </div>
 

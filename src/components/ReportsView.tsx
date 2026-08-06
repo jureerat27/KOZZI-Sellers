@@ -33,6 +33,7 @@ import {
   Cell,
 } from 'recharts';
 import { Expense, Product, SalesDocument, SellerProfile } from '../types';
+import { formatCurrency } from '../utils/format';
 
 interface ReportsViewProps {
   documents: SalesDocument[];
@@ -278,7 +279,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               พิมพ์ PDF ใบเสร็จรับเงิน
             </h3>
             <p className="text-xs text-[#6B7A90] mt-1 font-medium">
-              พิมพ์รายงานสรุปใบเสร็จรับเงินทั้งหมด {filteredReceipts.length} รายการ (รวม ฿{totalSales.toLocaleString()})
+              พิมพ์รายงานสรุปใบเสร็จรับเงินทั้งหมด {filteredReceipts.length} รายการ (รวม ฿{formatCurrency(totalSales)})
             </p>
           </div>
 
@@ -301,7 +302,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               พิมพ์ PDF ค่าใช้จ่ายทั้งหมด
             </h3>
             <p className="text-xs text-[#6B7A90] mt-1 font-medium">
-              พิมพ์รายการบันทึกค่าใช้จ่าย {filteredExpenses.length} รายการ (รวม ฿{totalExpenses.toLocaleString()})
+              พิมพ์รายการบันทึกค่าใช้จ่าย {filteredExpenses.length} รายการ (รวม ฿{formatCurrency(totalExpenses)})
             </p>
           </div>
 
@@ -343,7 +344,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         <div className="bg-white border border-[#E2E8F0] p-4 rounded-2xl shadow-2xs">
           <span className="text-xs font-bold text-[#6B7A90]">1. ยอดขายรวม (Sales) 💰</span>
           <p className="text-xl sm:text-2xl font-black text-[#16A394] mt-1">
-            ฿{totalSales.toLocaleString()}
+            ฿{formatCurrency(totalSales)}
           </p>
           <span className="text-[11px] font-bold text-[#6B7A90]">{filteredReceipts.length} ใบเสร็จ</span>
         </div>
@@ -351,15 +352,15 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         <div className="bg-white border border-[#E2E8F0] p-4 rounded-2xl shadow-2xs">
           <span className="text-xs font-bold text-[#6B7A90]">2. ต้นทุนสินค้า (COGS) 📦</span>
           <p className="text-xl sm:text-2xl font-black text-[#2374D8] mt-1">
-            ฿{totalCogs.toLocaleString()}
+            ฿{formatCurrency(totalCogs)}
           </p>
-          <span className="text-[11px] font-bold text-[#6B7A90]">กำไรขั้นต้น: ฿{grossProfit.toLocaleString()}</span>
+          <span className="text-[11px] font-bold text-[#6B7A90]">กำไรขั้นต้น: ฿{formatCurrency(grossProfit)}</span>
         </div>
 
         <div className="bg-white border border-[#E2E8F0] p-4 rounded-2xl shadow-2xs">
           <span className="text-xs font-bold text-[#6B7A90]">3. รายจ่ายรวม (Expenses) 💸</span>
           <p className="text-xl sm:text-2xl font-black text-[#F59E0B] mt-1">
-            ฿{totalExpenses.toLocaleString()}
+            ฿{formatCurrency(totalExpenses)}
           </p>
           <span className="text-[11px] font-bold text-[#6B7A90]">{filteredExpenses.length} รายการจ่าย</span>
         </div>
@@ -371,7 +372,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               netProfit >= 0 ? 'text-[#16A394]' : 'text-[#F59E0B]'
             }`}
           >
-            ฿{netProfit.toLocaleString()}
+            ฿{formatCurrency(netProfit)}
           </p>
           <span className="text-[11px] font-bold text-[#6B7A90]">
             {totalSales > 0 ? `อัตรากำไร: ${((netProfit / totalSales) * 100).toFixed(1)}%` : 'ไม่มีการขาย'}
@@ -421,7 +422,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       fontSize: '12px',
                       fontWeight: '700',
                     }}
-                    formatter={(val: any) => [`฿${Number(val).toLocaleString()}`, 'จำนวนเงิน']}
+                    formatter={(val: any) => [`฿${formatCurrency(Number(val))}`, 'จำนวนเงิน']}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -460,7 +461,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   </div>
 
                   <span className="font-black text-[#16A394] text-sm">
-                    ฿{p.revenue.toLocaleString()}
+                    ฿{formatCurrency(p.revenue)}
                   </span>
                 </div>
               ))}
@@ -601,7 +602,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                             <td className="p-2.5">{r.customerName}</td>
                             <td className="p-2.5">{r.paymentMethod || 'เงินโอน / PromptPay'}</td>
                             <td className="p-2.5 text-right font-bold text-[#16A394]">
-                              ฿{r.grandTotal.toLocaleString()}
+                              ฿{formatCurrency(r.grandTotal)}
                             </td>
                           </tr>
                         ))
@@ -613,7 +614,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                           ยอดรวมใบเสร็จทั้งหมด ({filteredReceipts.length} รายการ):
                         </td>
                         <td className="p-3 text-right text-sm text-[#16A394]">
-                          ฿{totalSales.toLocaleString()}
+                          ฿{formatCurrency(totalSales)}
                         </td>
                       </tr>
                     </tfoot>
@@ -657,7 +658,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                             <td className="p-2.5">{e.description}</td>
                             <td className="p-2.5">{e.recipient || '-'}</td>
                             <td className="p-2.5 text-right font-bold text-[#2374D8]">
-                              ฿{e.amount.toLocaleString()}
+                              ฿{formatCurrency(e.amount)}
                             </td>
                           </tr>
                         ))
@@ -669,7 +670,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                           ยอดรวมค่าใช้จ่ายทั้งหมด ({filteredExpenses.length} รายการ):
                         </td>
                         <td className="p-3 text-right text-sm text-[#2374D8]">
-                          ฿{totalExpenses.toLocaleString()}
+                          ฿{formatCurrency(totalExpenses)}
                         </td>
                       </tr>
                     </tfoot>
@@ -684,7 +685,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 border border-slate-300 rounded-xl bg-slate-50 space-y-2">
                       <span className="text-xs font-bold text-slate-600 block">สรุปยอดรับเงิน (Sales)</span>
-                      <p className="text-xl font-black text-[#16A394]">฿{totalSales.toLocaleString()}</p>
+                      <p className="text-xl font-black text-[#16A394]">฿{formatCurrency(totalSales)}</p>
                       <p className="text-[11px] text-slate-500">
                         จาก {filteredReceipts.length} ใบเสร็จรับเงิน
                       </p>
@@ -692,7 +693,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
                     <div className="p-4 border border-slate-300 rounded-xl bg-slate-50 space-y-2">
                       <span className="text-xs font-bold text-slate-600 block">สรุปค่าใช้จ่าย (Expenses)</span>
-                      <p className="text-xl font-black text-[#2374D8]">฿{totalExpenses.toLocaleString()}</p>
+                      <p className="text-xl font-black text-[#2374D8]">฿{formatCurrency(totalExpenses)}</p>
                       <p className="text-[11px] text-slate-500">
                         จาก {filteredExpenses.length} รายการจ่าย
                       </p>
@@ -714,7 +715,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                         netProfit >= 0 ? 'text-[#16A394]' : 'text-[#F59E0B]'
                       }`}
                     >
-                      ฿{netProfit.toLocaleString()}
+                      ฿{formatCurrency(netProfit)}
                     </span>
                   </div>
 
@@ -736,7 +737,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                           <tr key={idx}>
                             <td className="p-2 font-medium">{cat.name}</td>
                             <td className="p-2 text-right font-bold text-slate-800">
-                              ฿{cat.value.toLocaleString()}
+                              ฿{formatCurrency(cat.value)}
                             </td>
                             <td className="p-2 text-right text-slate-600">
                               {totalExpenses > 0 ? ((cat.value / totalExpenses) * 100).toFixed(1) : 0}%

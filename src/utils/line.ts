@@ -1,4 +1,5 @@
 import { Product, SalesDocument, SellerProfile } from '../types';
+import { formatCurrency } from './format';
 
 export async function sendLineNotification(
   token: string,
@@ -79,7 +80,7 @@ export function generateFlexReceipt(doc: SalesDocument, seller: SellerProfile): 
       },
       {
         type: 'text',
-        text: `฿${item.total.toLocaleString()}`,
+        text: `฿${formatCurrency(item.total)}`,
         size: 'xs',
         color: '#0F172A',
         align: 'end',
@@ -164,7 +165,7 @@ export function generateFlexReceipt(doc: SalesDocument, seller: SellerProfile): 
               },
               {
                 type: 'text',
-                text: `฿${doc.grandTotal.toLocaleString()}`,
+                text: `฿${formatCurrency(doc.grandTotal)}`,
                 weight: 'bold',
                 size: 'lg',
                 color: '#059669',
@@ -235,16 +236,16 @@ export function formatDocumentForLine(doc: SalesDocument, seller: SellerProfile)
   text += `วันที่: ${doc.date}\n`;
   text += `--------------------------------\n`;
   doc.items.forEach((item, index) => {
-    text += `${index + 1}. ${item.productName}\n   ${item.quantity} x ฿${item.price.toLocaleString()} = ฿${item.total.toLocaleString()}\n`;
+    text += `${index + 1}. ${item.productName}\n   ${item.quantity} x ฿${formatCurrency(item.price)} = ฿${formatCurrency(item.total)}\n`;
   });
   text += `--------------------------------\n`;
   if (doc.shippingFee > 0) {
-    text += `ค่าจัดส่ง: ฿${doc.shippingFee.toLocaleString()}\n`;
+    text += `ค่าจัดส่ง: ฿${formatCurrency(doc.shippingFee)}\n`;
   }
   if (doc.discountAmount > 0) {
-    text += `ส่วนลด: -฿${doc.discountAmount.toLocaleString()}\n`;
+    text += `ส่วนลด: -฿${formatCurrency(doc.discountAmount)}\n`;
   }
-  text += `💰 ยอดรวมสุทธิ: ฿${doc.grandTotal.toLocaleString()}\n`;
+  text += `💰 ยอดรวมสุทธิ: ฿${formatCurrency(doc.grandTotal)}\n`;
   text += `--------------------------------\n`;
 
   if (doc.type !== 'RECEIPT' && seller.promptPayNumber) {
