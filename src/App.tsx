@@ -224,11 +224,17 @@ export default function App() {
   };
 
   const handleConvertDoc = (doc: SalesDocument, targetType: 'INVOICE' | 'RECEIPT') => {
+    const targetNote =
+      targetType === 'INVOICE'
+        ? seller.defaultInvoiceNotes || 'กรุณาชำระเงินตามกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านบัญชีธนาคารของร้านค้า'
+        : seller.defaultReceiptNotes || seller.defaultDocumentNotes || 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา';
+
     const newDoc: SalesDocument = {
       ...doc,
       id: `doc-${Date.now()}`,
       docNumber: `${targetType === 'INVOICE' ? 'INV' : 'REC'}-${new Date().toISOString().slice(0, 7).replace('-', '')}-${(documents.length + 1).toString().padStart(4, '0')}`,
       type: targetType,
+      notes: targetNote,
       status: targetType === 'RECEIPT' ? 'PAID' : 'SENT',
       paymentDate: targetType === 'RECEIPT' ? new Date().toISOString().split('T')[0] : undefined,
       createdAt: new Date().toISOString(),

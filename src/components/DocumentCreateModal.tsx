@@ -60,14 +60,18 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
   const [shippingFee, setShippingFee] = useState<number>(editingDoc ? editingDoc.shippingFee : 0);
   const [discountAmount, setDiscountAmount] = useState<number>(editingDoc ? editingDoc.discountAmount : 0);
   const [vatRate, setVatRate] = useState<number>(editingDoc ? editingDoc.vatRate : 0); // 0 or 7
+  const getDefaultNoteForType = (type: DocumentType): string => {
+    if (type === 'QUOTATION') {
+      return seller.defaultQuotationNotes || 'ใบเสนอราคานี้มีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร หากมีข้อสงสัยกรุณาติดต่อร้านค้า';
+    } else if (type === 'INVOICE') {
+      return seller.defaultInvoiceNotes || 'กรุณาชำระเงินตามกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านบัญชีธนาคารของร้านค้า';
+    } else {
+      return seller.defaultReceiptNotes || seller.defaultDocumentNotes || 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา';
+    }
+  };
+
   const [notes, setNotes] = useState<string>(
-    editingDoc ? (editingDoc.notes || '') : (
-      docType === 'QUOTATION'
-        ? 'ใบเสนอราคามีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร'
-        : docType === 'INVOICE'
-        ? 'ชำระเงินตามวันกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านธนาคาร'
-        : 'ได้รับเงินถูกต้องเรียบร้อยแล้ว ขอบคุณที่อุดหนุนครับ'
-    )
+    editingDoc ? (editingDoc.notes || '') : getDefaultNoteForType(docType)
   );
   const [status, setStatus] = useState<DocumentStatus>(
     editingDoc ? editingDoc.status : (docType === 'RECEIPT' ? 'PAID' : 'SENT')
@@ -247,7 +251,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 onClick={() => {
                   setDocType('QUOTATION');
                   setStatus('SENT');
-                  setNotes('ใบเสนอราคามีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร');
+                  setNotes(getDefaultNoteForType('QUOTATION'));
                 }}
                 className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
                   docType === 'QUOTATION'
@@ -263,7 +267,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 onClick={() => {
                   setDocType('INVOICE');
                   setStatus('SENT');
-                  setNotes('ชำระเงินตามวันกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านธนาคาร');
+                  setNotes(getDefaultNoteForType('INVOICE'));
                 }}
                 className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
                   docType === 'INVOICE'
@@ -279,7 +283,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 onClick={() => {
                   setDocType('RECEIPT');
                   setStatus('PAID');
-                  setNotes('ได้รับเงินถูกต้องเรียบร้อยแล้ว ขอบคุณที่อุดหนุนครับ');
+                  setNotes(getDefaultNoteForType('RECEIPT'));
                 }}
                 className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
                   docType === 'RECEIPT'

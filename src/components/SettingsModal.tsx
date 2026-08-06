@@ -55,8 +55,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [isTestingOa, setIsTestingOa] = useState(false);
   const [logoUrl, setLogoUrl] = useState(seller.logoUrl || '');
   const [signatureUrl, setSignatureUrl] = useState(seller.signatureUrl || '');
-  const [defaultDocumentNotes, setDefaultDocumentNotes] = useState(
-    seller.defaultDocumentNotes || 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา'
+  const [defaultQuotationNotes, setDefaultQuotationNotes] = useState(
+    seller.defaultQuotationNotes || 'ใบเสนอราคานี้มีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร หากมีข้อสงสัยกรุณาติดต่อร้านค้า'
+  );
+  const [defaultInvoiceNotes, setDefaultInvoiceNotes] = useState(
+    seller.defaultInvoiceNotes || 'กรุณาชำระเงินตามกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านบัญชีธนาคารของร้านค้า'
+  );
+  const [defaultReceiptNotes, setDefaultReceiptNotes] = useState(
+    seller.defaultReceiptNotes || seller.defaultDocumentNotes || 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา'
   );
 
   const handleLogoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,7 +155,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       lineOaBasicId,
       logoUrl,
       signatureUrl,
-      defaultDocumentNotes,
+      defaultDocumentNotes: defaultReceiptNotes,
+      defaultQuotationNotes,
+      defaultInvoiceNotes,
+      defaultReceiptNotes,
     };
     onSaveSeller(updated);
     alert('บันทึกการตั้งค่าร้านค้าเรียบร้อยแล้ว');
@@ -441,22 +450,68 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               )}
             </div>
 
-            {/* Default Document Notes Box */}
-            <div className="bg-white border border-[#CBD7E6] rounded-2xl p-4 space-y-2 shadow-2xs mt-4">
-              <label className="text-xs font-extrabold text-[#0D2B52] flex items-center gap-2">
-                <span className="text-base">📝</span>
-                <span>ข้อความหมายเหตุเอกสารเริ่มต้น (Default Document Notes)</span>
-              </label>
-              <p className="text-[11px] text-slate-500">
-                ข้อความนี้จะถูกนำไปใช้เป็นหมายเหตุเริ่มต้นในเอกสารขายทุกใบ (ใบเสนอราคา, ใบแจ้งหนี้, ใบเสร็จรับเงิน)
-              </p>
-              <textarea
-                rows={3}
-                value={defaultDocumentNotes}
-                onChange={(e) => setDefaultDocumentNotes(e.target.value)}
-                placeholder="เช่น ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา"
-                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB] leading-relaxed font-sans"
-              />
+            {/* Default Document Notes Box - Separated per Document Type */}
+            <div className="bg-white border border-[#CBD7E6] rounded-2xl p-4 space-y-4 shadow-2xs mt-4">
+              <div>
+                <label className="text-xs font-extrabold text-[#0D2B52] flex items-center gap-2">
+                  <span className="text-base">📝</span>
+                  <span>ตั้งค่าข้อความหมายเหตุเอกสารเริ่มต้น (แยกตามประเภทเอกสาร)</span>
+                </label>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  ข้อความนี้จะนำไปแสดงในหมายเหตุเริ่มต้นเมื่อสร้างหรือเปลี่ยนประเภทเอกสาร
+                </p>
+              </div>
+
+              {/* 1. Quotation Notes */}
+              <div className="space-y-1.5 bg-[#F8FAFC] p-3 rounded-xl border border-slate-200">
+                <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <span>1. หมายเหตุสำหรับ "ใบเสนอราคา" (Quotation Notes)</span>
+                  </span>
+                </label>
+                <textarea
+                  rows={2}
+                  value={defaultQuotationNotes}
+                  onChange={(e) => setDefaultQuotationNotes(e.target.value)}
+                  placeholder="เช่น ใบเสนอราคานี้มีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร"
+                  className="w-full bg-white border border-[#CBD7E6] rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB] leading-relaxed font-sans"
+                />
+              </div>
+
+              {/* 2. Invoice Notes */}
+              <div className="space-y-1.5 bg-[#F8FAFC] p-3 rounded-xl border border-slate-200">
+                <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span>2. หมายเหตุสำหรับ "ใบแจ้งหนี้" (Invoice Notes)</span>
+                  </span>
+                </label>
+                <textarea
+                  rows={2}
+                  value={defaultInvoiceNotes}
+                  onChange={(e) => setDefaultInvoiceNotes(e.target.value)}
+                  placeholder="เช่น กรุณาชำระเงินตามกำหนดผ่านพร้อมเพย์ หรือโอนผ่านบัญชีธนาคาร"
+                  className="w-full bg-white border border-[#CBD7E6] rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB] leading-relaxed font-sans"
+                />
+              </div>
+
+              {/* 3. Receipt Notes */}
+              <div className="space-y-1.5 bg-[#F8FAFC] p-3 rounded-xl border border-slate-200">
+                <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>3. หมายเหตุสำหรับ "ใบเสร็จรับเงิน" (Receipt Notes)</span>
+                  </span>
+                </label>
+                <textarea
+                  rows={2}
+                  value={defaultReceiptNotes}
+                  onChange={(e) => setDefaultReceiptNotes(e.target.value)}
+                  placeholder="เช่น ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา"
+                  className="w-full bg-white border border-[#CBD7E6] rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB] leading-relaxed font-sans"
+                />
+              </div>
             </div>
           </div>
 

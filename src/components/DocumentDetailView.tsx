@@ -68,8 +68,18 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
       payerName: '',
     },
   ]);
+  const getDefaultNoteForDocType = (type: string): string => {
+    if (type === 'QUOTATION') {
+      return seller.defaultQuotationNotes || 'ใบเสนอราคานี้มีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร หากมีข้อสงสัยกรุณาติดต่อร้านค้า';
+    } else if (type === 'INVOICE') {
+      return seller.defaultInvoiceNotes || 'กรุณาชำระเงินตามกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านบัญชีธนาคารของร้านค้า';
+    } else {
+      return seller.defaultReceiptNotes || seller.defaultDocumentNotes || 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา';
+    }
+  };
+
   const [customNotes, setCustomNotes] = useState<string>(
-    doc.notes || seller.defaultDocumentNotes || 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา'
+    doc.notes || getDefaultNoteForDocType(doc.type)
   );
 
   useEffect(() => {

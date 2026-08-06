@@ -19,6 +19,9 @@ export interface SellerProfile {
   logoUrl: string;
   signatureUrl: string;
   defaultDocumentNotes?: string;
+  defaultQuotationNotes?: string;
+  defaultInvoiceNotes?: string;
+  defaultReceiptNotes?: string;
   googleSheetId?: string;
   autoSync: boolean;
 }
