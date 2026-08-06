@@ -43,24 +43,24 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
   onSave,
   onAddCustomer,
 }) => {
-  const [docType, setDocType] = useState<DocumentType>(editingDoc ? editingDoc.type : initialType);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>(editingDoc ? editingDoc.customerId : '');
-  const [customerName, setCustomerName] = useState<string>(editingDoc ? editingDoc.customerName : '');
-  const [customerPhone, setCustomerPhone] = useState<string>(editingDoc ? editingDoc.customerPhone : '');
-  const [customerAddress, setCustomerAddress] = useState<string>(editingDoc ? editingDoc.customerAddress : '');
-  const [customerTaxId, setCustomerTaxId] = useState<string>(editingDoc ? editingDoc.customerTaxId || '' : '');
+  const [docType, setDocType] = useState<DocumentType>(editingDoc?.type || initialType);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>(editingDoc?.customerId || '');
+  const [customerName, setCustomerName] = useState<string>(editingDoc?.customerName || '');
+  const [customerPhone, setCustomerPhone] = useState<string>(editingDoc?.customerPhone || '');
+  const [customerAddress, setCustomerAddress] = useState<string>(editingDoc?.customerAddress || '');
+  const [customerTaxId, setCustomerTaxId] = useState<string>(editingDoc?.customerTaxId || '');
 
   const [docDate, setDocDate] = useState<string>(
-    editingDoc ? editingDoc.date : new Date().toISOString().split('T')[0]
+    editingDoc?.date || new Date().toISOString().split('T')[0]
   );
   const [dueDate, setDueDate] = useState<string>(
-    editingDoc ? editingDoc.dueDate : new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]
+    editingDoc?.dueDate || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]
   );
 
-  const [items, setItems] = useState<DocumentItem[]>(editingDoc ? editingDoc.items : []);
-  const [shippingFee, setShippingFee] = useState<number>(editingDoc ? editingDoc.shippingFee : 0);
-  const [discountAmount, setDiscountAmount] = useState<number>(editingDoc ? editingDoc.discountAmount : 0);
-  const [vatRate, setVatRate] = useState<number>(editingDoc ? editingDoc.vatRate : 0); // 0 or 7
+  const [items, setItems] = useState<DocumentItem[]>(editingDoc?.items || []);
+  const [shippingFee, setShippingFee] = useState<number>(editingDoc?.shippingFee || 0);
+  const [discountAmount, setDiscountAmount] = useState<number>(editingDoc?.discountAmount || 0);
+  const [vatRate, setVatRate] = useState<number>(editingDoc?.vatRate || 0); // 0 or 7
   const getDefaultNoteForType = (type: DocumentType): string => {
     if (type === 'QUOTATION') {
       return seller.defaultQuotationNotes || 'ใบเสนอราคานี้มีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร หากมีข้อสงสัยกรุณาติดต่อร้านค้า';
@@ -75,10 +75,10 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
     editingDoc ? (editingDoc.notes || '') : getDefaultNoteForType(docType)
   );
   const [status, setStatus] = useState<DocumentStatus>(
-    editingDoc ? editingDoc.status : (docType === 'RECEIPT' ? 'PAID' : 'SENT')
+    editingDoc?.status || (docType === 'RECEIPT' ? 'PAID' : 'SENT')
   );
   const [paymentMethod, setPaymentMethod] = useState<string>(
-    editingDoc ? (editingDoc.paymentMethod || 'PromptPay QR') : 'PromptPay QR'
+    editingDoc?.paymentMethod || 'PromptPay QR'
   );
 
   // New Quick Customer Inline Modal

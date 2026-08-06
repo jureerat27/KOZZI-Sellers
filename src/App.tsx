@@ -147,6 +147,7 @@ export default function App() {
   };
 
   const handleEditDocument = (doc: SalesDocument) => {
+    setSelectedDoc(null);
     setEditingDoc(doc);
     setCreateDocType(doc.type);
     setIsCreateDocOpen(true);

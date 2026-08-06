@@ -8,11 +8,16 @@ export function formatCurrency(amount: number | undefined | null): string {
 
 export function formatDate(dateStr: string | undefined | null): string {
   if (!dateStr) return '';
-  const clean = dateStr.split('T')[0];
-  const parts = clean.split('-');
-  if (parts.length === 3 && parts[0].length === 4) {
-    const [year, month, day] = parts;
-    return `${day}-${month}-${year}`;
+  try {
+    const str = String(dateStr);
+    const clean = str.split('T')[0];
+    const parts = clean.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+      const [year, month, day] = parts;
+      return `${day}-${month}-${year}`;
+    }
+    return str;
+  } catch {
+    return String(dateStr || '');
   }
-  return dateStr;
 }
