@@ -2,6 +2,7 @@ import {
   collection,
   doc,
   setDoc,
+  getDoc,
   deleteDoc,
   onSnapshot,
   getDocs,
@@ -33,7 +34,36 @@ const COLLECTIONS = {
   CUSTOMERS: 'customers',
   DOCUMENTS: 'documents',
   EXPENSES: 'expenses',
+  METADATA: 'app_metadata',
 };
+
+async function isAppInitializedInCloud(): Promise<boolean> {
+  if (localStorage.getItem('firestore_app_initialized') === 'true') {
+    return true;
+  }
+  try {
+    const metaRef = doc(db, COLLECTIONS.METADATA, 'status');
+    const snapshot = await getDoc(metaRef);
+    if (snapshot.exists()) {
+      localStorage.setItem('firestore_app_initialized', 'true');
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+async function markAppInitializedInCloud() {
+  localStorage.setItem('firestore_app_initialized', 'true');
+  localStorage.setItem('sellersapp_has_initialized', 'true');
+  try {
+    const metaRef = doc(db, COLLECTIONS.METADATA, 'status');
+    await setDoc(metaRef, { initialized: true, updatedAt: new Date().toISOString() }, { merge: true });
+  } catch (err) {
+    console.error('Error marking app initialized:', err);
+  }
+}
 
 // 1. SELLER PROFILE
 export function subscribeSellerProfile(callback: (seller: SellerProfile) => void) {
@@ -75,24 +105,25 @@ export function subscribeProducts(callback: (products: Product[]) => void) {
   return onSnapshot(
     colRef,
     async (snapshot) => {
-      const hasSeeded = localStorage.getItem('firestore_products_seeded');
+      const initialized = await isAppInitializedInCloud();
       if (!snapshot.empty) {
         const productsList: Product[] = snapshot.docs.map((d) => ({
           ...(d.data() as Product),
           id: d.id,
         }));
         saveLocalProducts(productsList);
-        localStorage.setItem('firestore_products_seeded', 'true');
+        markAppInitializedInCloud();
         callback(productsList);
-      } else if (!hasSeeded) {
-        // Seed default products to Firestore if empty for the first time
+      } else if (!initialized) {
+        // First run ever, seed initial defaults once
         const local = getLocalProducts();
-        localStorage.setItem('firestore_products_seeded', 'true');
+        markAppInitializedInCloud();
         for (const p of local) {
           await setDoc(doc(db, COLLECTIONS.PRODUCTS, p.id), p).catch(console.error);
         }
         callback(local);
       } else {
+        // User deleted all products or has no products
         saveLocalProducts([]);
         callback([]);
       }
@@ -105,6 +136,7 @@ export function subscribeProducts(callback: (products: Product[]) => void) {
 }
 
 export async function saveProductCloud(product: Product) {
+  markAppInitializedInCloud();
   try {
     const docRef = doc(db, COLLECTIONS.PRODUCTS, product.id);
     await setDoc(docRef, product, { merge: true });
@@ -114,6 +146,7 @@ export async function saveProductCloud(product: Product) {
 }
 
 export async function saveProductsBatchCloud(products: Product[]) {
+  markAppInitializedInCloud();
   saveLocalProducts(products);
   try {
     for (const p of products) {
@@ -126,6 +159,7 @@ export async function saveProductsBatchCloud(products: Product[]) {
 }
 
 export async function deleteProductCloud(productId: string) {
+  markAppInitializedInCloud();
   try {
     const docRef = doc(db, COLLECTIONS.PRODUCTS, productId);
     await deleteDoc(docRef);
@@ -140,18 +174,18 @@ export function subscribeCustomers(callback: (customers: Customer[]) => void) {
   return onSnapshot(
     colRef,
     async (snapshot) => {
-      const hasSeeded = localStorage.getItem('firestore_customers_seeded');
+      const initialized = await isAppInitializedInCloud();
       if (!snapshot.empty) {
         const list: Customer[] = snapshot.docs.map((d) => ({
           ...(d.data() as Customer),
           id: d.id,
         }));
         saveLocalCustomers(list);
-        localStorage.setItem('firestore_customers_seeded', 'true');
+        markAppInitializedInCloud();
         callback(list);
-      } else if (!hasSeeded) {
+      } else if (!initialized) {
         const local = getLocalCustomers();
-        localStorage.setItem('firestore_customers_seeded', 'true');
+        markAppInitializedInCloud();
         for (const c of local) {
           await setDoc(doc(db, COLLECTIONS.CUSTOMERS, c.id), c).catch(console.error);
         }
@@ -169,6 +203,7 @@ export function subscribeCustomers(callback: (customers: Customer[]) => void) {
 }
 
 export async function saveCustomerCloud(customer: Customer) {
+  markAppInitializedInCloud();
   try {
     const docRef = doc(db, COLLECTIONS.CUSTOMERS, customer.id);
     await setDoc(docRef, customer, { merge: true });
@@ -178,6 +213,7 @@ export async function saveCustomerCloud(customer: Customer) {
 }
 
 export async function deleteCustomerCloud(customerId: string) {
+  markAppInitializedInCloud();
   try {
     const docRef = doc(db, COLLECTIONS.CUSTOMERS, customerId);
     await deleteDoc(docRef);
@@ -192,7 +228,7 @@ export function subscribeDocuments(callback: (docs: SalesDocument[]) => void) {
   return onSnapshot(
     colRef,
     async (snapshot) => {
-      const hasSeeded = localStorage.getItem('firestore_documents_seeded');
+      const initialized = await isAppInitializedInCloud();
       if (!snapshot.empty) {
         const list: SalesDocument[] = snapshot.docs.map((d) => ({
           ...(d.data() as SalesDocument),
@@ -201,16 +237,17 @@ export function subscribeDocuments(callback: (docs: SalesDocument[]) => void) {
         // Sort documents by createdAt / date descending
         list.sort((a, b) => new Date(b.createdAt || b.date).getTime() - new Date(a.createdAt || a.date).getTime());
         saveLocalDocuments(list);
-        localStorage.setItem('firestore_documents_seeded', 'true');
+        markAppInitializedInCloud();
         callback(list);
-      } else if (!hasSeeded) {
+      } else if (!initialized) {
         const local = getLocalDocuments();
-        localStorage.setItem('firestore_documents_seeded', 'true');
+        markAppInitializedInCloud();
         for (const d of local) {
           await setDoc(doc(db, COLLECTIONS.DOCUMENTS, d.id), d).catch(console.error);
         }
         callback(local);
       } else {
+        // User deleted all documents
         saveLocalDocuments([]);
         callback([]);
       }
@@ -223,6 +260,7 @@ export function subscribeDocuments(callback: (docs: SalesDocument[]) => void) {
 }
 
 export async function saveDocumentCloud(salesDoc: SalesDocument) {
+  markAppInitializedInCloud();
   try {
     const docRef = doc(db, COLLECTIONS.DOCUMENTS, salesDoc.id);
     await setDoc(docRef, salesDoc, { merge: true });
@@ -232,23 +270,12 @@ export async function saveDocumentCloud(salesDoc: SalesDocument) {
 }
 
 export async function deleteDocumentCloud(docId: string) {
+  markAppInitializedInCloud();
   try {
     const docRef = doc(db, COLLECTIONS.DOCUMENTS, docId);
     await deleteDoc(docRef);
   } catch (err) {
     console.error('Error deleting document from Firestore:', err);
-  }
-}
-
-export async function deleteAllDocumentsCloud(docs: SalesDocument[]) {
-  saveLocalDocuments([]);
-  try {
-    for (const d of docs) {
-      const docRef = doc(db, COLLECTIONS.DOCUMENTS, d.id);
-      await deleteDoc(docRef);
-    }
-  } catch (err) {
-    console.error('Error deleting all documents from Firestore:', err);
   }
 }
 
@@ -258,7 +285,7 @@ export function subscribeExpenses(callback: (expenses: Expense[]) => void) {
   return onSnapshot(
     colRef,
     async (snapshot) => {
-      const hasSeeded = localStorage.getItem('firestore_expenses_seeded');
+      const initialized = await isAppInitializedInCloud();
       if (!snapshot.empty) {
         const list: Expense[] = snapshot.docs.map((d) => ({
           ...(d.data() as Expense),
@@ -266,11 +293,11 @@ export function subscribeExpenses(callback: (expenses: Expense[]) => void) {
         }));
         list.sort((a, b) => new Date(b.createdAt || b.date).getTime() - new Date(a.createdAt || a.date).getTime());
         saveLocalExpenses(list);
-        localStorage.setItem('firestore_expenses_seeded', 'true');
+        markAppInitializedInCloud();
         callback(list);
-      } else if (!hasSeeded) {
+      } else if (!initialized) {
         const local = getLocalExpenses();
-        localStorage.setItem('firestore_expenses_seeded', 'true');
+        markAppInitializedInCloud();
         for (const e of local) {
           await setDoc(doc(db, COLLECTIONS.EXPENSES, e.id), e).catch(console.error);
         }
@@ -288,6 +315,7 @@ export function subscribeExpenses(callback: (expenses: Expense[]) => void) {
 }
 
 export async function saveExpenseCloud(expense: Expense) {
+  markAppInitializedInCloud();
   try {
     const docRef = doc(db, COLLECTIONS.EXPENSES, expense.id);
     await setDoc(docRef, expense, { merge: true });
@@ -297,6 +325,7 @@ export async function saveExpenseCloud(expense: Expense) {
 }
 
 export async function deleteExpenseCloud(expenseId: string) {
+  markAppInitializedInCloud();
   try {
     const docRef = doc(db, COLLECTIONS.EXPENSES, expenseId);
     await deleteDoc(docRef);

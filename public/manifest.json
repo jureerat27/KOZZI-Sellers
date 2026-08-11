@@ -1,0 +1,21 @@
+{
+  "name": "Kozzi Seller - ระบบจัดการร้านค้า",
+  "short_name": "Kozzi Seller",
+  "description": "ระบบจัดการร้านค้า ออกใบเสนอราคา ใบแจ้งหนี้ ใบเสร็จรับเงิน และสต็อกสินค้า",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -273,68 +273,88 @@ export function saveSellerProfile(profile: SellerProfile): void {
 export function getProducts(): Product[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-    if (!data) {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
-      return DEFAULT_PRODUCTS;
+    const initialized = localStorage.getItem('sellersapp_has_initialized');
+    if (data !== null) {
+      return JSON.parse(data);
     }
-    return JSON.parse(data);
-  } catch {
+    if (initialized) {
+      return [];
+    }
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
     return DEFAULT_PRODUCTS;
+  } catch {
+    return [];
   }
 }
 
 export function saveProducts(products: Product[]): void {
+  localStorage.setItem('sellersapp_has_initialized', 'true');
   localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
 }
 
 export function getCustomers(): Customer[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.CUSTOMERS);
-    if (!data) {
-      localStorage.setItem(STORAGE_KEYS.CUSTOMERS, JSON.stringify(DEFAULT_CUSTOMERS));
-      return DEFAULT_CUSTOMERS;
+    const initialized = localStorage.getItem('sellersapp_has_initialized');
+    if (data !== null) {
+      return JSON.parse(data);
     }
-    return JSON.parse(data);
-  } catch {
+    if (initialized) {
+      return [];
+    }
+    localStorage.setItem(STORAGE_KEYS.CUSTOMERS, JSON.stringify(DEFAULT_CUSTOMERS));
     return DEFAULT_CUSTOMERS;
+  } catch {
+    return [];
   }
 }
 
 export function saveCustomers(customers: Customer[]): void {
+  localStorage.setItem('sellersapp_has_initialized', 'true');
   localStorage.setItem(STORAGE_KEYS.CUSTOMERS, JSON.stringify(customers));
 }
 
 export function getExpenses(): Expense[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.EXPENSES);
-    if (!data) {
-      localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(DEFAULT_EXPENSES));
-      return DEFAULT_EXPENSES;
+    const initialized = localStorage.getItem('sellersapp_has_initialized');
+    if (data !== null) {
+      return JSON.parse(data);
     }
-    return JSON.parse(data);
-  } catch {
+    if (initialized) {
+      return [];
+    }
+    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(DEFAULT_EXPENSES));
     return DEFAULT_EXPENSES;
+  } catch {
+    return [];
   }
 }
 
 export function saveExpenses(expenses: Expense[]): void {
+  localStorage.setItem('sellersapp_has_initialized', 'true');
   localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(expenses));
 }
 
 export function getDocuments(): SalesDocument[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.DOCUMENTS);
-    if (!data) {
-      localStorage.setItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(DEFAULT_DOCUMENTS));
-      return DEFAULT_DOCUMENTS;
+    const initialized = localStorage.getItem('sellersapp_has_initialized');
+    if (data !== null) {
+      return JSON.parse(data);
     }
-    return JSON.parse(data);
-  } catch {
+    if (initialized) {
+      return [];
+    }
+    localStorage.setItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(DEFAULT_DOCUMENTS));
     return DEFAULT_DOCUMENTS;
+  } catch {
+    return [];
   }
 }
 
 export function saveDocuments(docs: SalesDocument[]): void {
+  localStorage.setItem('sellersapp_has_initialized', 'true');
   localStorage.setItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(docs));
 }
 
