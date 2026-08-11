@@ -120,7 +120,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <img
               src={seller.logoUrl}
               alt={seller.name || 'Store Logo'}
-              className="w-14 h-14 rounded-2xl object-cover border border-[#CBD7E6] bg-white shadow-md shrink-0 p-0.5"
+              className="max-h-16 w-auto max-w-[160px] object-contain shrink-0 drop-shadow-xs"
             />
           ) : (
             <div className="w-14 h-14 rounded-2xl bg-[#0D2B52] text-white flex items-center justify-center shrink-0 shadow-md">

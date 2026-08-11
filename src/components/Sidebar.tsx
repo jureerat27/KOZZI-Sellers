@@ -59,7 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <img
                 src={seller.logoUrl}
                 alt={seller.name || 'Store Logo'}
-                className="w-10 h-10 rounded-xl object-cover border border-blue-400/30 bg-white shadow-md shrink-0"
+                className="max-h-10 w-auto max-w-[100px] object-contain shrink-0"
               />
             ) : (
               <div className="w-10 h-10 rounded-xl bg-[#1D63B8] border border-blue-400/30 text-white flex items-center justify-center font-black shadow-md shrink-0">
