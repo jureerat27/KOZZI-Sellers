@@ -240,6 +240,18 @@ export async function deleteDocumentCloud(docId: string) {
   }
 }
 
+export async function deleteAllDocumentsCloud(docs: SalesDocument[]) {
+  saveLocalDocuments([]);
+  try {
+    for (const d of docs) {
+      const docRef = doc(db, COLLECTIONS.DOCUMENTS, d.id);
+      await deleteDoc(docRef);
+    }
+  } catch (err) {
+    console.error('Error deleting all documents from Firestore:', err);
+  }
+}
+
 // 5. EXPENSES
 export function subscribeExpenses(callback: (expenses: Expense[]) => void) {
   const colRef = collection(db, COLLECTIONS.EXPENSES);

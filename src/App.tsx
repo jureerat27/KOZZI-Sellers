@@ -34,6 +34,7 @@ import {
 } from './utils/storage';
 import { sendLineNotification } from './utils/line';
 import {
+  deleteAllDocumentsCloud,
   deleteCustomerCloud,
   deleteDocumentCloud,
   deleteExpenseCloud,
@@ -268,10 +269,14 @@ export default function App() {
   };
 
   const handleDeleteDocument = (docId: string) => {
-    if (confirm('คุณแน่ใจหรือไม่ที่จะลบเอกสารนี้?')) {
-      deleteDocumentCloud(docId);
-      if (selectedDoc?.id === docId) setSelectedDoc(null);
-    }
+    deleteDocumentCloud(docId);
+    if (selectedDoc?.id === docId) setSelectedDoc(null);
+  };
+
+  const handleDeleteAllDocuments = async () => {
+    await deleteAllDocumentsCloud(documents);
+    setDocuments([]);
+    if (selectedDoc) setSelectedDoc(null);
   };
 
   const handleSaveProduct = (prod: Product) => {
@@ -419,6 +424,7 @@ export default function App() {
             onCreateDoc={handleCreateDocument}
             onOpenDocDetail={(doc) => setSelectedDoc(doc)}
             onDeleteDoc={handleDeleteDocument}
+            onDeleteAllDocs={handleDeleteAllDocuments}
             onShowPromptPayQR={(amount, docNumber) =>
               setPromptPayModalData({ amount, docNumber })
             }

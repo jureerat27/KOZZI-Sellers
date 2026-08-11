@@ -12,15 +12,18 @@ import {
   FilePlus,
   CheckCircle,
   Edit3,
+  ShieldAlert,
 } from 'lucide-react';
 import { DocumentStatus, DocumentType, SalesDocument } from '../types';
 import { formatCurrency, formatDate } from '../utils/format';
+import { ConfirmDeleteModal } from './ConfirmDeleteModal';
 
 interface DocumentsViewProps {
   documents: SalesDocument[];
   onCreateDoc: (type: DocumentType) => void;
   onOpenDocDetail: (doc: SalesDocument) => void;
   onDeleteDoc: (docId: string) => void;
+  onDeleteAllDocs?: () => void;
   onShowPromptPayQR: (amount: number, docNum: string) => void;
   onSendLineNotify: (message: string) => void;
   onEditDoc?: (doc: SalesDocument) => void;
@@ -31,6 +34,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
   onCreateDoc,
   onOpenDocDetail,
   onDeleteDoc,
+  onDeleteAllDocs,
   onShowPromptPayQR,
   onSendLineNotify,
   onEditDoc,
@@ -38,6 +42,41 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
   const [typeFilter, setTypeFilter] = useState<'ALL' | DocumentType>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | DocumentStatus>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    itemCount?: number;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    description: '',
+    onConfirm: () => {},
+  });
+
+  const handleTriggerDeleteSingle = (doc: SalesDocument) => {
+    setDeleteModal({
+      isOpen: true,
+      title: `ยืนยันการลบเอกสาร ${doc.docNumber}`,
+      description: `คุณกำลังจะลบเอกสารเลขที่ ${doc.docNumber} (ลูกค้า: ${doc.customerName}) ถาวรออกจากระบบคลาวด์ การดำเนินการนี้ไม่สามารถยกเลิกหรือเรียกคืนข้อมูลได้`,
+      onConfirm: () => onDeleteDoc(doc.id),
+    });
+  };
+
+  const handleTriggerDeleteAll = () => {
+    if (documents.length === 0) return;
+    setDeleteModal({
+      isOpen: true,
+      title: 'ยืนยันการลบเอกสารทั้งหมด',
+      description: `คุณกำลังจะลบเอกสารการขายทั้งหมดจำนวน ${documents.length} รายการออกจากระบบคลาวด์ถาวร การดำเนินการนี้ไม่สามารถยกเลิกหรือกู้คืนข้อมูลได้`,
+      itemCount: documents.length,
+      onConfirm: () => {
+        if (onDeleteAllDocs) onDeleteAllDocs();
+      },
+    });
+  };
 
   const filteredDocs = documents.filter((doc) => {
     const matchesType = typeFilter === 'ALL' || doc.type === typeFilter;
@@ -52,6 +91,16 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
   return (
     <div className="space-y-5 pb-20">
+      <ConfirmDeleteModal
+        isOpen={deleteModal.isOpen}
+        title={deleteModal.title}
+        description={deleteModal.description}
+        itemCount={deleteModal.itemCount}
+        confirmWord="confirm"
+        onConfirm={deleteModal.onConfirm}
+        onClose={() => setDeleteModal((prev) => ({ ...prev, isOpen: false }))}
+      />
+
       {/* Header & New Document Quick Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/90 border border-rose-100 p-4 rounded-2xl shadow-xs">
         <div>
@@ -88,6 +137,17 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
             <CheckCircle className="w-4 h-4" />
             <span>+ ใบเสร็จ 💳</span>
           </button>
+
+          {documents.length > 0 && onDeleteAllDocs && (
+            <button
+              onClick={handleTriggerDeleteAll}
+              className="px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs transition-all active:scale-95 border border-rose-600"
+              title="ระบบป้องกัน: ต้องกรอก 'confirm' ก่อนลบเอกสารทั้งหมด"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>ลบเอกสารทั้งหมด 🗑️</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -250,9 +310,9 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                     </button>
 
                     <button
-                      onClick={() => onDeleteDoc(doc.id)}
+                      onClick={() => handleTriggerDeleteSingle(doc)}
                       className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl border border-rose-200 transition-all"
-                      title="ลบเอกสาร"
+                      title="ลบเอกสาร (ต้องกรอก confirm)"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
