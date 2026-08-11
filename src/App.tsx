@@ -268,10 +268,8 @@ export default function App() {
   };
 
   const handleDeleteDocument = (docId: string) => {
-    if (confirm('คุณแน่ใจหรือไม่ที่จะลบเอกสารนี้?')) {
-      deleteDocumentCloud(docId);
-      if (selectedDoc?.id === docId) setSelectedDoc(null);
-    }
+    deleteDocumentCloud(docId);
+    if (selectedDoc?.id === docId) setSelectedDoc(null);
   };
 
   const handleSaveProduct = (prod: Product) => {
@@ -495,6 +493,7 @@ export default function App() {
           onSendLineNotify={handleSendLineNotify}
           onEditDoc={handleEditDocument}
           onSaveDocument={handleSaveDocument}
+          onDeleteDoc={handleDeleteDocument}
         />
       )}
 

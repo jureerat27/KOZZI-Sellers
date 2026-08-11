@@ -15,6 +15,7 @@ import {
   CreditCard,
   Building2,
   Banknote,
+  Trash2,
 } from 'lucide-react';
 import { SalesDocument, SellerProfile } from '../types';
 import { generatePromptPayQRDataUrl } from '../utils/promptpay';
@@ -22,6 +23,7 @@ import { exportElementToPdf, printDocument } from '../utils/pdf';
 import { formatDocumentForLine, generateFlexReceipt, sendLineOaPushNotification } from '../utils/line';
 import { formatCurrency, formatDate } from '../utils/format';
 import { DatePicker } from './DatePicker';
+import { ConfirmDeleteModal } from './ConfirmDeleteModal';
 
 interface DocumentDetailViewProps {
   doc: SalesDocument;
@@ -33,6 +35,7 @@ interface DocumentDetailViewProps {
   onSendLineNotify: (message: string) => void;
   onEditDoc?: (doc: SalesDocument) => void;
   onSaveDocument?: (updatedDoc: SalesDocument) => void;
+  onDeleteDoc?: (docId: string) => void;
 }
 
 export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
@@ -45,9 +48,11 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   onSendLineNotify,
   onEditDoc,
   onSaveDocument,
+  onDeleteDoc,
 }) => {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [slipUrl, setSlipUrl] = useState<string>(doc.paymentSlipUrl || '');
   const [isExporting, setIsExporting] = useState(false);
   const [showLineOaModal, setShowLineOaModal] = useState(false);
@@ -282,6 +287,17 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               <Printer className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">พิมพ์</span>
             </button>
+
+            {onDeleteDoc && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="px-3 py-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 hover:text-white border border-rose-800/80 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-all"
+                title="ลบเอกสารนี้"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">ลบเอกสาร</span>
+              </button>
+            )}
 
             <button
               onClick={onClose}
@@ -906,6 +922,18 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal for Document Deletion */}
+      <ConfirmDeleteModal
+        isOpen={showDeleteConfirm}
+        document={doc}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirmDelete={(docId) => {
+          if (onDeleteDoc) onDeleteDoc(docId);
+          setShowDeleteConfirm(false);
+          onClose();
+        }}
+      />
     </div>
   );
 };

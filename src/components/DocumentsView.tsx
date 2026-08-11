@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { DocumentStatus, DocumentType, SalesDocument } from '../types';
 import { formatCurrency, formatDate } from '../utils/format';
+import { ConfirmDeleteModal } from './ConfirmDeleteModal';
 
 interface DocumentsViewProps {
   documents: SalesDocument[];
@@ -38,6 +39,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
   const [typeFilter, setTypeFilter] = useState<'ALL' | DocumentType>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | DocumentStatus>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
+  const [deletingDoc, setDeletingDoc] = useState<SalesDocument | null>(null);
 
   const filteredDocs = documents.filter((doc) => {
     const matchesType = typeFilter === 'ALL' || doc.type === typeFilter;
@@ -250,7 +252,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                     </button>
 
                     <button
-                      onClick={() => onDeleteDoc(doc.id)}
+                      onClick={() => setDeletingDoc(doc)}
                       className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl border border-rose-200 transition-all"
                       title="ลบเอกสาร"
                     >
@@ -263,6 +265,17 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
           })
         )}
       </div>
+
+      {/* Confirmation Modal for Document Deletion */}
+      <ConfirmDeleteModal
+        isOpen={!!deletingDoc}
+        document={deletingDoc}
+        onClose={() => setDeletingDoc(null)}
+        onConfirmDelete={(docId) => {
+          onDeleteDoc(docId);
+          setDeletingDoc(null);
+        }}
+      />
     </div>
   );
 };
