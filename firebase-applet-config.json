@@ -3,6 +3,7 @@
   "appId": "1:411138148339:web:db88df3f0218c6e1787486",
   "apiKey": "AIzaSyBeO_jHyXIQT3T4Z_rVd4zw-gm1I_LsWWc",
   "authDomain": "geometric-chess-s1ttq.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-kozzisellersapp-6b6b0790-b8e9-4204-9694-2dd25ffe662a",
   "storageBucket": "geometric-chess-s1ttq.firebasestorage.app",
   "messagingSenderId": "411138148339",
   "measurementId": "",

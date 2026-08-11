@@ -28,15 +28,29 @@ import {
   getProducts,
   getSellerProfile,
   getSyncLog,
-  saveCustomers,
-  saveDocuments,
-  saveExpenses,
-  saveProducts,
   saveSellerProfile,
   saveSyncLog,
   updateStockForDocument,
 } from './utils/storage';
 import { sendLineNotification } from './utils/line';
+import {
+  deleteCustomerCloud,
+  deleteDocumentCloud,
+  deleteExpenseCloud,
+  deleteProductCloud,
+  importBackupToCloud,
+  saveCustomerCloud,
+  saveDocumentCloud,
+  saveExpenseCloud,
+  saveProductCloud,
+  saveProductsBatchCloud,
+  saveSellerProfileCloud,
+  subscribeCustomers,
+  subscribeDocuments,
+  subscribeExpenses,
+  subscribeProducts,
+  subscribeSellerProfile,
+} from './services/firestoreService';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
@@ -64,6 +78,23 @@ export default function App() {
   } | null>(null);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Subscribe to Firestore real-time database updates across all devices
+  useEffect(() => {
+    const unsubSeller = subscribeSellerProfile((p) => setSeller(p));
+    const unsubProducts = subscribeProducts((p) => setProducts(p));
+    const unsubCustomers = subscribeCustomers((c) => setCustomers(c));
+    const unsubDocs = subscribeDocuments((d) => setDocuments(d));
+    const unsubExpenses = subscribeExpenses((e) => setExpenses(e));
+
+    return () => {
+      unsubSeller();
+      unsubProducts();
+      unsubCustomers();
+      unsubDocs();
+      unsubExpenses();
+    };
+  }, []);
 
   // Track online / offline events
   useEffect(() => {
@@ -112,7 +143,7 @@ export default function App() {
         if (data.spreadsheetId && data.spreadsheetId !== seller.googleSheetId) {
           const updatedSeller = { ...seller, googleSheetId: data.spreadsheetId };
           setSeller(updatedSeller);
-          saveSellerProfile(updatedSeller);
+          saveSellerProfileCloud(updatedSeller);
         }
       } else {
         const errLog: SyncLog = {
@@ -137,7 +168,7 @@ export default function App() {
   // Handlers
   const handleSaveSeller = (profile: SellerProfile) => {
     setSeller(profile);
-    saveSellerProfile(profile);
+    saveSellerProfileCloud(profile);
   };
 
   const handleCreateDocument = (type: DocumentType) => {
@@ -155,15 +186,9 @@ export default function App() {
 
   const handleSaveDocument = (savedDoc: SalesDocument) => {
     const existingIndex = documents.findIndex((d) => d.id === savedDoc.id);
-    let updated: SalesDocument[];
-    if (existingIndex >= 0) {
-      updated = [...documents];
-      updated[existingIndex] = savedDoc;
-    } else {
-      updated = [savedDoc, ...documents];
-    }
-    setDocuments(updated);
-    saveDocuments(updated);
+    
+    // Save to Firestore real-time cloud database
+    saveDocumentCloud(savedDoc);
     setIsCreateDocOpen(false);
     setEditingDoc(null);
 
@@ -174,7 +199,9 @@ export default function App() {
     // Update product stock if document status is SENT or PAID or APPROVED
     if (savedDoc.status === 'PAID' || savedDoc.status === 'SENT' || savedDoc.status === 'APPROVED') {
       updateStockForDocument(savedDoc);
-      setProducts(getProducts());
+      const updatedProds = getProducts();
+      setProducts(updatedProds);
+      saveProductsBatchCloud(updatedProds);
     }
 
     // Trigger LINE Notify if token present
@@ -196,31 +223,25 @@ export default function App() {
     newStatus: DocumentStatus,
     paymentSlipUrl?: string
   ) => {
-    const updated = documents.map((d) => {
-      if (d.id === docId) {
-        const u = {
-          ...d,
-          status: newStatus,
-          paymentSlipUrl: paymentSlipUrl || d.paymentSlipUrl,
-          paymentDate: newStatus === 'PAID' ? new Date().toISOString().split('T')[0] : d.paymentDate,
-          updatedAt: new Date().toISOString(),
-        };
-        if (selectedDoc?.id === docId) setSelectedDoc(u);
-        return u;
-      }
-      return d;
-    });
-    setDocuments(updated);
-    saveDocuments(updated);
+    const targetDoc = documents.find((d) => d.id === docId);
+    if (!targetDoc) return;
+
+    const updatedDoc: SalesDocument = {
+      ...targetDoc,
+      status: newStatus,
+      paymentSlipUrl: paymentSlipUrl || targetDoc.paymentSlipUrl,
+      paymentDate: newStatus === 'PAID' ? new Date().toISOString().split('T')[0] : targetDoc.paymentDate,
+      updatedAt: new Date().toISOString(),
+    };
+
+    saveDocumentCloud(updatedDoc);
+    if (selectedDoc?.id === docId) setSelectedDoc(updatedDoc);
 
     if (seller.lineNotifyToken && newStatus === 'PAID') {
-      const doc = documents.find((d) => d.id === docId);
-      if (doc) {
-        sendLineNotification(
-          seller.lineNotifyToken,
-          `💰 แจ้งเตือนได้รับชำระเงินเรียบร้อย! (${doc.docNumber})\nลูกค้า: ${doc.customerName}\nยอดชำระ: ฿${doc.grandTotal.toLocaleString()}`
-        );
-      }
+      sendLineNotification(
+        seller.lineNotifyToken,
+        `💰 แจ้งเตือนได้รับชำระเงินเรียบร้อย! (${updatedDoc.docNumber})\nลูกค้า: ${updatedDoc.customerName}\nยอดชำระ: ฿${updatedDoc.grandTotal.toLocaleString()}`
+      );
     }
   };
 
@@ -242,80 +263,51 @@ export default function App() {
       updatedAt: new Date().toISOString(),
     };
 
-    const updated = [newDoc, ...documents];
-    setDocuments(updated);
-    saveDocuments(updated);
+    saveDocumentCloud(newDoc);
     setSelectedDoc(newDoc);
   };
 
   const handleDeleteDocument = (docId: string) => {
     if (confirm('คุณแน่ใจหรือไม่ที่จะลบเอกสารนี้?')) {
-      const updated = documents.filter((d) => d.id !== docId);
-      setDocuments(updated);
-      saveDocuments(updated);
+      deleteDocumentCloud(docId);
       if (selectedDoc?.id === docId) setSelectedDoc(null);
     }
   };
 
   const handleSaveProduct = (prod: Product) => {
-    const existingIndex = products.findIndex((p) => p.id === prod.id);
-    let updated: Product[];
-    if (existingIndex >= 0) {
-      updated = [...products];
-      updated[existingIndex] = prod;
-    } else {
-      updated = [prod, ...products];
-    }
-    setProducts(updated);
-    saveProducts(updated);
+    saveProductCloud(prod);
   };
 
   const handleDeleteProduct = (id: string) => {
     if (confirm('คุณแน่ใจหรือไม่ที่จะลบสินค้านี้จากคลัง?')) {
-      const updated = products.filter((p) => p.id !== id);
-      setProducts(updated);
-      saveProducts(updated);
+      deleteProductCloud(id);
     }
   };
 
   const handleUpdateStock = (id: string, newStock: number) => {
-    const updated = products.map((p) => (p.id === id ? { ...p, stock: newStock } : p));
-    setProducts(updated);
-    saveProducts(updated);
+    const prod = products.find((p) => p.id === id);
+    if (prod) {
+      saveProductCloud({ ...prod, stock: newStock, updatedAt: new Date().toISOString() });
+    }
   };
 
   const handleSaveCustomer = (cust: Customer) => {
-    const existingIndex = customers.findIndex((c) => c.id === cust.id);
-    let updated: Customer[];
-    if (existingIndex >= 0) {
-      updated = [...customers];
-      updated[existingIndex] = cust;
-    } else {
-      updated = [cust, ...customers];
-    }
-    setCustomers(updated);
-    saveCustomers(updated);
+    saveCustomerCloud(cust);
   };
 
   const handleDeleteCustomer = (id: string) => {
     if (confirm('คุณแน่ใจหรือไม่ที่จะลบข้อมูลลูกค้านี้?')) {
-      const updated = customers.filter((c) => c.id !== id);
-      setCustomers(updated);
-      saveCustomers(updated);
+      deleteCustomerCloud(id);
     }
   };
 
   const handleSaveExpense = (exp: Expense) => {
-    const updated = [exp, ...expenses];
-    setExpenses(updated);
-    saveExpenses(updated);
+    saveExpenseCloud(exp);
   };
 
   const handleDeleteExpense = (id: string) => {
     if (confirm('คุณแน่ใจหรือไม่ที่จะลบรายการจ่ายนี้?')) {
-      const updated = expenses.filter((e) => e.id !== id);
-      setExpenses(updated);
-      saveExpenses(updated);
+      deleteExpenseCloud(id);
     }
   };
 
@@ -357,31 +349,12 @@ export default function App() {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         try {
           const parsed = JSON.parse(event.target?.result as string);
-          if (parsed.products && parsed.documents) {
-            if (parsed.seller) {
-              setSeller(parsed.seller);
-              saveSellerProfile(parsed.seller);
-            }
-            if (parsed.products) {
-              setProducts(parsed.products);
-              saveProducts(parsed.products);
-            }
-            if (parsed.customers) {
-              setCustomers(parsed.customers);
-              saveCustomers(parsed.customers);
-            }
-            if (parsed.documents) {
-              setDocuments(parsed.documents);
-              saveDocuments(parsed.documents);
-            }
-            if (parsed.expenses) {
-              setExpenses(parsed.expenses);
-              saveExpenses(parsed.expenses);
-            }
-            alert('นำเข้าไฟล์สำรองข้อมูลสำเร็จเรียบร้อยแล้ว!');
+          if (parsed.products || parsed.documents || parsed.seller) {
+            await importBackupToCloud(parsed);
+            alert('นำเข้าไฟล์สำรองข้อมูลเข้าคลาวด์สำเร็จเรียบร้อยแล้ว!');
           }
         } catch (err) {
           alert('รูปแบบไฟล์ JSON ไม่ถูกต้อง');

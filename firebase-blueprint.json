@@ -1,0 +1,108 @@
+{
+  "entities": {
+    "seller_profile": {
+      "title": "Seller Profile",
+      "description": "Store settings and seller profile information",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "taxId": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string text" },
+        "promptPayType": { "type": "string" },
+        "promptPayNumber": { "type": "string" },
+        "bankName": { "type": "string" },
+        "bankAccountNo": { "type": "string" },
+        "bankAccountName": { "type": "string" },
+        "lineNotifyToken": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "signatureUrl": { "type": "string" },
+        "defaultDocumentNotes": { "type": "string text" },
+        "defaultQuotationNotes": { "type": "string text" },
+        "defaultInvoiceNotes": { "type": "string text" },
+        "defaultReceiptNotes": { "type": "string text" },
+        "autoSync": { "type": "boolean" }
+      },
+      "required": ["name"]
+    },
+    "products": {
+      "title": "Products",
+      "description": "Product inventory catalog",
+      "type": "object",
+      "properties": {
+        "sku": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "price": { "type": "number" },
+        "costPrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "minStock": { "type": "number" },
+        "unit": { "type": "string" },
+        "description": { "type": "string text" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "price"]
+    },
+    "customers": {
+      "title": "Customers",
+      "description": "Customer contact list",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string text" },
+        "address": { "type": "string text" },
+        "taxId": { "type": "string" },
+        "note": { "type": "string text" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "expenses": {
+      "title": "Expenses",
+      "description": "Business expenses",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string text" },
+        "amount": { "type": "number" },
+        "recipient": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["date", "amount"]
+    },
+    "documents": {
+      "title": "Sales Documents",
+      "description": "Invoices, Quotations, and Receipts",
+      "type": "object",
+      "properties": {
+        "docNumber": { "type": "string" },
+        "type": { "type": "string" },
+        "date": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "customerAddress": { "type": "string text" },
+        "customerTaxId": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "discountAmount": { "type": "number" },
+        "shippingFee": { "type": "number" },
+        "vatRate": { "type": "number" },
+        "vatAmount": { "type": "number" },
+        "grandTotal": { "type": "number" },
+        "status": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "paymentDate": { "type": "string" },
+        "notes": { "type": "string text" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["docNumber", "type", "grandTotal"]
+    }
+  }
+}
