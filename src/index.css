@@ -95,10 +95,14 @@
     zoom: 1 !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   #printable-document-container * {
     visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* Preserve background colors and badge fills in print output */
@@ -112,6 +116,13 @@
     padding-left: 32px !important;
     padding-right: 32px !important;
     box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #printable-document-container .bg-\[\#0D2B52\] {
+    background-color: #0d2b52 !important;
+    color: #ffffff !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
