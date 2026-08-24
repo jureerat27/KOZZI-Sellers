@@ -73,9 +73,12 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
   const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.PAID;
   const StatusIcon = statusCfg.icon;
 
-  const entrepreneurName =
+  const rawName =
     seller.bankAccountName ||
-    (seller.name && !seller.name.includes('KOZZI') ? seller.name : 'นางสาวจุรีรัตน์ มั่นคง');
+    (seller.name && !seller.name.includes('KOZZI') ? seller.name : 'จุรีรัตน์ มั่นคง');
+  const cleanName = rawName.replace(/^(นางสาว|น\.ส\.|นาง|นาย)\s*/, '');
+  const entrepreneurName = `นางสาว${cleanName || 'จุรีรัตน์ มั่นคง'}`;
+
   const taxIdNumber = seller.taxId || '1100200300401';
   const addressText =
     seller.address || '59/179 หมู่ 5 ตำบลลาดสวาย อำเภอลำลูกกา จังหวัดปทุมธานี 12150';
@@ -223,10 +226,10 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               {/* 4 Lines below the Logo, starting flush from the left edge of the document (Same alignment as Logo) */}
               <div className="space-y-0.5 text-xs text-slate-600 pt-1">
                 <p className="font-semibold text-slate-800">
-                  ดำเนินการโดย {entrepreneurName}
+                  ชื่อผู้ประกอบการ : {entrepreneurName}
                 </p>
                 <p>
-                  เลขประจำตัวผู้เสียภาษีอากร {taxIdNumber}
+                  เลขประจำตัวผู้เสียภาษีอากร : {taxIdNumber}
                 </p>
                 <p className="leading-relaxed">
                   {addressText}
@@ -247,9 +250,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
 
             {/* Right Side: Document Title Frame & PAYMENT VOUCHER below */}
             <div className="flex flex-col items-center sm:items-end shrink-0 self-stretch sm:self-auto pt-1 sm:pt-0">
-              {/* Navy Blue Rounded Box for "ใบสำคัญจ่าย" */}
-              <div className="bg-[#0D2B52] text-white px-7 py-2.5 rounded-xl text-center shadow-xs min-w-[170px] sm:min-w-[190px]">
-                <h1 className="text-base sm:text-xl font-bold tracking-wide text-white leading-tight">
+              {/* Light Blue Transparent Rounded Box for "ใบสำคัญจ่าย" */}
+              <div className="bg-sky-500/15 border border-sky-300/80 px-7 py-2.5 rounded-xl text-center backdrop-blur-xs min-w-[170px] sm:min-w-[190px]">
+                <h1 className="text-base sm:text-xl font-black tracking-wide text-[#0D2B52] leading-tight">
                   ใบสำคัญจ่าย
                 </h1>
               </div>
@@ -362,10 +365,10 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             </table>
           </div>
 
-          {/* 4. UNDER TABLE SECTION: 2 Parts in 1 Row */}
+          {/* 4. UNDER TABLE SECTION: 2 Parts in 1 Row (Light Blue Transparent Cards) */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-stretch mb-6">
-            {/* Left: Baht Text Box (White background, light blue border, rounded corners) */}
-            <div className="sm:col-span-7 flex flex-col justify-between p-3.5 bg-white border border-[#BAE6FD] rounded-xl">
+            {/* Left: Baht Text Box (Light Blue Transparent background, light blue border, rounded corners) */}
+            <div className="sm:col-span-7 flex flex-col justify-between p-3.5 bg-sky-500/10 border border-sky-300/60 rounded-xl">
               <div>
                 <span className="text-[11px] font-semibold text-slate-500 block">
                   จำนวนเงินตัวอักษร
@@ -376,14 +379,14 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {expense.notes && (
-                <div className="mt-2 pt-2 border-t border-[#E2ECF8] text-[11px] text-slate-600">
+                <div className="mt-2 pt-2 border-t border-sky-200/60 text-[11px] text-slate-600">
                   <span className="font-bold text-slate-700">หมายเหตุ: </span>
                   <span>{expense.notes}</span>
                 </div>
               )}
 
               {expense.receiptUrl && (
-                <div className="mt-2 pt-2 border-t border-[#E2ECF8] text-[11px] flex items-center justify-between">
+                <div className="mt-2 pt-2 border-t border-sky-200/60 text-[11px] flex items-center justify-between">
                   <span className="font-semibold text-slate-700 flex items-center gap-1.5">
                     <Paperclip className="w-3.5 h-3.5 text-[#0D2B52]" />
                     หลักฐานการชำระเงินแนบ
@@ -400,15 +403,15 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               )}
             </div>
 
-            {/* Right: Grand Total Box (Navy Blue background, rounded corners) */}
-            <div className="sm:col-span-5 bg-[#0D2B52] text-white rounded-xl p-4 shadow-xs text-right flex flex-col justify-between">
-              <span className="text-xs font-semibold text-sky-200 block uppercase tracking-wide">
+            {/* Right: Grand Total Box (Light Blue Transparent background, light blue border, rounded corners) */}
+            <div className="sm:col-span-5 bg-sky-500/15 border border-sky-300/80 rounded-xl p-4 text-right flex flex-col justify-between">
+              <span className="text-xs font-bold text-[#0D2B52] block uppercase tracking-wide">
                 รวมเป็นเงินทั้งสิ้น (TOTAL)
               </span>
-              <div className="text-2xl sm:text-3xl font-black font-mono text-white tracking-tight my-1">
+              <div className="text-2xl sm:text-3xl font-black font-mono text-[#0D2B52] tracking-tight my-1">
                 ฿{formatCurrency(expense.amount)}
               </div>
-              <span className="text-[10px] text-sky-300/80 block">
+              <span className="text-[10px] text-slate-500 block font-medium">
                 (ยอดรวมสุทธิชำระเสร็จสมบูรณ์)
               </span>
             </div>
