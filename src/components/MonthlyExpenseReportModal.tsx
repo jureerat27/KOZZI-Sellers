@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Expense, ExpenseCategory, SellerProfile } from '../types';
 import { formatCurrency, formatDate, bahtText } from '../utils/format';
-import { exportElementToPdf, printElementIsolated } from '../utils/pdf';
+import { exportElementToPdf } from '../utils/pdf';
 
 interface MonthlyExpenseReportModalProps {
   isOpen: boolean;
@@ -175,10 +175,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
   const taxIdNumber = seller.taxId || '1100200300401';
 
   const handlePrint = () => {
-    printElementIsolated(
-      'monthly-expense-print',
-      `รายงานสรุปค่าใช้จ่าย_${thaiMonthName}_${thaiYearBE}`
-    );
+    window.print();
   };
 
   const handleDownloadPdf = async () => {
@@ -350,7 +347,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
             }}
           >
             {/* Header Section: Business Info on Top Left, Report Title on Top Right */}
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-4 border-b border-slate-200 pb-5">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-4 border-b border-sky-200 pb-5">
               {/* Left Column: Business & Entrepreneur Information */}
               <div className="space-y-1">
                 <h1 className="text-lg sm:text-xl font-bold text-[#0D2B52] leading-tight">
@@ -366,7 +363,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
 
               {/* Right Column: Report Title and Period */}
               <div className="sm:text-right flex flex-col sm:items-end justify-start shrink-0">
-                <div className="bg-sky-50/80 border border-sky-200/80 rounded-xl px-5 py-3 text-center sm:text-right space-y-0.5">
+                <div className="report-badge-box bg-[#f0f7ff] border border-sky-200 rounded-xl px-5 py-3 text-center sm:text-right space-y-0.5">
                   <h2 className="text-base sm:text-lg font-black text-[#0D2B52] tracking-tight">
                     รายงานสรุปค่าใช้จ่ายประจำเดือน
                   </h2>
@@ -378,18 +375,18 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
             </div>
 
             {/* Table: 5 Columns Only */}
-            {/* Proportions: ลำดับ 8%, วันที่ 15%, รายการ 42%, หมวดหมู่ 20%, จำนวนเงิน 15% */}
+            {/* Proportions: ลำดับ 7%, วันที่ 15%, รายการ 43%, หมวดหมู่ 20%, จำนวนเงิน 15% */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm border-collapse border border-slate-300">
+              <table className="w-full text-left text-xs sm:text-sm border-collapse border border-slate-300 table-fixed">
                 <thead>
                   <tr className="bg-[#f0f7ff] border-b border-slate-300 text-[#0D2B52] font-bold">
-                    <th className="py-2.5 px-2 text-center border-r border-slate-300" style={{ width: '8%' }}>
+                    <th className="py-2.5 px-2 text-center border-r border-slate-300" style={{ width: '7%' }}>
                       ลำดับ
                     </th>
                     <th className="py-2.5 px-2.5 text-center border-r border-slate-300" style={{ width: '15%' }}>
                       วันที่
                     </th>
-                    <th className="py-2.5 px-3 text-left border-r border-slate-300" style={{ width: '42%' }}>
+                    <th className="py-2.5 px-3 text-left border-r border-slate-300" style={{ width: '43%' }}>
                       รายการ
                     </th>
                     <th className="py-2.5 px-3 text-left border-r border-slate-300" style={{ width: '20%' }}>
@@ -427,7 +424,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                         <tr
                           key={exp.id || idx}
                           className={`hover:bg-sky-50/30 transition-colors border-b border-slate-200 ${
-                            isCancelled ? 'bg-rose-50/40 text-slate-400' : ''
+                            isCancelled ? 'bg-rose-50/40 text-slate-400' : 'bg-white'
                           }`}
                           style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
                         >
@@ -437,7 +434,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                           <td className="py-2.5 px-2.5 text-center font-mono text-slate-700 whitespace-nowrap border-r border-slate-200">
                             {formatDate(exp.date)}
                           </td>
-                          <td className="py-2.5 px-3 text-left font-medium text-slate-800 border-r border-slate-200 leading-relaxed">
+                          <td className="py-2.5 px-3 text-left font-medium text-slate-800 border-r border-slate-200 leading-relaxed break-words">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span>{exp.description}</span>
                               {isCancelled && (
@@ -447,7 +444,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                               )}
                             </div>
                           </td>
-                          <td className="py-2.5 px-3 text-left text-slate-700 border-r border-slate-200 whitespace-nowrap">
+                          <td className="py-2.5 px-3 text-left text-slate-700 border-r border-slate-200">
                             {catName}
                           </td>
                           <td
@@ -484,10 +481,10 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
 
             {/* Bottom Summary Info (ใต้ตาราง) */}
             <div
-              className="bg-slate-50/80 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-2 text-xs sm:text-sm"
+              className="report-summary-box bg-[#f0f7ff] border border-sky-200 rounded-xl p-4 sm:p-5 space-y-2 text-xs sm:text-sm"
               style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 pb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-sky-200/80 pb-2">
                 <span className="text-slate-600 font-medium">
                   จำนวนรายการทั้งหมด :{' '}
                   <span className="font-bold text-[#0D2B52]">{totalItemsCount} รายการ</span>
@@ -517,28 +514,28 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
 
             {/* Signatures Area */}
             <div
-              className="grid grid-cols-2 gap-6 pt-6 border-t border-slate-200 text-center text-xs"
+              className="grid grid-cols-2 gap-6 pt-8 border-t border-slate-200 text-center text-xs"
               style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
             >
               <div className="space-y-6">
                 <p className="font-bold text-slate-700">ผู้จัดทำรายงาน</p>
-                <div className="w-48 mx-auto border-b border-dotted border-slate-400 pt-8" />
+                <div className="w-52 mx-auto border-b border-dotted border-slate-400 pt-10" />
                 <p className="text-slate-600 font-medium">
                   ( ............................................................ )
                 </p>
                 <p className="text-[11px] text-slate-500">
-                  วันที่ ......./......./.......
+                  วันที่ _____ / _____ / _________
                 </p>
               </div>
 
               <div className="space-y-6">
                 <p className="font-bold text-slate-700">ผู้อนุมัติ / ผู้ตรวจสอบ</p>
-                <div className="w-48 mx-auto border-b border-dotted border-slate-400 pt-8" />
+                <div className="w-52 mx-auto border-b border-dotted border-slate-400 pt-10" />
                 <p className="text-slate-600 font-medium">
                   ( ............................................................ )
                 </p>
                 <p className="text-[11px] text-slate-500">
-                  วันที่ ......./......./.......
+                  วันที่ _____ / _____ / _________
                 </p>
               </div>
             </div>
