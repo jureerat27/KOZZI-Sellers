@@ -9,7 +9,7 @@ import {
   Square,
 } from 'lucide-react';
 import { Expense, ExpenseCategory, SellerProfile } from '../types';
-import { formatCurrency, formatDate, bahtText } from '../utils/format';
+import { formatCurrency, formatDate } from '../utils/format';
 import { exportElementToPdf } from '../utils/pdf';
 
 interface MonthlyExpenseReportModalProps {
@@ -488,45 +488,12 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                     >
                       รวมค่าใช้จ่ายประจำเดือน {thaiMonthName} {thaiYearBE}
                     </td>
-                    <td className="py-3 px-3 text-right font-mono font-black text-sm sm:text-base text-[#0759A6] whitespace-nowrap">
-                      {formatCurrency(grandTotalAmount)} บาท
+                    <td className="py-3 px-2 text-right font-mono font-black text-sm sm:text-base text-[#0759A6] whitespace-nowrap">
+                      {formatCurrency(grandTotalAmount)}
                     </td>
                   </tr>
                 </tfoot>
               </table>
-            </div>
-
-            {/* Bottom Summary Info (ใต้ตาราง) */}
-            <div
-              className="report-summary-box bg-[#f0f7ff] border border-sky-200 rounded-xl p-4 sm:p-5 space-y-2 text-xs sm:text-sm"
-              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-sky-200/80 pb-2">
-                <span className="text-slate-600 font-medium">
-                  จำนวนรายการทั้งหมด :{' '}
-                  <span className="font-bold text-[#0D2B52]">{totalItemsCount} รายการ</span>
-                  {includeCancelled && (
-                    <span className="text-xs text-slate-400 font-normal ml-1">
-                      (รายการปกติ {activeItems.length} รายการ)
-                    </span>
-                  )}
-                </span>
-                <span className="text-slate-600 font-medium">
-                  ยอดรวมค่าใช้จ่ายทั้งหมด :{' '}
-                  <span className="font-mono font-black text-[#0759A6] text-sm sm:text-base">
-                    ฿{formatCurrency(grandTotalAmount)}
-                  </span>
-                </span>
-              </div>
-
-              <div className="pt-1">
-                <span className="text-slate-600 font-medium">
-                  จำนวนเงินตัวอักษร :{' '}
-                  <span className="font-bold text-[#0D2B52]">
-                    ({bahtText(grandTotalAmount)})
-                  </span>
-                </span>
-              </div>
             </div>
           </div>
         </div>
