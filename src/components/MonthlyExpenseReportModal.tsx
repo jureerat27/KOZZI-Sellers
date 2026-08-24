@@ -4,12 +4,9 @@ import {
   Download,
   X,
   Calendar,
-  Layers,
-  Sparkles,
+  FileSpreadsheet,
   CheckSquare,
   Square,
-  FileSpreadsheet,
-  Building2,
 } from 'lucide-react';
 import { Expense, ExpenseCategory, SellerProfile } from '../types';
 import { formatCurrency, formatDate, bahtText } from '../utils/format';
@@ -108,7 +105,6 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
   }, [expenses]);
 
   // Determine smart default month/year:
-  // If initial props passed, use them. Otherwise prefer January 2026 if it has data, or the latest available period.
   const defaultPeriod = useMemo(() => {
     if (initialYear !== undefined && initialMonth !== undefined) {
       return { year: initialYear, month: initialMonth };
@@ -177,10 +173,6 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
   const entrepreneurName = `นางสาว${cleanName || 'จุรีรัตน์ มั่นคง'}`;
 
   const taxIdNumber = seller.taxId || '1100200300401';
-  const addressText =
-    seller.address || '59/179 หมู่ 5 ตำบลลาดสวาย อำเภอลำลูกกา จังหวัดปทุมธานี 12150';
-  const phoneText = seller.phone || '064-651-8822';
-  const emailText = seller.email || 'kozzi.th@gmail.com';
 
   const handlePrint = () => {
     window.print();
@@ -189,8 +181,8 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
   const handleDownloadPdf = async () => {
     try {
       setIsExportingPdf(true);
-      const filename = `รายงานค่าใช้จ่าย_${thaiMonthName}_${thaiYearBE}`;
-      await exportElementToPdf('printable-monthly-expense-report-doc', filename);
+      const filename = `รายงานสรุปค่าใช้จ่าย_${thaiMonthName}_${thaiYearBE}`;
+      await exportElementToPdf('monthly-expense-print', filename);
     } catch (err) {
       console.error('Export PDF error:', err);
       window.print();
@@ -203,44 +195,9 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-fadeIn">
-      {/* Dynamic Print Styles for Clean Single/Multi-page A4 Output */}
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden !important;
-          }
-          #printable-monthly-expense-report-doc,
-          #printable-monthly-expense-report-doc * {
-            visibility: visible !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          #printable-monthly-expense-report-doc {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 16mm 14mm !important;
-            background: #ffffff !important;
-            box-shadow: none !important;
-            border: none !important;
-          }
-          .no-print {
-            display: none !important;
-          }
-          tr {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-          }
-          thead {
-            display: table-header-group !important;
-          }
-        }
-      `}</style>
-
+      {/* Modal Container */}
       <div className="bg-white w-full max-w-5xl max-h-[94vh] rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-        {/* Modal Top Control Bar */}
+        {/* Modal Top Control Bar (Hidden on Print) */}
         <div className="no-print bg-[#F8FAFC] border-b border-slate-200 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 text-[#0759A6] flex items-center justify-center shadow-xs shrink-0">
@@ -249,7 +206,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-extrabold text-[#0D2B52]">
-                  รายงานค่าใช้จ่ายทั้งหมด (รายเดือน)
+                  รายงานสรุปค่าใช้จ่ายประจำเดือน
                 </h2>
                 <span className="bg-sky-100 text-[#0759A6] px-2 py-0.5 rounded-md text-[11px] font-bold">
                   {thaiMonthName} {thaiYearBE}
@@ -289,10 +246,10 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
           </div>
         </div>
 
-        {/* Filter Controls Bar: Month, Year, Quick Period, and Cancelled Toggle */}
+        {/* Filter Controls Bar: Month, Year, Quick Period Jump (Hidden on Print) */}
         <div className="no-print bg-white border-b border-slate-200 p-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* Quick Month-Year selector with record count and amount */}
+            {/* Month selector */}
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-extrabold text-[#0D2B52] flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5 text-[#0759A6]" />
@@ -311,6 +268,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
               </select>
             </div>
 
+            {/* Year selector */}
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-extrabold text-[#0D2B52]">เลือกปี (พ.ศ.):</span>
               <select
@@ -374,90 +332,82 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
 
         {/* Modal Scrollable Body - Document Preview Screen */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-slate-100/70 flex justify-center">
-          {/* A4 Document Container */}
+          {/* =========================================================================
+              Dedicated Print & PDF Container: #monthly-expense-print
+              A4 Portrait Summary Layout (Simple, elegant, clean 5-column table)
+             ========================================================================= */}
           <div
-            id="printable-monthly-expense-report-doc"
+            id="monthly-expense-print"
             ref={documentRef}
-            className="w-full max-w-[210mm] bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-10 space-y-6 text-slate-800"
-            style={{ minHeight: '297mm', boxSizing: 'border-box' }}
+            className="w-full max-w-[210mm] bg-white rounded-xl sm:rounded-2xl shadow-md border border-slate-200 p-6 sm:p-10 space-y-6 text-slate-800"
+            style={{
+              minHeight: '297mm',
+              boxSizing: 'border-box',
+              backgroundColor: '#ffffff',
+            }}
           >
-            {/* Header Section: Left Shop & Entrepreneur Info, Right Report Title in Light Blue Frame */}
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-5 border-b-2 border-sky-100 pb-5">
+            {/* Header Section: Business Info on Top Left, Report Title on Top Right */}
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-4 border-b border-slate-200 pb-5">
               {/* Left Column: Business & Entrepreneur Information */}
-              <div className="space-y-1.5 max-w-lg">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-sky-50 border border-sky-200 text-[#0759A6] flex items-center justify-center shrink-0">
-                    <Sparkles className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h1 className="text-base sm:text-lg font-black text-[#0D2B52] leading-tight">
-                      KOZZI ราวตากผ้าอัจฉริยะ
-                    </h1>
-                    <p className="text-[11px] font-bold text-sky-700">SMART LIVING, BETTER LIFE</p>
-                  </div>
-                </div>
-
-                <div className="pt-2 space-y-0.5 text-xs text-slate-600 leading-relaxed font-medium">
-                  <p className="font-bold text-slate-800">
-                    ชื่อผู้ประกอบการ : <span className="font-extrabold text-[#0D2B52]">{entrepreneurName}</span>
-                  </p>
-                  <p>
-                    <span className="font-bold text-slate-700">เลขประจำตัวผู้เสียภาษีอากร :</span>{' '}
-                    <span className="font-mono">{taxIdNumber}</span>
-                  </p>
-                  <p>
-                    <span className="font-bold text-slate-700">ที่อยู่ :</span> {addressText}
-                  </p>
-                  <p>
-                    <span className="font-bold text-slate-700">เบอร์โทรศัพท์ :</span> {phoneText}{' '}
-                    <span className="mx-1 text-slate-300">|</span>{' '}
-                    <span className="font-bold text-slate-700">Email :</span> {emailText}
-                  </p>
-                </div>
+              <div className="space-y-1">
+                <h1 className="text-lg sm:text-xl font-bold text-[#0D2B52] leading-tight">
+                  KOZZI ราวตากผ้าอัจฉริยะ
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-700 font-medium pt-1">
+                  ชื่อผู้ประกอบการ : <span className="font-bold text-[#0D2B52]">{entrepreneurName}</span>
+                </p>
+                <p className="text-xs sm:text-sm text-slate-700 font-medium">
+                  เลขประจำตัวผู้เสียภาษีอากร : <span className="font-mono font-bold text-slate-800">{taxIdNumber}</span>
+                </p>
               </div>
 
-              {/* Right Column: Report Title in Light Blue Transparent Box */}
+              {/* Right Column: Report Title and Period */}
               <div className="sm:text-right flex flex-col sm:items-end justify-start shrink-0">
-                <div className="bg-sky-500/10 border border-sky-400/30 rounded-2xl px-5 py-3.5 shadow-2xs space-y-1 text-center sm:text-right">
-                  <h2 className="text-base sm:text-lg font-black text-[#0D2B52] tracking-wide">
-                    รายงานค่าใช้จ่ายประจำเดือน
+                <div className="bg-sky-50/80 border border-sky-200/80 rounded-xl px-5 py-3 text-center sm:text-right space-y-0.5">
+                  <h2 className="text-base sm:text-lg font-black text-[#0D2B52] tracking-tight">
+                    รายงานสรุปค่าใช้จ่ายประจำเดือน
                   </h2>
-                  <p className="text-xs sm:text-sm font-extrabold text-[#0759A6]">
+                  <p className="text-xs sm:text-sm font-bold text-[#0759A6]">
                     {reportPeriodThai}
                   </p>
                 </div>
-                <p className="text-[10px] text-slate-400 font-medium mt-2">
-                  วันที่พิมพ์เอกสาร: {formatDate(new Date().toISOString().split('T')[0])}
-                </p>
               </div>
             </div>
 
-            {/* Table of Monthly Expenses */}
+            {/* Table: 5 Columns Only */}
+            {/* Proportions: ลำดับ 8%, วันที่ 15%, รายการ 42%, หมวดหมู่ 20%, จำนวนเงิน 15% */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full text-left text-xs sm:text-sm border-collapse border border-slate-300">
                 <thead>
-                  <tr className="bg-sky-500/15 border-y-2 border-sky-300/40 text-[#0D2B52] font-black">
-                    <th className="py-2.5 px-2 text-center w-10">ลำดับ</th>
-                    <th className="py-2.5 px-2.5 w-24">วันที่จ่าย</th>
-                    <th className="py-2.5 px-2.5 w-32">เลขที่ใบสำคัญจ่าย</th>
-                    <th className="py-2.5 px-2.5 w-28">หมวดหมู่</th>
-                    <th className="py-2.5 px-3">รายการ / รายละเอียด</th>
-                    <th className="py-2.5 px-2.5 w-28">ผู้รับเงิน</th>
-                    <th className="py-2.5 px-2.5 w-28">ช่องทางชำระ</th>
-                    <th className="py-2.5 px-3 text-right w-28">จำนวนเงิน (บาท)</th>
+                  <tr className="bg-[#f0f7ff] border-b border-slate-300 text-[#0D2B52] font-bold">
+                    <th className="py-2.5 px-2 text-center border-r border-slate-300" style={{ width: '8%' }}>
+                      ลำดับ
+                    </th>
+                    <th className="py-2.5 px-2.5 text-center border-r border-slate-300" style={{ width: '15%' }}>
+                      วันที่
+                    </th>
+                    <th className="py-2.5 px-3 text-left border-r border-slate-300" style={{ width: '42%' }}>
+                      รายการ
+                    </th>
+                    <th className="py-2.5 px-3 text-left border-r border-slate-300" style={{ width: '20%' }}>
+                      หมวดหมู่
+                    </th>
+                    <th className="py-2.5 px-3 text-right" style={{ width: '15%' }}>
+                      จำนวนเงิน (บาท)
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+                <tbody className="divide-y divide-slate-200 text-slate-800 font-medium">
                   {monthlyExpenses.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="text-center py-12 text-slate-400 space-y-2">
+                      <td colSpan={5} className="text-center py-12 text-slate-400 space-y-2 border-b border-slate-200">
                         <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 mx-auto flex items-center justify-center">
                           <FileSpreadsheet className="w-6 h-6" />
                         </div>
-                        <p className="text-xs font-bold text-slate-500">
+                        <p className="text-xs sm:text-sm font-bold text-slate-500">
                           ไม่พบรายการค่าใช้จ่ายในเดือนที่เลือก
                         </p>
-                        <p className="text-[11px] text-slate-400 font-medium">
+                        <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
                           ({thaiMonthName} {thaiYearBE} - 0 รายการ)
                         </p>
                       </td>
@@ -473,25 +423,18 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                       return (
                         <tr
                           key={exp.id || idx}
-                          className={`hover:bg-sky-50/40 transition-colors ${
+                          className={`hover:bg-sky-50/30 transition-colors border-b border-slate-200 ${
                             isCancelled ? 'bg-rose-50/40 text-slate-400' : ''
                           }`}
+                          style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
                         >
-                          <td className="py-2.5 px-2 text-center font-bold text-slate-500">
+                          <td className="py-2.5 px-2 text-center font-bold text-slate-600 border-r border-slate-200">
                             {idx + 1}
                           </td>
-                          <td className="py-2.5 px-2.5 font-mono text-slate-700 whitespace-nowrap">
+                          <td className="py-2.5 px-2.5 text-center font-mono text-slate-700 whitespace-nowrap border-r border-slate-200">
                             {formatDate(exp.date)}
                           </td>
-                          <td className="py-2.5 px-2.5 font-bold font-mono text-[#0759A6] whitespace-nowrap">
-                            {exp.voucherNumber || '-'}
-                          </td>
-                          <td className="py-2.5 px-2.5 whitespace-nowrap">
-                            <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md font-bold text-[11px]">
-                              {catName}
-                            </span>
-                          </td>
-                          <td className="py-2.5 px-3 font-medium text-slate-800">
+                          <td className="py-2.5 px-3 text-left font-medium text-slate-800 border-r border-slate-200 leading-relaxed">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span>{exp.description}</span>
                               {isCancelled && (
@@ -501,11 +444,8 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                               )}
                             </div>
                           </td>
-                          <td className="py-2.5 px-2.5 text-slate-600 whitespace-nowrap">
-                            {exp.recipient || '-'}
-                          </td>
-                          <td className="py-2.5 px-2.5 text-slate-600 whitespace-nowrap">
-                            {exp.paymentMethod || 'โอนเงินธนาคาร'}
+                          <td className="py-2.5 px-3 text-left text-slate-700 border-r border-slate-200 whitespace-nowrap">
+                            {catName}
                           </td>
                           <td
                             className={`py-2.5 px-3 text-right font-mono font-bold whitespace-nowrap ${
@@ -519,40 +459,64 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                     })
                   )}
                 </tbody>
+                {/* Table Footer: Summary Row */}
+                <tfoot>
+                  <tr
+                    className="bg-[#f8fafc] border-t-2 border-slate-300 font-bold text-slate-800"
+                    style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+                  >
+                    <td
+                      colSpan={4}
+                      className="py-3 px-4 text-right font-extrabold text-[#0D2B52] border-r border-slate-300"
+                    >
+                      รวมค่าใช้จ่ายประจำเดือน {thaiMonthName} {thaiYearBE}
+                    </td>
+                    <td className="py-3 px-3 text-right font-mono font-black text-base text-[#0759A6] whitespace-nowrap">
+                      {formatCurrency(grandTotalAmount)} บาท
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
 
-            {/* Monthly Summary Box */}
-            <div className="bg-sky-500/5 border border-sky-200/60 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <span className="text-xs font-bold text-slate-500">
-                  จำนวนรายการค่าใช้จ่ายทั้งหมดในเดือนนี้:
-                </span>
-                <p className="text-sm font-extrabold text-[#0D2B52]">
-                  {totalItemsCount} รายการ{' '}
+            {/* Bottom Summary Info (ใต้ตาราง) */}
+            <div
+              className="bg-slate-50/80 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-2 text-xs sm:text-sm"
+              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 pb-2">
+                <span className="text-slate-600 font-medium">
+                  จำนวนรายการทั้งหมด :{' '}
+                  <span className="font-bold text-[#0D2B52]">{totalItemsCount} รายการ</span>
                   {includeCancelled && (
-                    <span className="text-xs text-slate-400 font-normal">
+                    <span className="text-xs text-slate-400 font-normal ml-1">
                       (รายการปกติ {activeItems.length} รายการ)
                     </span>
                   )}
-                </p>
-                <p className="text-xs text-slate-600 font-bold mt-1">
-                  จำนวนเงินตัวอักษร: <span className="text-[#0759A6] font-extrabold">({bahtText(grandTotalAmount)})</span>
-                </p>
+                </span>
+                <span className="text-slate-600 font-medium">
+                  ยอดรวมค่าใช้จ่ายทั้งหมด :{' '}
+                  <span className="font-mono font-black text-[#0759A6] text-sm sm:text-base">
+                    ฿{formatCurrency(grandTotalAmount)}
+                  </span>
+                </span>
               </div>
 
-              <div className="text-right bg-white border border-sky-300/50 rounded-xl px-5 py-3 shadow-2xs w-full sm:w-auto">
-                <span className="text-xs font-bold text-slate-500 block">
-                  ยอดรวมค่าใช้จ่ายทั้งเดือน (สุทธิ)
+              <div className="pt-1">
+                <span className="text-slate-600 font-medium">
+                  จำนวนเงินตัวอักษร :{' '}
+                  <span className="font-bold text-[#0D2B52]">
+                    ({bahtText(grandTotalAmount)})
+                  </span>
                 </span>
-                <p className="text-xl sm:text-2xl font-black text-[#0759A6] font-mono mt-0.5">
-                  ฿{formatCurrency(grandTotalAmount)}
-                </p>
               </div>
             </div>
 
             {/* Signatures Area */}
-            <div className="grid grid-cols-2 gap-6 pt-6 border-t border-slate-200 text-center text-xs">
+            <div
+              className="grid grid-cols-2 gap-6 pt-6 border-t border-slate-200 text-center text-xs"
+              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+            >
               <div className="space-y-6">
                 <p className="font-bold text-slate-700">ผู้จัดทำรายงาน</p>
                 <div className="w-48 mx-auto border-b border-dotted border-slate-400 pt-8" />
@@ -579,7 +543,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
             {/* Document Footer */}
             <div className="pt-4 text-center border-t border-slate-100">
               <p className="text-[10px] text-slate-400 font-medium">
-                KOZZI SMART LIVING • รายงานค่าใช้จ่ายประจำเดือน • เอกสารนี้ออกโดยระบบบริหารจัดการร้านค้า
+                KOZZI SMART LIVING • รายงานสรุปค่าใช้จ่ายประจำเดือน • เอกสารนี้ออกโดยระบบบริหารจัดการร้านค้า
               </p>
             </div>
           </div>

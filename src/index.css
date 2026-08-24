@@ -13,7 +13,7 @@
   }
 }
 
-/* Custom Print styles for receipts/invoices */
+/* Custom Print styles for receipts/invoices and monthly expense report */
 @media print {
   /* Enforce exact background & color rendering */
   * {
@@ -24,7 +24,7 @@
 
   @page {
     size: A4 portrait;
-    margin: 8mm;
+    margin: 12mm 15mm;
   }
 
   html, body, #root, #root > div {
@@ -35,13 +35,8 @@
     padding: 0 !important;
     width: 100% !important;
     height: auto !important;
+    min-height: auto !important;
     overflow: visible !important;
-    zoom: 1 !important;
-  }
-
-  /* Hide app header, sidebars, background dashboard elements */
-  #root > div > *:not(:has(#printable-document-container)) {
-    display: none !important;
   }
 
   /* Force hide all .no-print elements */
@@ -54,6 +49,8 @@
   /* Reset outer modal backdrops and fixed dark overlay containers */
   .fixed.inset-0,
   .fixed,
+  .backdrop-blur-xs,
+  .backdrop-blur-sm,
   .backdrop-blur-md {
     position: static !important;
     display: block !important;
@@ -70,10 +67,49 @@
     width: 100% !important;
     max-width: none !important;
     transform: none !important;
-    zoom: 1 !important;
   }
 
-  /* Printable document container fills 194mm printable area (210mm - 16mm margins) cleanly starting from top */
+  /* Hide background elements when printing receipts or monthly expense report */
+  #root > div > *:not(:has(#printable-document-container, #monthly-expense-print)) {
+    display: none !important;
+  }
+
+  /* Monthly expense report print layout */
+  #monthly-expense-print {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #ffffff !important;
+    color: #0D2B52 !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+  }
+
+  #monthly-expense-print * {
+    visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #monthly-expense-print tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #monthly-expense-print thead {
+    display: table-header-group !important;
+  }
+
+  #monthly-expense-print tfoot {
+    display: table-footer-group !important;
+  }
+
+  /* Printable receipts document container */
   #printable-document-container {
     visibility: visible !important;
     position: relative !important;
@@ -92,7 +128,6 @@
     background: #ffffff !important;
     color: #0f172a !important;
     transform: none !important;
-    zoom: 1 !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     -webkit-print-color-adjust: exact !important;
