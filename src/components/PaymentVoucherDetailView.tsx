@@ -12,7 +12,7 @@ import {
   Paperclip,
 } from 'lucide-react';
 import { Expense, ExpenseCategory, ExpenseStatus, SellerProfile } from '../types';
-import { formatCurrency, formatDate, formatDateTime, bahtText } from '../utils/format';
+import { formatCurrency, formatDate, bahtText } from '../utils/format';
 import { exportElementToPdf } from '../utils/pdf';
 
 interface PaymentVoucherDetailViewProps {
@@ -73,11 +73,14 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
   const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.PAID;
   const StatusIcon = statusCfg.icon;
 
-  const storeName = seller.name || 'KOZZI ราวตากผ้าอัจฉริยะ';
-  const storeAddress =
+  const entrepreneurName =
+    seller.bankAccountName ||
+    (seller.name && !seller.name.includes('KOZZI') ? seller.name : 'นางสาวจุรีรัตน์ มั่นคง');
+  const taxIdNumber = seller.taxId || '1100200300401';
+  const addressText =
     seller.address || '59/179 หมู่ 5 ตำบลลาดสวาย อำเภอลำลูกกา จังหวัดปทุมธานี 12150';
-  const storePhone = seller.phone || '064-651-8822';
-  const storeEmail = seller.email || 'kozzi.th@gmail.com';
+  const phoneText = seller.phone || '064-651-8822';
+  const emailText = seller.email || 'kozzi.th@gmail.com';
 
   const handlePrint = () => {
     window.print();
@@ -101,9 +104,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
       ? expense.items
       : [
           {
-            name: expense.description,
-            amount: expense.amount,
-            category: expense.category,
+            name: expense.description || 'ค่าใช้จ่ายทั่วไป',
+            amount: expense.amount || 0,
+            category: expense.category || 'OTHER',
             notes: '',
           },
         ];
@@ -195,69 +198,72 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             </div>
           )}
 
-          {/* 1. HEADER: KOZZI Logo & Info (Left) + Document Title Frame (Right) */}
+          {/* 1. HEADER SECTION */}
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-            {/* Left: Logo + Store Info */}
-            <div className="space-y-1.5 max-w-md">
-              {/* Logo (Top-Left Prominent) */}
-              <div className="pb-1">
+            {/* Left Side: Logo + Store Name on Top, and 4 Lines starting from the Far-Left under Logo */}
+            <div className="max-w-lg space-y-1.5">
+              {/* Row 1: Logo on Left + "KOZZI ราวตากผ้าอัจฉริยะ" on the Right of Logo */}
+              <div className="flex items-center gap-3">
                 {seller.logoUrl ? (
                   <img
                     src={seller.logoUrl}
-                    alt={storeName}
-                    className="max-h-14 w-auto max-w-[140px] object-contain shrink-0"
+                    alt="KOZZI"
+                    className="h-10 sm:h-12 w-auto max-w-[120px] object-contain shrink-0"
                   />
                 ) : (
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#0D2B52] to-[#1D63B8] text-white shadow-xs">
-                    <span className="font-black text-lg tracking-wider">KOZZI</span>
-                    <span className="text-[10px] text-sky-200 font-medium border-l border-white/20 pl-2">
-                      SMART LIVING
-                    </span>
+                  <div className="h-10 px-3.5 rounded-xl bg-[#0D2B52] text-white flex items-center justify-center font-black text-lg tracking-wider shrink-0 shadow-xs">
+                    KOZZI
                   </div>
                 )}
+                <span className="text-base sm:text-lg font-black text-[#0D2B52] leading-tight">
+                  KOZZI ราวตากผ้าอัจฉริยะ
+                </span>
               </div>
 
-              {/* Store Name - Exactly below Logo */}
-              <h2 className="text-base font-extrabold text-[#0D2B52] leading-tight pt-0.5">
-                {storeName}
-              </h2>
-
-              {/* Address - 1 line below Store Name */}
-              <p className="text-xs text-slate-600 leading-relaxed">{storeAddress}</p>
-
-              {/* Contact Info - with small phone and mail icons */}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 pt-0.5">
-                <span className="flex items-center gap-1">
-                  <Phone className="w-3.5 h-3.5 text-[#0D2B52] shrink-0" />
-                  <span>{storePhone}</span>
-                </span>
-                <span className="text-slate-300">|</span>
-                <span className="flex items-center gap-1">
-                  <Mail className="w-3.5 h-3.5 text-[#0D2B52] shrink-0" />
-                  <span>{storeEmail}</span>
-                </span>
+              {/* 4 Lines below the Logo, starting flush from the left edge of the document (Same alignment as Logo) */}
+              <div className="space-y-0.5 text-xs text-slate-600 pt-1">
+                <p className="font-semibold text-slate-800">
+                  ดำเนินการโดย {entrepreneurName}
+                </p>
+                <p>
+                  เลขประจำตัวผู้เสียภาษีอากร {taxIdNumber}
+                </p>
+                <p className="leading-relaxed">
+                  {addressText}
+                </p>
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 pt-0.5">
+                  <span className="flex items-center gap-1 font-medium">
+                    <Phone className="w-3 h-3 text-[#0D2B52] shrink-0" />
+                    <span>{phoneText}</span>
+                  </span>
+                  <span className="text-slate-300">|</span>
+                  <span className="flex items-center gap-1 font-medium">
+                    <Mail className="w-3 h-3 text-[#0D2B52] shrink-0" />
+                    <span>{emailText}</span>
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Right: Document Title Frame - Aligned horizontally with "KOZZI ราวตากผ้าอัจฉริยะ" on the left */}
-            <div className="text-right sm:min-w-[220px] shrink-0 self-stretch sm:self-auto flex flex-col items-end pt-0 sm:pt-[52px]">
-              {/* Navy Blue Rounded Frame for "ใบสำคัญจ่าย" */}
-              <div className="bg-[#0D2B52] text-white px-7 py-2 rounded-xl text-center shadow-xs inline-block">
-                <h1 className="text-base sm:text-lg font-bold tracking-wide text-white leading-tight">
+            {/* Right Side: Document Title Frame & PAYMENT VOUCHER below */}
+            <div className="flex flex-col items-center sm:items-end shrink-0 self-stretch sm:self-auto pt-1 sm:pt-0">
+              {/* Navy Blue Rounded Box for "ใบสำคัญจ่าย" */}
+              <div className="bg-[#0D2B52] text-white px-7 py-2.5 rounded-xl text-center shadow-xs min-w-[170px] sm:min-w-[190px]">
+                <h1 className="text-base sm:text-xl font-bold tracking-wide text-white leading-tight">
                   ใบสำคัญจ่าย
                 </h1>
               </div>
-              {/* "PAYMENT VOUCHER" text below the frame */}
-              <div className="text-xs font-extrabold tracking-widest text-[#0D2B52] uppercase mt-1 pr-1 text-center w-full sm:w-auto">
+              {/* "PAYMENT VOUCHER" text outside the box below, centered with the box */}
+              <div className="text-[11px] sm:text-xs font-black tracking-widest text-[#0D2B52] uppercase mt-1.5 text-center w-full sm:w-[190px]">
                 PAYMENT VOUCHER
               </div>
             </div>
           </div>
 
-          {/* Full-Width Navy Blue Horizontal Divider Line */}
-          <div className="h-[2px] bg-[#0D2B52] w-full my-5" />
+          {/* Full-Width Horizontal Navy Blue Divider Line */}
+          <div className="h-[2px] bg-[#0D2B52] w-full my-4" />
 
-          {/* 2. DOCUMENT INFO SECTION: 2 Columns x 2 Rows (No enclosing box) */}
+          {/* 2. DOCUMENT INFO SECTION: 2 Columns x 2 Rows (Clean, No enclosing boxes) */}
           <div className="text-xs text-slate-700 space-y-2 mb-6">
             {/* Row 1: จ่ายให้ (Left) | เลขที่เอกสาร (Right) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-2 border-b border-[#E2ECF8] border-dashed">
@@ -304,8 +310,8 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                 <tr className="bg-[#0D2B52] text-white font-bold">
                   <th className="py-2.5 px-3 text-center w-14 border-r border-[#1D406E]">ลำดับ</th>
                   <th className="py-2.5 px-4 border-r border-[#1D406E]">รายการ</th>
-                  <th className="py-2.5 px-4 border-r border-[#1D406E] w-40">หมวดหมู่</th>
-                  <th className="py-2.5 px-4 text-right w-36">จำนวนเงิน (บาท)</th>
+                  <th className="py-2.5 px-4 border-r border-[#1D406E] w-40 sm:w-48">หมวดหมู่</th>
+                  <th className="py-2.5 px-4 text-right w-36 sm:w-40">จำนวนเงิน (บาท)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2ECF8]">
@@ -329,7 +335,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                   </tr>
                 ))}
 
-                {/* Fill subtle empty lines to maintain elegant A4 proportions */}
+                {/* Fill subtle empty lines to maintain elegant A4 proportions if list is short */}
                 {items.length < 3 &&
                   Array.from({ length: 3 - items.length }).map((_, i) => (
                     <tr key={`empty-${i}`} className="h-9">
@@ -342,7 +348,10 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
 
                 {/* Table Bottom Summary Row */}
                 <tr className="bg-sky-50/50 border-t-2 border-[#CBD7E6] font-bold text-slate-900">
-                  <td colSpan={3} className="py-2.5 px-4 text-right text-[#0D2B52] font-extrabold border-r border-[#CBD7E6]">
+                  <td
+                    colSpan={3}
+                    className="py-2.5 px-4 text-right text-[#0D2B52] font-extrabold border-r border-[#CBD7E6]"
+                  >
                     รวมเป็นเงินทั้งสิ้น (TOTAL)
                   </td>
                   <td className="py-2.5 px-4 text-right font-mono font-black text-[#0D2B52] text-sm">
@@ -355,13 +364,13 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
 
           {/* 4. UNDER TABLE SECTION: 2 Parts in 1 Row */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-stretch mb-6">
-            {/* Left: Baht Text Box (White background, light blue border) */}
+            {/* Left: Baht Text Box (White background, light blue border, rounded corners) */}
             <div className="sm:col-span-7 flex flex-col justify-between p-3.5 bg-white border border-[#BAE6FD] rounded-xl">
               <div>
                 <span className="text-[11px] font-semibold text-slate-500 block">
-                  จำนวนเงินตัวอักษร:
+                  จำนวนเงินตัวอักษร
                 </span>
-                <span className="font-bold text-xs sm:text-sm text-[#0D2B52] mt-0.5 block">
+                <span className="font-bold text-xs sm:text-sm text-[#0D2B52] mt-1 block">
                   ({bahtText(expense.amount)})
                 </span>
               </div>
@@ -392,7 +401,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             </div>
 
             {/* Right: Grand Total Box (Navy Blue background, rounded corners) */}
-            <div className="sm:col-span-5 bg-[#0D2B52] text-white rounded-xl p-4 shadow-sm text-right flex flex-col justify-between">
+            <div className="sm:col-span-5 bg-[#0D2B52] text-white rounded-xl p-4 shadow-xs text-right flex flex-col justify-between">
               <span className="text-xs font-semibold text-sky-200 block uppercase tracking-wide">
                 รวมเป็นเงินทั้งสิ้น (TOTAL)
               </span>
@@ -416,7 +425,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                   <p className="font-medium text-slate-700 text-[11px]">
                     ({expense.recordedBy || 'ผู้จัดทำ'})
                   </p>
-                  <p className="text-[10px] text-slate-500">วันที่ ___ / ___ / ___</p>
+                  <p className="text-[10px] text-slate-500">วันที่ ____ / ____ / ____</p>
                 </div>
               </div>
 
@@ -426,7 +435,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                 <div className="space-y-1">
                   <p className="text-slate-400 text-[11px]">................................................</p>
                   <p className="font-medium text-slate-700 text-[11px]">(................................................)</p>
-                  <p className="text-[10px] text-slate-500">วันที่ ___ / ___ / ___</p>
+                  <p className="text-[10px] text-slate-500">วันที่ ____ / ____ / ____</p>
                 </div>
               </div>
 
@@ -438,7 +447,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                   <p className="font-medium text-slate-700 text-[11px]">
                     ({expense.recipient || 'ผู้รับเงิน'})
                   </p>
-                  <p className="text-[10px] text-slate-500">วันที่ ___ / ___ / ___</p>
+                  <p className="text-[10px] text-slate-500">วันที่ ____ / ____ / ____</p>
                 </div>
               </div>
             </div>
