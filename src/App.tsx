@@ -7,6 +7,7 @@ import { DocumentCreateModal } from './components/DocumentCreateModal';
 import { DocumentDetailView } from './components/DocumentDetailView';
 import { ProductManagement } from './components/ProductManagement';
 import { ExpenseManagement } from './components/ExpenseManagement';
+import { PaymentVoucherDetailView } from './components/PaymentVoucherDetailView';
 import { CustomerManagement } from './components/CustomerManagement';
 import { ReportsView } from './components/ReportsView';
 import { SettingsModal } from './components/SettingsModal';
@@ -16,11 +17,13 @@ import {
   DocumentStatus,
   DocumentType,
   Expense,
+  ExpenseStatus,
   Product,
   SalesDocument,
   SellerProfile,
   SyncLog,
 } from './types';
+import { generateNextVoucherNumber } from './utils/format';
 import {
   getCustomers,
   getDocuments,
@@ -71,6 +74,7 @@ export default function App() {
   const [editingDoc, setEditingDoc] = useState<SalesDocument | null>(null);
 
   const [selectedDoc, setSelectedDoc] = useState<SalesDocument | null>(null);
+  const [selectedExpenseVoucher, setSelectedExpenseVoucher] = useState<Expense | null>(null);
 
   const [promptPayModalData, setPromptPayModalData] = useState<{
     amount: number;
@@ -301,11 +305,42 @@ export default function App() {
 
   const handleSaveExpense = (exp: Expense) => {
     saveExpenseCloud(exp);
+    if (selectedExpenseVoucher && selectedExpenseVoucher.id === exp.id) {
+      setSelectedExpenseVoucher(exp);
+    }
+  };
+
+  const handleViewExpenseVoucher = (exp: Expense) => {
+    // If the expense doesn't have a voucherNumber yet, assign one automatically
+    if (!exp.voucherNumber) {
+      const generatedVoucherNumber = generateNextVoucherNumber(exp.date, expenses);
+      const updatedExp: Expense = {
+        ...exp,
+        voucherNumber: generatedVoucherNumber,
+        status: exp.status || 'PAID',
+        updatedAt: new Date().toISOString(),
+      };
+      saveExpenseCloud(updatedExp);
+      setSelectedExpenseVoucher(updatedExp);
+    } else {
+      setSelectedExpenseVoucher(exp);
+    }
+  };
+
+  const handleUpdateExpenseStatus = (exp: Expense, newStatus: ExpenseStatus) => {
+    const updatedExp: Expense = {
+      ...exp,
+      status: newStatus,
+      updatedAt: new Date().toISOString(),
+    };
+    saveExpenseCloud(updatedExp);
+    setSelectedExpenseVoucher(updatedExp);
   };
 
   const handleDeleteExpense = (id: string) => {
-    if (confirm('คุณแน่ใจหรือไม่ที่จะลบรายการจ่ายนี้?')) {
-      deleteExpenseCloud(id);
+    deleteExpenseCloud(id);
+    if (selectedExpenseVoucher?.id === id) {
+      setSelectedExpenseVoucher(null);
     }
   };
 
@@ -441,6 +476,7 @@ export default function App() {
             expenses={expenses}
             onSaveExpense={handleSaveExpense}
             onDeleteExpense={handleDeleteExpense}
+            onViewVoucher={handleViewExpenseVoucher}
           />
         )}
 
@@ -479,6 +515,24 @@ export default function App() {
           onSave={handleSaveDocument}
           onAddCustomer={handleSaveCustomer}
         />
+      )}
+
+      {/* Payment Voucher Detail Modal */}
+      {selectedExpenseVoucher && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div className="w-full max-w-5xl my-auto">
+            <PaymentVoucherDetailView
+              expense={selectedExpenseVoucher}
+              seller={seller}
+              onClose={() => setSelectedExpenseVoucher(null)}
+              onEditExpense={(exp) => {
+                setSelectedExpenseVoucher(null);
+                setActiveTab('expenses');
+              }}
+              onUpdateStatus={handleUpdateExpenseStatus}
+            />
+          </div>
+        </div>
       )}
 
       {/* Document Detail Preview Modal */}

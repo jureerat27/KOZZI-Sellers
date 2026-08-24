@@ -104,15 +104,32 @@ export type ExpenseCategory =
   | 'SALARY'
   | 'OTHER';
 
+export type ExpenseStatus = 'PAID' | 'DRAFT' | 'CANCELLED';
+
+export interface ExpenseItem {
+  id?: string;
+  name: string;
+  amount: number;
+  notes?: string;
+}
+
 export interface Expense {
   id: string;
+  voucherNumber?: string; // e.g. PV-202608-0001
   date: string;
   category: ExpenseCategory;
   description: string;
   amount: number;
   recipient?: string;
+  paymentMethod?: string; // 'CASH' | 'BANK_TRANSFER' | 'CREDIT_CARD' | 'OTHER'
+  paymentRef?: string;
   receiptUrl?: string;
+  notes?: string;
+  recordedBy?: string;
+  status?: ExpenseStatus;
+  items?: ExpenseItem[];
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface SyncLog {
