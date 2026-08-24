@@ -474,6 +474,7 @@ export default function App() {
         {activeTab === 'expenses' && (
           <ExpenseManagement
             expenses={expenses}
+            seller={seller}
             onSaveExpense={handleSaveExpense}
             onDeleteExpense={handleDeleteExpense}
             onViewVoucher={handleViewExpenseVoucher}

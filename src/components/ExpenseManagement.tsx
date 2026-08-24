@@ -12,13 +12,18 @@ import {
   Clock3,
   XCircle,
   AlertTriangle,
+  FileSpreadsheet,
+  Printer,
 } from 'lucide-react';
-import { Expense, ExpenseCategory, ExpenseStatus } from '../types';
+import { Expense, ExpenseCategory, ExpenseStatus, SellerProfile } from '../types';
 import { formatCurrency, formatDate, generateNextVoucherNumber } from '../utils/format';
+import { getSellerProfile } from '../utils/storage';
 import { DatePicker } from './DatePicker';
+import { MonthlyExpenseReportModal } from './MonthlyExpenseReportModal';
 
 interface ExpenseManagementProps {
   expenses: Expense[];
+  seller?: SellerProfile;
   onSaveExpense: (expense: Expense) => void;
   onDeleteExpense: (id: string) => void;
   onViewVoucher: (expense: Expense) => void;
@@ -74,16 +79,19 @@ const PAYMENT_METHODS = [
 
 export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
   expenses,
+  seller,
   onSaveExpense,
   onDeleteExpense,
   onViewVoucher,
   showAddModalDirectly = false,
 }) => {
+  const resolvedSeller = seller || getSellerProfile();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(showAddModalDirectly);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);
 
   // Delete modal state
   const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null);
@@ -233,17 +241,27 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={openAddModal}
-          className="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>+ บันทึกรายจ่ายใหม่ 📝</span>
-        </button>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            onClick={() => setIsMonthlyReportOpen(true)}
+            className="px-4 py-2.5 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-[#0759A6] text-xs font-extrabold rounded-xl shadow-2xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-[#0759A6]" />
+            <span>รายงานค่าใช้จ่ายทั้งหมด 📊</span>
+          </button>
+
+          <button
+            onClick={openAddModal}
+            className="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+          >
+            <Plus className="w-4 h-4" />
+            <span>+ บันทึกรายจ่ายใหม่ 📝</span>
+          </button>
+        </div>
       </div>
 
       {/* Monthly Expense Badge */}
-      <div className="bg-white/95 border border-rose-100 p-4 rounded-2xl flex items-center justify-between shadow-xs">
+      <div className="bg-white/95 border border-rose-100 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
         <div>
           <span className="text-xs text-slate-500 font-medium">
             รวมรายจ่ายเดือนนี้ ({currentMonthStr}) [ไม่รวมรายการยกเลิก] 🗓️
@@ -251,8 +269,15 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
           <p className="text-2xl font-extrabold text-rose-500 mt-0.5 font-mono">
             ฿{formatCurrency(totalMonthlyExpense)}
           </p>
+          <button
+            onClick={() => setIsMonthlyReportOpen(true)}
+            className="text-xs text-[#0759A6] font-bold hover:underline flex items-center gap-1 mt-1 cursor-pointer"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>ดูและพิมพ์รายงานค่าใช้จ่ายประจำเดือน</span>
+          </button>
         </div>
-        <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 text-rose-500 flex items-center justify-center shadow-xs">
+        <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 text-rose-500 flex items-center justify-center shadow-xs self-start sm:self-auto">
           <TrendingDown className="w-6 h-6" />
         </div>
       </div>
@@ -690,6 +715,14 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
           </div>
         </div>
       )}
+
+      {/* Monthly Expense Report Modal */}
+      <MonthlyExpenseReportModal
+        isOpen={isMonthlyReportOpen}
+        onClose={() => setIsMonthlyReportOpen(false)}
+        expenses={expenses}
+        seller={resolvedSeller}
+      />
     </div>
   );
 };

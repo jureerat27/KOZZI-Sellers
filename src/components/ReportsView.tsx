@@ -36,6 +36,7 @@ import {
 import { Expense, Product, SalesDocument, SellerProfile } from '../types';
 import { formatCurrency, formatDate } from '../utils/format';
 import { DatePicker } from './DatePicker';
+import { MonthlyExpenseReportModal } from './MonthlyExpenseReportModal';
 
 interface ReportsViewProps {
   documents: SalesDocument[];
@@ -72,6 +73,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
   // Modal print state
   const [printModalType, setPrintModalType] = useState<'RECEIPTS' | 'EXPENSES' | 'SUMMARY' | null>(null);
+  const [isMonthlyExpenseReportOpen, setIsMonthlyExpenseReportOpen] = useState(false);
 
   // Preset handlers
   const handleSetPreset = (preset: 'THIS_MONTH' | 'LAST_MONTH' | 'LAST_30' | 'THIS_YEAR') => {
@@ -319,16 +321,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               <Wallet className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-sm font-extrabold text-[#172B4D]">
-              พิมพ์ PDF ค่าใช้จ่ายทั้งหมด
+              พิมพ์ PDF ค่าใช้จ่ายทั้งหมด (รายเดือน)
             </h3>
             <p className="text-xs text-[#6B7A90] mt-1 font-medium">
-              พิมพ์รายการบันทึกค่าใช้จ่าย {filteredExpenses.length} รายการ (รวม ฿{formatCurrency(totalExpenses)})
+              เลือกเดือน/ปี ดู Preview และพิมพ์รายงานค่าใช้จ่ายประจำเดือนเป็นเอกสาร PDF
             </p>
           </div>
 
           <button
-            onClick={() => setPrintModalType('EXPENSES')}
-            className="w-full py-2.5 bg-[#2374D8] hover:bg-[#1A5BB0] text-white text-xs font-bold rounded-xl shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-98"
+            onClick={() => setIsMonthlyExpenseReportOpen(true)}
+            className="w-full py-2.5 bg-[#2374D8] hover:bg-[#1A5BB0] text-white text-xs font-bold rounded-xl shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer"
           >
             <Printer className="w-4 h-4 text-white" />
             <span>พิมพ์ / ดาวน์โหลด PDF รายจ่าย</span>
@@ -792,6 +794,14 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Dedicated Monthly Expense Report Modal */}
+      <MonthlyExpenseReportModal
+        isOpen={isMonthlyExpenseReportOpen}
+        onClose={() => setIsMonthlyExpenseReportOpen(false)}
+        expenses={expenses}
+        seller={seller}
+      />
     </div>
   );
 };
