@@ -341,7 +341,6 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
             ref={documentRef}
             className="w-full max-w-[210mm] bg-white rounded-xl sm:rounded-2xl shadow-md border border-slate-200 p-6 sm:p-10 space-y-6 text-slate-800"
             style={{
-              minHeight: '297mm',
               boxSizing: 'border-box',
               backgroundColor: '#ffffff',
             }}
@@ -376,24 +375,42 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
 
             {/* Table: 5 Columns Only */}
             {/* Proportions: ลำดับ 7%, วันที่ 15%, รายการ 43%, หมวดหมู่ 20%, จำนวนเงิน 15% */}
-            <div className="overflow-x-auto">
+            <div className="w-full">
               <table className="w-full text-left text-xs sm:text-sm border-collapse border border-slate-300 table-fixed">
                 <thead>
                   <tr className="bg-[#f0f7ff] border-b border-slate-300 text-[#0D2B52] font-bold">
-                    <th className="py-2.5 px-2 text-center border-r border-slate-300" style={{ width: '7%' }}>
+                    <th
+                      className="py-3 px-1 text-center align-middle border-r border-slate-300 whitespace-nowrap"
+                      style={{ width: '7%' }}
+                    >
                       ลำดับ
                     </th>
-                    <th className="py-2.5 px-2.5 text-center border-r border-slate-300" style={{ width: '15%' }}>
+                    <th
+                      className="py-3 px-2 text-center align-middle border-r border-slate-300 whitespace-nowrap"
+                      style={{ width: '15%' }}
+                    >
                       วันที่
                     </th>
-                    <th className="py-2.5 px-3 text-left border-r border-slate-300" style={{ width: '43%' }}>
+                    <th
+                      className="py-3 px-3 text-center align-middle border-r border-slate-300"
+                      style={{ width: '43%' }}
+                    >
                       รายการ
                     </th>
-                    <th className="py-2.5 px-3 text-left border-r border-slate-300" style={{ width: '20%' }}>
+                    <th
+                      className="py-3 px-3 text-center align-middle border-r border-slate-300"
+                      style={{ width: '20%' }}
+                    >
                       หมวดหมู่
                     </th>
-                    <th className="py-2.5 px-3 text-right" style={{ width: '15%' }}>
-                      จำนวนเงิน (บาท)
+                    <th
+                      className="py-3 px-2 text-center align-middle"
+                      style={{ width: '15%' }}
+                    >
+                      <div className="leading-tight">
+                        <span>จำนวนเงิน</span>
+                        <span className="block text-[11px] font-semibold text-[#0759A6]">(บาท)</span>
+                      </div>
                     </th>
                   </tr>
                 </thead>
@@ -428,13 +445,13 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                           }`}
                           style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
                         >
-                          <td className="py-2.5 px-2 text-center font-bold text-slate-600 border-r border-slate-200">
+                          <td className="py-2.5 px-1 text-center align-middle font-bold text-slate-600 border-r border-slate-200 whitespace-nowrap">
                             {idx + 1}
                           </td>
-                          <td className="py-2.5 px-2.5 text-center font-mono text-slate-700 whitespace-nowrap border-r border-slate-200">
+                          <td className="py-2.5 px-1.5 text-center align-middle font-mono text-slate-700 whitespace-nowrap border-r border-slate-200">
                             {formatDate(exp.date)}
                           </td>
-                          <td className="py-2.5 px-3 text-left font-medium text-slate-800 border-r border-slate-200 leading-relaxed break-words">
+                          <td className="py-2.5 px-2.5 text-left align-middle font-medium text-slate-800 border-r border-slate-200 leading-relaxed break-words">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span>{exp.description}</span>
                               {isCancelled && (
@@ -444,11 +461,11 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                               )}
                             </div>
                           </td>
-                          <td className="py-2.5 px-3 text-left text-slate-700 border-r border-slate-200">
+                          <td className="py-2.5 px-2.5 text-left align-middle text-slate-700 border-r border-slate-200 break-words">
                             {catName}
                           </td>
                           <td
-                            className={`py-2.5 px-3 text-right font-mono font-bold whitespace-nowrap ${
+                            className={`py-2.5 px-2 text-right align-middle font-mono font-bold whitespace-nowrap ${
                               isCancelled ? 'line-through text-slate-400' : 'text-[#0D2B52]'
                             }`}
                           >
@@ -471,7 +488,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                     >
                       รวมค่าใช้จ่ายประจำเดือน {thaiMonthName} {thaiYearBE}
                     </td>
-                    <td className="py-3 px-3 text-right font-mono font-black text-base text-[#0759A6] whitespace-nowrap">
+                    <td className="py-3 px-3 text-right font-mono font-black text-sm sm:text-base text-[#0759A6] whitespace-nowrap">
                       {formatCurrency(grandTotalAmount)} บาท
                     </td>
                   </tr>
@@ -510,41 +527,6 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                   </span>
                 </span>
               </div>
-            </div>
-
-            {/* Signatures Area */}
-            <div
-              className="grid grid-cols-2 gap-6 pt-8 border-t border-slate-200 text-center text-xs"
-              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-            >
-              <div className="space-y-6">
-                <p className="font-bold text-slate-700">ผู้จัดทำรายงาน</p>
-                <div className="w-52 mx-auto border-b border-dotted border-slate-400 pt-10" />
-                <p className="text-slate-600 font-medium">
-                  ( ............................................................ )
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  วันที่ _____ / _____ / _________
-                </p>
-              </div>
-
-              <div className="space-y-6">
-                <p className="font-bold text-slate-700">ผู้อนุมัติ / ผู้ตรวจสอบ</p>
-                <div className="w-52 mx-auto border-b border-dotted border-slate-400 pt-10" />
-                <p className="text-slate-600 font-medium">
-                  ( ............................................................ )
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  วันที่ _____ / _____ / _________
-                </p>
-              </div>
-            </div>
-
-            {/* Document Footer */}
-            <div className="pt-4 text-center border-t border-slate-100">
-              <p className="text-[10px] text-slate-400 font-medium">
-                KOZZI SMART LIVING • รายงานสรุปค่าใช้จ่ายประจำเดือน • เอกสารนี้ออกโดยระบบบริหารจัดการร้านค้า
-              </p>
             </div>
           </div>
         </div>
