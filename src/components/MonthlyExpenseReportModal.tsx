@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Expense, ExpenseCategory, SellerProfile } from '../types';
 import { formatCurrency, formatDate, bahtText } from '../utils/format';
-import { exportElementToPdf } from '../utils/pdf';
+import { exportElementToPdf, printElementIsolated } from '../utils/pdf';
 
 interface MonthlyExpenseReportModalProps {
   isOpen: boolean;
@@ -175,7 +175,10 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
   const taxIdNumber = seller.taxId || '1100200300401';
 
   const handlePrint = () => {
-    window.print();
+    printElementIsolated(
+      'monthly-expense-print',
+      `รายงานสรุปค่าใช้จ่าย_${thaiMonthName}_${thaiYearBE}`
+    );
   };
 
   const handleDownloadPdf = async () => {

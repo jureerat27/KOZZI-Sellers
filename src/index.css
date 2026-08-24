@@ -39,6 +39,11 @@
     overflow: visible !important;
   }
 
+  /* Hide all background elements by default when printing */
+  body * {
+    visibility: hidden;
+  }
+
   /* Force hide all .no-print elements */
   .no-print,
   .no-print * {
@@ -69,16 +74,18 @@
     transform: none !important;
   }
 
-  /* Hide background elements when printing receipts or monthly expense report */
-  #root > div > *:not(:has(#printable-document-container, #monthly-expense-print)) {
-    display: none !important;
+  /* Monthly expense report print layout */
+  #monthly-expense-print,
+  #monthly-expense-print * {
+    visibility: visible !important;
   }
 
-  /* Monthly expense report print layout */
   #monthly-expense-print {
     display: block !important;
     visibility: visible !important;
-    position: static !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
@@ -91,7 +98,6 @@
   }
 
   #monthly-expense-print * {
-    visibility: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -110,9 +116,14 @@
   }
 
   /* Printable receipts document container */
+  #printable-document-container,
+  #printable-document-container * {
+    visibility: visible !important;
+  }
+
   #printable-document-container {
     visibility: visible !important;
-    position: relative !important;
+    position: absolute !important;
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
