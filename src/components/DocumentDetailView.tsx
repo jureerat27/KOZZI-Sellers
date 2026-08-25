@@ -373,16 +373,34 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             {/* Customer Details & Payment Status Boxes (2 Separate Boxes) */}
             <div className="flex flex-col sm:flex-row print:flex-row items-stretch gap-4">
               {/* Box 1: Customer Information (Extends up to price table alignment) */}
-              <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-1">
+              <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-1.5">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                   ลูกค้า / ผู้สั่งซื้อ
                 </span>
-                <h3 className="font-bold text-sm text-slate-900">{doc.customerName}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{doc.customerAddress}</p>
-                <p className="text-xs text-slate-600">
-                  โทร: {doc.customerPhone}{' '}
-                  {doc.customerTaxId ? `• เลขผู้เสียภาษี: ${doc.customerTaxId}` : ''}
-                </p>
+                <div className="space-y-1 text-xs">
+                  <p className="text-slate-900 font-bold text-sm">
+                    <span className="font-semibold text-slate-500 text-xs mr-1">ชื่อลูกค้า :</span>
+                    {doc.customerName}
+                  </p>
+                  {doc.customerTaxId && doc.customerTaxId.trim() !== '' && (
+                    <p className="text-slate-800 font-mono font-medium">
+                      <span className="font-semibold text-slate-500 font-sans mr-1">เลขประจำตัวผู้เสียภาษีอากร :</span>
+                      {doc.customerTaxId}
+                    </p>
+                  )}
+                  {doc.customerAddress && doc.customerAddress.trim() !== '' && (
+                    <p className="text-slate-700 leading-relaxed">
+                      <span className="font-semibold text-slate-500 mr-1">ที่อยู่ :</span>
+                      {doc.customerAddress}
+                    </p>
+                  )}
+                  {doc.customerPhone && doc.customerPhone.trim() !== '' && (
+                    <p className="text-slate-700">
+                      <span className="font-semibold text-slate-500 mr-1">โทรศัพท์ :</span>
+                      {doc.customerPhone}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Box 2: Standalone Payment Status Box */}

@@ -85,6 +85,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
   // New Quick Customer Inline Modal
   const [showQuickCustomer, setShowQuickCustomer] = useState(false);
   const [newCustName, setNewCustName] = useState('');
+  const [newCustTaxId, setNewCustTaxId] = useState('');
   const [newCustPhone, setNewCustPhone] = useState('');
   const [newCustAddress, setNewCustAddress] = useState('');
 
@@ -168,16 +169,22 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
     const newCust: Customer = {
       id: `cust-${Date.now()}`,
       code: `C${(customers.length + 1).toString().padStart(3, '0')}`,
-      name: newCustName,
-      phone: newCustPhone,
-      address: newCustAddress,
+      name: newCustName.trim(),
+      taxId: newCustTaxId.trim(),
+      phone: newCustPhone.trim(),
+      address: newCustAddress.trim(),
       createdAt: new Date().toISOString().split('T')[0],
     };
     onAddCustomer(newCust);
     setSelectedCustomerId(newCust.id);
     setCustomerName(newCust.name);
+    setCustomerTaxId(newCust.taxId || '');
     setCustomerPhone(newCust.phone);
     setCustomerAddress(newCust.address);
+    setNewCustName('');
+    setNewCustTaxId('');
+    setNewCustPhone('');
+    setNewCustAddress('');
     setShowQuickCustomer(false);
   };
 
@@ -335,7 +342,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   <option value="">-- เลือกลูกค้าจากคลัง --</option>
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.name} ({c.phone})
+                      {c.name} {c.taxId ? `[Tax: ${c.taxId}]` : ''} {c.phone ? `(${c.phone})` : ''}
                     </option>
                   ))}
                 </select>
@@ -353,19 +360,35 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">ชื่อ-นามสกุล / บริษัท *</label>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  ชื่อ-นามสกุล / บริษัท <span className="text-rose-400">*</span>
+                </label>
                 <input
                   type="text"
                   required
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="เช่น คุณวิภาวรรณ สุขเกษม"
+                  placeholder="เช่น คุณวิภาวรรณ สุขเกษม หรือ บริษัท ABC จำกัด"
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">เบอร์โทรศัพท์</label>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1 flex items-center justify-between">
+                  <span>เลขประจำตัวผู้เสียภาษีอากร (Tax ID)</span>
+                  <span className="text-[10px] text-slate-500">ไม่บังคับ</span>
+                </label>
+                <input
+                  type="text"
+                  value={customerTaxId}
+                  onChange={(e) => setCustomerTaxId(e.target.value)}
+                  placeholder="เช่น 1490700030250 (13 หลัก)"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">เบอร์โทรศัพท์</label>
                 <input
                   type="text"
                   value={customerPhone}
@@ -375,8 +398,8 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 />
               </div>
 
-              <div className="sm:col-span-2">
-                <label className="block text-[11px] text-slate-400 mb-1">ที่อยู่จัดส่ง / ออกเอกสาร</label>
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">ที่อยู่จัดส่ง / ออกเอกสาร</label>
                 <input
                   type="text"
                   value={customerAddress}
@@ -402,6 +425,13 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 />
                 <input
                   type="text"
+                  placeholder="เลขประจำตัวผู้เสียภาษี (Tax ID)"
+                  value={newCustTaxId}
+                  onChange={(e) => setNewCustTaxId(e.target.value)}
+                  className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 font-mono"
+                />
+                <input
+                  type="text"
                   placeholder="เบอร์โทร"
                   value={newCustPhone}
                   onChange={(e) => setNewCustPhone(e.target.value)}
@@ -409,10 +439,10 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 />
                 <input
                   type="text"
-                  placeholder="ที่อยู่จัดส่ง"
+                  placeholder="ที่อยู่จัดส่ง / ออกเอกสาร"
                   value={newCustAddress}
                   onChange={(e) => setNewCustAddress(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 sm:col-span-2"
+                  className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100"
                 />
               </div>
               <div className="flex justify-end gap-2">

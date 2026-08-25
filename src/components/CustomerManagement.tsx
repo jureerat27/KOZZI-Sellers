@@ -60,13 +60,13 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
       code: editingCustomer
         ? editingCustomer.code
         : `C${(customers.length + 1).toString().padStart(3, '0')}`,
-      name,
-      phone,
-      email,
-      address,
-      taxId,
-      lineUserId,
-      note,
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+      address: address.trim(),
+      taxId: taxId.trim(),
+      lineUserId: lineUserId.trim(),
+      note: note.trim(),
       createdAt: editingCustomer
         ? editingCustomer.createdAt
         : new Date().toISOString().split('T')[0],
@@ -76,12 +76,17 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
     setIsModalOpen(false);
   };
 
-  const filteredCustomers = customers.filter(
-    (c) =>
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.phone.includes(searchTerm) ||
-      (c.address && c.address.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredCustomers = customers.filter((c) => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      (c.name && c.name.toLowerCase().includes(term)) ||
+      (c.phone && c.phone.includes(term)) ||
+      (c.taxId && c.taxId.toLowerCase().includes(term)) ||
+      (c.address && c.address.toLowerCase().includes(term)) ||
+      (c.code && c.code.toLowerCase().includes(term))
+    );
+  });
 
   return (
     <div className="space-y-5 pb-20">
@@ -93,7 +98,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
             <span>ฐานข้อมูลลูกค้า (Customer Database)</span>
           </h1>
           <p className="text-xs text-slate-500">
-            จัดเก็บประวัติลูกค้า ที่อยู่จัดส่ง และเลขประจำตัวผู้เสียภาษี 🌸
+            จัดเก็บประวัติลูกค้า ที่อยู่จัดส่ง และเลขประจำตัวผู้เสียภาษีอากร 🌸
           </p>
         </div>
 
@@ -112,7 +117,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-pink-400" />
           <input
             type="text"
-            placeholder="ค้นหาชื่อลูกค้า / เบอร์โทรศัพท์ / ที่อยู่..."
+            placeholder="ค้นหาชื่อลูกค้า / เบอร์โทรศัพท์ / เลขประจำตัวผู้เสียภาษีอากร (Tax ID) / ที่อยู่..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-pink-50/30 border border-pink-200 text-xs text-slate-800 rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-pink-400"
@@ -124,7 +129,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {filteredCustomers.length === 0 ? (
           <div className="col-span-full bg-white/90 border border-rose-100 rounded-2xl p-10 text-center text-slate-400 text-xs shadow-xs">
-            🌸 ไม่พบข้อมูลลูกค้า
+            🌸 ไม่พบข้อมูลลูกค้าที่ตรงกับคำค้นหา
           </div>
         ) : (
           filteredCustomers.map((c) => {
@@ -143,16 +148,21 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
                     <div className="w-10 h-10 rounded-xl bg-pink-100 border border-pink-200 flex items-center justify-center text-pink-600 font-extrabold shrink-0">
                       {c.name.charAt(0)}
                     </div>
-                    <div>
+                    <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <h3 className="font-bold text-sm text-slate-800">{c.name}</h3>
                         <span className="text-[10px] px-2 py-0.5 rounded-md bg-pink-50 text-pink-700 font-bold border border-pink-200">
                           {c.code}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-600 mt-0.5 flex items-center gap-1 font-medium">
+                      {c.taxId && c.taxId.trim() !== '' && (
+                        <p className="text-xs text-slate-600 font-mono font-medium">
+                          เลขประจำตัวผู้เสียภาษี: <span className="text-slate-800 font-bold">{c.taxId}</span>
+                        </p>
+                      )}
+                      <p className="text-xs text-slate-600 flex items-center gap-1 font-medium">
                         <Phone className="w-3 h-3 text-pink-400" />
-                        <span>{c.phone || 'ไม่ระบุเบอร์'}</span>
+                        <span>โทร. {c.phone || 'ไม่ระบุเบอร์'}</span>
                       </p>
                     </div>
                   </div>
@@ -180,20 +190,16 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
                     <MapPin className="w-3.5 h-3.5 text-pink-400 shrink-0 mt-0.5" />
                     <span>{c.address || 'ไม่ระบุที่อยู่'}</span>
                   </p>
-                  {c.taxId && (
-                    <p className="text-[11px] text-slate-500 pl-5 font-mono">
-                      💳 เลขผู้เสียภาษี: {c.taxId}
-                    </p>
-                  )}
                   {c.lineUserId ? (
                     <p className="text-[11px] text-emerald-700 pl-5 font-mono font-bold flex items-center gap-1">
                       <span>💬 LINE User ID: {c.lineUserId}</span>
                     </p>
-                  ) : (
-                    <p className="text-[10px] text-slate-400 pl-5 italic">
-                      ยังไม่มี LINE User ID (ระบุเพื่อส่งบิลผ่าน LINE OA)
+                  ) : null}
+                  {c.note ? (
+                    <p className="text-[11px] text-slate-500 pl-5 italic">
+                      📝 {c.note}
                     </p>
-                  )}
+                  ) : null}
                 </div>
 
                 <div className="flex items-center justify-between text-xs pt-1 border-t border-rose-50">
@@ -229,89 +235,97 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
             </div>
 
             <form onSubmit={handleFormSubmit} className="space-y-3">
+              {/* Field 1: Customer Name */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">ชื่อ-นามสกุล / บริษัท *</label>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  ชื่อลูกค้า / บริษัท <span className="text-rose-500">*</span>
+                </label>
                 <input
                   type="text"
                   required
-                  placeholder="เช่น คุณอนันต์ ชัยประเสริฐ"
+                  placeholder="เช่น คุณอนันต์ ชัยประเสริฐ หรือ บริษัท สยามเทรดดิ้ง จำกัด"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800"
+                  className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-pink-400"
                 />
               </div>
 
+              {/* Field 2: Tax ID (Right after Customer Name and before Phone / Address) */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>เลขประจำตัวผู้เสียภาษีอากร (Tax ID)</span>
+                  <span className="text-[10px] font-normal text-slate-400">ไม่บังคับกรอก</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="เช่น 1490700030250 (13 หลัก หรือเว้นว่างได้)"
+                  value={taxId}
+                  onChange={(e) => setTaxId(e.target.value)}
+                  className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono focus:outline-none focus:border-pink-400"
+                />
+              </div>
+
+              {/* Field 3: Phone & Email */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">เบอร์โทรศัพท์</label>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">เบอร์โทรศัพท์</label>
                   <input
                     type="text"
                     placeholder="เช่น 0898765432"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800"
+                    className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-pink-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">อีเมล</label>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">อีเมล</label>
                   <input
                     type="email"
                     placeholder="customer@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800"
+                    className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-pink-400"
                   />
                 </div>
               </div>
 
+              {/* Field 4: Address */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">ที่อยู่สำหรับจัดส่งและออกเอกสาร</label>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">ที่อยู่สำหรับจัดส่งและออกเอกสาร</label>
                 <textarea
                   rows={2}
-                  placeholder="เช่น 123/45 ถนนรัชดาภิเษก เขตห้วยขวาง กรุงเทพฯ"
+                  placeholder="เช่น 123/45 ถนนรัชดาภิเษก เขตห้วยขวาง กรุงเทพฯ 10310"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800"
+                  className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-pink-400"
                 ></textarea>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                    เลขผู้เสียภาษี / บัตรประชาชน
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="13 หลัก"
-                    value={taxId}
-                    onChange={(e) => setTaxId(e.target.value)}
-                    className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-emerald-800 mb-1 flex items-center gap-1">
-                    <span>💬 LINE User ID (สำหรับ LINE OA)</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="เช่น U1234567890abcdef..."
-                    value={lineUserId}
-                    onChange={(e) => setLineUserId(e.target.value)}
-                    className="w-full bg-emerald-50/50 border border-emerald-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
+              {/* Field 5: LINE User ID */}
+              <div>
+                <label className="block text-[11px] font-bold text-emerald-800 mb-1 flex items-center justify-between">
+                  <span className="flex items-center gap-1">💬 LINE User ID (สำหรับส่งบิลผ่าน LINE OA)</span>
+                  <span className="text-[10px] font-normal text-slate-400">ไม่บังคับกรอก</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="เช่น U1234567890abcdef..."
+                  value={lineUserId}
+                  onChange={(e) => setLineUserId(e.target.value)}
+                  className="w-full bg-emerald-50/40 border border-emerald-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono focus:outline-none focus:border-emerald-500"
+                />
               </div>
 
+              {/* Field 6: Note */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">หมายเหตุเพิ่มเติม</label>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">หมายเหตุเพิ่มเติม</label>
                 <input
                   type="text"
                   placeholder="เช่น ลูกค้าประจำ ชอบให้ส่งพัสดุช่วงบ่าย"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800"
+                  className="w-full bg-pink-50/30 border border-pink-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-pink-400"
                 />
               </div>
 
@@ -319,13 +333,13 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-semibold rounded-xl"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-xl transition-all"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-xl shadow-xs"
+                  className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-xl shadow-xs transition-all"
                 >
                   บันทึกลูกค้า 🌸
                 </button>

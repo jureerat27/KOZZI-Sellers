@@ -44,10 +44,13 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
   const filteredDocs = documents.filter((doc) => {
     const matchesType = typeFilter === 'ALL' || doc.type === typeFilter;
     const matchesStatus = statusFilter === 'ALL' || doc.status === statusFilter;
+    const term = searchTerm.trim().toLowerCase();
     const matchesSearch =
-      doc.docNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.customerPhone.includes(searchTerm);
+      !term ||
+      doc.docNumber.toLowerCase().includes(term) ||
+      doc.customerName.toLowerCase().includes(term) ||
+      doc.customerPhone.includes(term) ||
+      (doc.customerTaxId && doc.customerTaxId.toLowerCase().includes(term));
 
     return matchesType && matchesStatus && matchesSearch;
   });
@@ -141,11 +144,11 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
           </div>
 
           {/* Search Input */}
-          <div className="relative w-full sm:w-64">
+          <div className="relative w-full sm:w-72">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-pink-400" />
             <input
               type="text"
-              placeholder="ค้นหาเลขที่เอกสาร / ลูกค้า..."
+              placeholder="ค้นหาเลขที่เอกสาร / ลูกค้า / เลขผู้เสียภาษี..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-pink-50/30 border border-pink-200 text-xs text-slate-800 rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-pink-400"
@@ -208,6 +211,11 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
                     <p className="text-xs text-slate-700 font-semibold mt-1">
                       👤 ลูกค้า: {doc.customerName}
+                      {doc.customerTaxId ? (
+                        <span className="font-normal font-mono text-slate-500 text-[11px] ml-1.5">
+                          (Tax: {doc.customerTaxId})
+                        </span>
+                      ) : null}
                     </p>
                     <p className="text-[11px] text-slate-500 mt-0.5">
                       📅 ออกเมื่อ: {formatDate(doc.date)} • 📦 รายการสินค้า ({doc.items.length} รายการ)
