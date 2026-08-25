@@ -15,22 +15,29 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   seller,
   titleThai,
   titleEnglish,
-  brandSubtitle = 'KOZZI ราวตากผ้าอัจฉริยะ',
+  brandSubtitle,
   className = '',
   showDivider = true,
 }) => {
-  // Extract and format entrepreneur name cleanly from seller profile
-  const rawName =
-    seller.bankAccountName ||
-    (seller.name && !seller.name.includes('KOZZI') ? seller.name : 'จุรีรัตน์ มั่นคง');
-  const cleanName = rawName.replace(/^(นางสาว|น\.ส\.|นาง|นาย)\s*/, '');
-  const entrepreneurName = `นางสาว${cleanName || 'จุรีรัตน์ มั่นคง'}`;
+  // 1. Dynamic Store Name from latest Merchant Profile
+  const storeName =
+    brandSubtitle?.trim() ||
+    seller.businessName?.trim() ||
+    seller.name?.trim() ||
+    'KOZZI ราวตากผ้าอัจฉริยะ';
 
-  const taxIdNumber = seller.taxId || '1100200300401';
+  // 2. Dynamic Entrepreneur Name from latest Merchant Profile
+  const entrepreneurName =
+    seller.ownerName?.trim() ||
+    seller.bankAccountName?.trim() ||
+    (seller.name && !seller.name.includes('KOZZI') ? seller.name.trim() : 'นางสาวจุรีรัตน์ มั่นคง');
+
+  // 3. Dynamic Tax ID, Address, Phone, Email
+  const taxIdNumber = seller.taxId?.trim() || '1100200300401';
   const addressText =
-    seller.address || '59/179 หมู่ 5 ตำบลลาดสวาย อำเภอลำลูกกา จังหวัดปทุมธานี 12150';
-  const phoneText = seller.phone || '064-651-8822';
-  const emailText = seller.email || 'kozzi.th@gmail.com';
+    seller.address?.trim() || '59/179 หมู่ 5 ตำบลลาดสวาย อำเภอลำลูกกา จังหวัดปทุมธานี 12150';
+  const phoneText = seller.phone?.trim() || '064-651-8822';
+  const emailText = seller.email?.trim() || 'kozzi.th@gmail.com';
 
   return (
     <div className={`w-full ${className}`}>
@@ -38,21 +45,21 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         {/* Left Side: Logo + Store Name on Top, and 4 Lines starting from the Far-Left under Logo */}
         <div className="max-w-lg space-y-1.5">
-          {/* Row 1: Logo on Left + "KOZZI ราวตากผ้าอัจฉริยะ" on the Right of Logo */}
+          {/* Row 1: Logo on Left + Store Name on the Right of Logo */}
           <div className="flex items-center gap-3">
             {seller.logoUrl ? (
               <img
                 src={seller.logoUrl}
-                alt="KOZZI"
-                className="h-10 sm:h-12 w-auto max-w-[120px] object-contain shrink-0"
+                alt={storeName}
+                className="h-10 sm:h-12 w-auto max-w-[140px] object-contain shrink-0"
               />
             ) : (
               <div className="h-10 px-3.5 rounded-xl bg-sky-500/15 border border-sky-300 text-[#0D2B52] flex items-center justify-center font-black text-lg tracking-wider shrink-0 shadow-xs">
-                KOZZI
+                {storeName.split(' ')[0] || 'KOZZI'}
               </div>
             )}
             <span className="text-base sm:text-lg font-black text-[#0D2B52] leading-tight">
-              {brandSubtitle}
+              {storeName}
             </span>
           </div>
 

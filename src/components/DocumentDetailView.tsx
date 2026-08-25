@@ -1069,7 +1069,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                   </div>
                 )}
                 <p className="font-semibold text-slate-800">
-                  ({seller.name})<br />
+                  ({seller.ownerName || seller.bankAccountName || seller.name})<br />
                   <span className="font-normal text-slate-500">ผู้ออกเอกสาร / ผู้ขาย</span>
                 </p>
               </div>

@@ -166,13 +166,17 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
   const reportPeriodThai = `ประจำเดือน ${thaiMonthName} ${thaiYearBE}`;
 
   // Seller info formatting
-  const rawName =
-    seller.bankAccountName ||
-    (seller.name && !seller.name.includes('KOZZI') ? seller.name : 'จุรีรัตน์ มั่นคง');
-  const cleanName = rawName.replace(/^(นางสาว|น\.ส\.|นาง|นาย)\s*/, '');
-  const entrepreneurName = `นางสาว${cleanName || 'จุรีรัตน์ มั่นคง'}`;
+  const storeName =
+    seller.businessName?.trim() ||
+    seller.name?.trim() ||
+    'KOZZI ราวตากผ้าอัจฉริยะ';
 
-  const taxIdNumber = seller.taxId || '1100200300401';
+  const entrepreneurName =
+    seller.ownerName?.trim() ||
+    seller.bankAccountName?.trim() ||
+    (seller.name && !seller.name.includes('KOZZI') ? seller.name.trim() : 'นางสาวจุรีรัตน์ มั่นคง');
+
+  const taxIdNumber = seller.taxId?.trim() || '1100200300401';
 
   const handlePrint = () => {
     window.print();
@@ -350,7 +354,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
               {/* Left Column: Business & Entrepreneur Information */}
               <div className="space-y-1">
                 <h1 className="text-lg sm:text-xl font-bold text-[#0D2B52] leading-tight">
-                  KOZZI ราวตากผ้าอัจฉริยะ
+                  {storeName}
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-700 font-medium pt-1">
                   ชื่อผู้ประกอบการ : <span className="font-bold text-[#0D2B52]">{entrepreneurName}</span>

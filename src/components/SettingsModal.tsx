@@ -39,11 +39,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onExportBackupJson,
   onImportBackupJson,
 }) => {
-  const [name, setName] = useState(seller.name);
-  const [taxId, setTaxId] = useState(seller.taxId);
-  const [address, setAddress] = useState(seller.address);
-  const [phone, setPhone] = useState(seller.phone);
-  const [email, setEmail] = useState(seller.email);
+  const [name, setName] = useState(seller.name || 'KOZZI ราวตากผ้าอัจฉริยะ');
+  const [businessName, setBusinessName] = useState(seller.businessName || seller.name || 'KOZZI ราวตากผ้าอัจฉริยะ');
+  const [ownerName, setOwnerName] = useState(seller.ownerName || seller.bankAccountName || 'นางสาวจุรีรัตน์ มั่นคง');
+  const [taxId, setTaxId] = useState(seller.taxId || '1100200300401');
+  const [address, setAddress] = useState(seller.address || '59/179 หมู่ 5 ตำบลลาดสวาย อำเภอลำลูกกา จังหวัดปทุมธานี 12150');
+  const [phone, setPhone] = useState(seller.phone || '064-651-8822');
+  const [email, setEmail] = useState(seller.email || 'kozzi.th@gmail.com');
   const [promptPayNumber, setPromptPayNumber] = useState(seller.promptPayNumber);
   const [bankName, setBankName] = useState(seller.bankName);
   const [bankAccountNo, setBankAccountNo] = useState(seller.bankAccountNo);
@@ -141,7 +143,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     e.preventDefault();
     const updated: SellerProfile = {
       ...seller,
-      name,
+      name: businessName || name,
+      businessName: businessName || name,
+      ownerName: ownerName || bankAccountName,
       taxId,
       address,
       phone,
@@ -149,7 +153,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       promptPayNumber,
       bankName,
       bankAccountNo,
-      bankAccountName,
+      bankAccountName: bankAccountName || ownerName,
       lineNotifyToken,
       lineOaChannelAccessToken,
       lineOaBasicId,
@@ -315,14 +319,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                  ชื่อ-นามสกุล บุคคลธรรมดา / ชื่อร้าน *
+                  ชื่อร้านค้า / แบรนด์ (แสดงข้างโลโก้ในหัวเอกสาร) *
                 </label>
                 <input
                   type="text"
                   required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="เช่น สมชาย ใจดี (ร้านสมชายออนไลน์)"
+                  value={businessName}
+                  onChange={(e) => {
+                    setBusinessName(e.target.value);
+                    setName(e.target.value);
+                  }}
+                  placeholder="เช่น KOZZI ราวตากผ้าอัจฉริยะ"
+                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  ชื่อ-นามสกุล ผู้ประกอบการ (แสดงในบรรทัดชื่อผู้ประกอบการ) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={ownerName}
+                  onChange={(e) => setOwnerName(e.target.value)}
+                  placeholder="เช่น นางสาวจุรีรัตน์ มั่นคง"
                   className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
                 />
               </div>
@@ -346,24 +367,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="0812345678"
-                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">อีเมลติดต่อ</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="somchai@example.com"
+                  placeholder="064-651-8822"
                   className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">ที่อยู่ผู้ขาย (จะแสดงในเอกสาร)</label>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">อีเมลติดต่อ</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="kozzi.th@gmail.com"
+                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">ที่อยู่ผู้ขาย / ที่ตั้งร้านค้า (จะแสดงในเอกสารทุกประเภท)</label>
                 <textarea
                   rows={2}
                   value={address}

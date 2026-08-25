@@ -30,6 +30,8 @@ export interface PaymentRecord {
 
 export interface SellerProfile {
   name: string;
+  businessName?: string;
+  ownerName?: string;
   taxId: string;
   address: string;
   phone: string;

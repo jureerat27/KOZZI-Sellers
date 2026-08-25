@@ -16,18 +16,20 @@ const STORAGE_KEYS = {
   SYNC_LOG: 'sellersapp_sync_log',
 };
 
-// Initial default seller profile in Personal Name
+// Initial default seller profile
 const DEFAULT_SELLER: SellerProfile = {
-  name: 'สมชาย ใจดี (ร้านค้าสมชายออนไลน์)',
+  name: 'KOZZI ราวตากผ้าอัจฉริยะ',
+  businessName: 'KOZZI ราวตากผ้าอัจฉริยะ',
+  ownerName: 'นางสาวจุรีรัตน์ มั่นคง',
   taxId: '1100200300401',
-  address: '123/45 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110',
-  phone: '0812345678',
-  email: 'somchai.shop@example.com',
+  address: '59/179 หมู่ 5 ตำบลลาดสวาย อำเภอลำลูกกา จังหวัดปทุมธานี 12150',
+  phone: '064-651-8822',
+  email: 'kozzi.th@gmail.com',
   promptPayType: 'MOBILE',
-  promptPayNumber: '0812345678',
+  promptPayNumber: '0646518822',
   bankName: 'ธนาคารกสิกรไทย (KBank)',
   bankAccountNo: '012-3-45678-9',
-  bankAccountName: 'นายสมชาย ใจดี',
+  bankAccountName: 'นางสาวจุรีรัตน์ มั่นคง',
   lineNotifyToken: '',
   logoUrl: '',
   signatureUrl: '',
