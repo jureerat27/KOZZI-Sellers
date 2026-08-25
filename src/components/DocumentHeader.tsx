@@ -9,6 +9,7 @@ export interface DocumentHeaderProps {
   brandSubtitle?: string;
   className?: string;
   showDivider?: boolean;
+  showEntrepreneurAndTaxId?: boolean;
 }
 
 export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
@@ -18,6 +19,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   brandSubtitle,
   className = '',
   showDivider = true,
+  showEntrepreneurAndTaxId,
 }) => {
   // 1. Dynamic Store Name from latest Merchant Profile
   const storeName =
@@ -39,11 +41,21 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   const phoneText = seller.phone?.trim() || '064-651-8822';
   const emailText = seller.email?.trim() || 'kozzi.th@gmail.com';
 
+  // 4. Determine visibility of Entrepreneur Name & Tax ID
+  // Shown ONLY for Payment Voucher (ใบสำคัญจ่าย) and Receipt (ใบเสร็จรับเงิน)
+  const shouldShowTaxAndOwner =
+    showEntrepreneurAndTaxId !== undefined
+      ? showEntrepreneurAndTaxId
+      : titleEnglish.toUpperCase() === 'PAYMENT VOUCHER' ||
+        titleEnglish.toUpperCase() === 'RECEIPT' ||
+        titleThai.includes('ใบสำคัญจ่าย') ||
+        titleThai.includes('ใบเสร็จรับเงิน');
+
   return (
     <div className={`w-full ${className}`}>
       {/* Top Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-        {/* Left Side: Logo + Store Name on Top, and 4 Lines starting from the Far-Left under Logo */}
+        {/* Left Side: Logo + Store Name on Top, and Lines starting from the Far-Left under Logo */}
         <div className="max-w-lg space-y-1.5">
           {/* Row 1: Logo on Left + Store Name on the Right of Logo */}
           <div className="flex items-center gap-3">
@@ -63,14 +75,18 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             </span>
           </div>
 
-          {/* 4 Lines below the Logo, starting flush from the left edge of the document (Same alignment as Logo) */}
+          {/* Details below Logo: Address, Phone, Email, and optionally Entrepreneur/Tax ID for Payment Voucher & Receipt */}
           <div className="space-y-0.5 text-xs text-slate-600 pt-1">
-            <p className="font-semibold text-slate-800">
-              ชื่อผู้ประกอบการ : {entrepreneurName}
-            </p>
-            <p>
-              เลขประจำตัวผู้เสียภาษีอากร : {taxIdNumber}
-            </p>
+            {shouldShowTaxAndOwner && (
+              <>
+                <p className="font-semibold text-slate-800">
+                  ชื่อผู้ประกอบการ : {entrepreneurName}
+                </p>
+                <p>
+                  เลขประจำตัวผู้เสียภาษีอากร : {taxIdNumber}
+                </p>
+              </>
+            )}
             <p className="leading-relaxed">
               {addressText}
             </p>

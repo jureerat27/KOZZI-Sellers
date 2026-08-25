@@ -205,6 +205,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             seller={seller}
             titleThai="ใบสำคัญจ่าย"
             titleEnglish="PAYMENT VOUCHER"
+            showEntrepreneurAndTaxId={true}
           />
 
           {/* 2. DOCUMENT INFO SECTION: 2 Columns x 2 Rows (Clean, No enclosing boxes) */}

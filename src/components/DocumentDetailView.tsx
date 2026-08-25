@@ -702,6 +702,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               seller={seller}
               titleThai={docTitles.titleThai}
               titleEnglish={docTitles.titleEnglish}
+              showEntrepreneurAndTaxId={doc.type === 'RECEIPT'}
             />
 
             {/* 2. CUSTOMER & DOCUMENT METADATA SECTION */}
