@@ -4,8 +4,6 @@ import {
   Printer,
   Download,
   Edit,
-  Phone,
-  Mail,
   CheckCircle2,
   Clock3,
   XCircle,
@@ -14,6 +12,7 @@ import {
 import { Expense, ExpenseCategory, ExpenseStatus, SellerProfile } from '../types';
 import { formatCurrency, formatDate, bahtText } from '../utils/format';
 import { exportElementToPdf } from '../utils/pdf';
+import { DocumentHeader } from './DocumentHeader';
 
 interface PaymentVoucherDetailViewProps {
   expense: Expense;
@@ -201,70 +200,12 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             </div>
           )}
 
-          {/* 1. HEADER SECTION */}
-          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-            {/* Left Side: Logo + Store Name on Top, and 4 Lines starting from the Far-Left under Logo */}
-            <div className="max-w-lg space-y-1.5">
-              {/* Row 1: Logo on Left + "KOZZI ราวตากผ้าอัจฉริยะ" on the Right of Logo */}
-              <div className="flex items-center gap-3">
-                {seller.logoUrl ? (
-                  <img
-                    src={seller.logoUrl}
-                    alt="KOZZI"
-                    className="h-10 sm:h-12 w-auto max-w-[120px] object-contain shrink-0"
-                  />
-                ) : (
-                  <div className="h-10 px-3.5 rounded-xl bg-sky-500/15 border border-sky-300 text-[#0D2B52] flex items-center justify-center font-black text-lg tracking-wider shrink-0 shadow-xs">
-                    KOZZI
-                  </div>
-                )}
-                <span className="text-base sm:text-lg font-black text-[#0D2B52] leading-tight">
-                  KOZZI ราวตากผ้าอัจฉริยะ
-                </span>
-              </div>
-
-              {/* 4 Lines below the Logo, starting flush from the left edge of the document (Same alignment as Logo) */}
-              <div className="space-y-0.5 text-xs text-slate-600 pt-1">
-                <p className="font-semibold text-slate-800">
-                  ชื่อผู้ประกอบการ : {entrepreneurName}
-                </p>
-                <p>
-                  เลขประจำตัวผู้เสียภาษีอากร : {taxIdNumber}
-                </p>
-                <p className="leading-relaxed">
-                  {addressText}
-                </p>
-                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 pt-0.5">
-                  <span className="flex items-center gap-1 font-medium">
-                    <Phone className="w-3 h-3 text-[#0D2B52] shrink-0" />
-                    <span>{phoneText}</span>
-                  </span>
-                  <span className="text-slate-300">|</span>
-                  <span className="flex items-center gap-1 font-medium">
-                    <Mail className="w-3 h-3 text-[#0D2B52] shrink-0" />
-                    <span>{emailText}</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Side: Document Title Frame & PAYMENT VOUCHER below */}
-            <div className="flex flex-col items-center sm:items-end shrink-0 self-stretch sm:self-auto pt-1 sm:pt-0">
-              {/* Light Blue Transparent Rounded Box for "ใบสำคัญจ่าย" (15-25% opacity, soft sky border, Navy Blue Text) */}
-              <div className="bg-sky-500/20 border border-sky-300/80 px-7 py-2.5 rounded-xl text-center min-w-[170px] sm:min-w-[190px]">
-                <h1 className="text-base sm:text-xl font-black tracking-wide text-[#0D2B52] leading-tight">
-                  ใบสำคัญจ่าย
-                </h1>
-              </div>
-              {/* "PAYMENT VOUCHER" text outside the box below, centered with the box */}
-              <div className="text-[11px] sm:text-xs font-black tracking-widest text-[#0D2B52] uppercase mt-1.5 text-center w-full sm:w-[190px]">
-                PAYMENT VOUCHER
-              </div>
-            </div>
-          </div>
-
-          {/* Full-Width Horizontal Navy Blue Accent Divider Line */}
-          <div className="h-[2px] bg-[#0D2B52] w-full my-4" />
+          {/* 1. SHARED DOCUMENT HEADER */}
+          <DocumentHeader
+            seller={seller}
+            titleThai="ใบสำคัญจ่าย"
+            titleEnglish="PAYMENT VOUCHER"
+          />
 
           {/* 2. DOCUMENT INFO SECTION: 2 Columns x 2 Rows (Clean, No enclosing boxes) */}
           <div className="text-xs text-slate-700 space-y-2 mb-6">

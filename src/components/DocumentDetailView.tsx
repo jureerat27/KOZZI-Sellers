@@ -31,6 +31,7 @@ import { formatDocumentForLine, generateFlexReceipt, sendLineOaPushNotification 
 import { formatCurrency, formatDate } from '../utils/format';
 import { DatePicker } from './DatePicker';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal';
+import { DocumentHeader } from './DocumentHeader';
 
 interface DocumentDetailViewProps {
   doc: SalesDocument;
@@ -151,25 +152,58 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
     }
   }, [doc, seller.promptPayNumber]);
 
-  // Determine Title for Document Header Box
-  const getDocDisplayTitle = () => {
+  // Determine Titles for Shared Document Header
+  const getDocDisplayTitles = () => {
     if (doc.type === 'QUOTATION') {
-      return 'ใบเสนอราคา';
+      return {
+        titleThai: 'ใบเสนอราคา',
+        titleEnglish: 'QUOTATION',
+      };
     }
     if (doc.type === 'INVOICE') {
-      if (doc.paymentStage === 'DEPOSIT') return 'ใบแจ้งหนี้ (เงินมัดจำ)';
-      if (doc.paymentStage === 'BALANCE') return 'ใบแจ้งหนี้ (ยอดคงเหลือ)';
-      return 'ใบแจ้งหนี้';
+      if (doc.paymentStage === 'DEPOSIT') {
+        return {
+          titleThai: 'ใบแจ้งหนี้ (เงินมัดจำ)',
+          titleEnglish: 'INVOICE',
+        };
+      }
+      if (doc.paymentStage === 'BALANCE') {
+        return {
+          titleThai: 'ใบแจ้งหนี้ (ยอดคงเหลือ)',
+          titleEnglish: 'INVOICE',
+        };
+      }
+      return {
+        titleThai: 'ใบแจ้งหนี้',
+        titleEnglish: 'INVOICE',
+      };
     }
     if (doc.type === 'RECEIPT') {
-      if (doc.paymentStage === 'DEPOSIT') return 'ใบเสร็จรับเงิน (เงินมัดจำ)';
-      if (doc.paymentStage === 'BALANCE') return 'ใบเสร็จรับเงิน (ยอดคงเหลือ)';
-      return 'ใบเสร็จรับเงิน';
+      if (doc.paymentStage === 'DEPOSIT') {
+        return {
+          titleThai: 'ใบเสร็จรับเงิน (เงินมัดจำ)',
+          titleEnglish: 'RECEIPT',
+        };
+      }
+      if (doc.paymentStage === 'BALANCE') {
+        return {
+          titleThai: 'ใบเสร็จรับเงิน (ยอดคงเหลือ)',
+          titleEnglish: 'RECEIPT',
+        };
+      }
+      return {
+        titleThai: 'ใบเสร็จรับเงิน',
+        titleEnglish: 'RECEIPT',
+      };
     }
-    return 'เอกสารการขาย';
+    return {
+      titleThai: 'เอกสารการขาย',
+      titleEnglish: 'SALES DOCUMENT',
+    };
   };
 
-  const docTitle = getDocDisplayTitle();
+  const docTitles = getDocDisplayTitles();
+  const docTitle = docTitles.titleThai;
 
   // Find linked pipeline documents
   const rootQuotation =
@@ -663,78 +697,17 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             id="printable-document-container"
             className="bg-white text-slate-900 p-6 sm:p-10 max-w-3xl mx-auto font-sans shadow-md print:shadow-none print:max-w-full print:p-6 print:m-0 print:border-none print:rounded-none space-y-6"
           >
-            {/* Header: Seller Info & Document Title */}
-            <div className="border-b border-slate-200 pb-6">
-              <div className="flex flex-col sm:flex-row print:flex-row justify-between items-start gap-4">
-                {/* Left Column: Logo + Store Info */}
-                <div className="space-y-1 max-w-md">
-                  {seller.logoUrl && (
-                    <div className="mb-2">
-                      <img
-                        src={seller.logoUrl}
-                        alt="Store Logo"
-                        className="max-h-9 sm:max-h-10 w-auto max-w-[150px] object-contain shrink-0"
-                      />
-                    </div>
-                  )}
-                  <h1 className="text-xl font-bold text-slate-900 leading-tight">
-                    {seller.name || 'ร้านค้าออนไลน์บุคคลธรรมดา'}
-                  </h1>
-                  {seller.taxId && (
-                    <p className="text-xs text-slate-600">
-                      เลขประจำตัวผู้เสียภาษี/เลขบัตรประชาชน: {seller.taxId}
-                    </p>
-                  )}
-                  <p className="text-xs text-slate-600 leading-relaxed">{seller.address}</p>
-                  <p className="text-xs text-slate-600">
-                    โทร: {seller.phone} {seller.email ? `• อีเมล: ${seller.email}` : ''}
-                  </p>
-                </div>
+            {/* 1. SHARED DOCUMENT HEADER */}
+            <DocumentHeader
+              seller={seller}
+              titleThai={docTitles.titleThai}
+              titleEnglish={docTitles.titleEnglish}
+            />
 
-                {/* Right Column: Title Box + Document Metadata */}
-                <div className="flex flex-col items-start sm:items-start print:items-start text-left space-y-2 shrink-0">
-                  {/* Title in Black Box */}
-                  <div className="doc-title-box bg-slate-900 text-white font-extrabold text-lg sm:text-xl px-8 py-3.5 sm:py-4 rounded-2xl text-center shadow-md min-w-[220px] tracking-wide">
-                    {docTitle}
-                  </div>
-
-                  {/* Metadata lines */}
-                  <div className="text-left text-xs space-y-1 pt-2 sm:pt-3 print:pt-3 pl-1">
-                    <p className="text-slate-700">
-                      <span className="font-semibold text-slate-500 mr-1.5">เลขที่เอกสาร:</span>
-                      <span className="font-extrabold text-slate-900">{doc.docNumber}</span>
-                    </p>
-                    <p className="text-slate-700">
-                      <span className="font-semibold text-slate-500 mr-1.5">วันที่ออกเอกสาร:</span>
-                      <span className="font-bold text-slate-900">{formatDate(doc.date)}</span>
-                    </p>
-                    {doc.type !== 'RECEIPT' && doc.dueDate && (
-                      <p className="text-slate-700">
-                        <span className="font-semibold text-slate-500 mr-1.5">กำหนดชำระ:</span>
-                        <span className="font-bold text-slate-900">{formatDate(doc.dueDate)}</span>
-                      </p>
-                    )}
-                    {doc.parentQuotationDocNumber && (
-                      <p className="text-slate-700">
-                        <span className="font-semibold text-slate-500 mr-1.5">อ้างอิงใบเสนอราคา:</span>
-                        <span className="font-bold text-slate-900">{doc.parentQuotationDocNumber}</span>
-                      </p>
-                    )}
-                    {doc.sourceInvoiceDocNumber && (
-                      <p className="text-slate-700">
-                        <span className="font-semibold text-slate-500 mr-1.5">อ้างอิงใบแจ้งหนี้:</span>
-                        <span className="font-bold text-slate-900">{doc.sourceInvoiceDocNumber}</span>
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Customer Details & Payment Status Boxes */}
+            {/* 2. CUSTOMER & DOCUMENT METADATA SECTION */}
             <div className="flex flex-col sm:flex-row print:flex-row items-stretch gap-4">
               {/* Box 1: Customer Information */}
-              <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-1.5">
+              <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-1.5">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                   ลูกค้า / ผู้สั่งซื้อ
                 </span>
@@ -764,14 +737,40 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                 </div>
               </div>
 
-              {/* Box 2: Standalone Payment Status Box */}
-              <div className="w-full sm:w-[220px] print:w-[220px] shrink-0 bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col justify-between items-center text-center">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  สถานะการชำระเงิน
-                </span>
-                <div className="my-auto py-1">
+              {/* Box 2: Document Metadata & Status */}
+              <div className="w-full sm:w-[260px] print:w-[260px] shrink-0 bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between text-xs space-y-2">
+                <div className="space-y-1.5">
+                  <div className="flex items-baseline justify-between gap-2 border-b border-slate-200 pb-1.5">
+                    <span className="font-semibold text-slate-500">เลขที่เอกสาร:</span>
+                    <span className="font-mono font-black text-[#0D2B52] text-sm">{doc.docNumber}</span>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-semibold text-slate-500">วันที่ออก:</span>
+                    <span className="font-bold text-slate-800">{formatDate(doc.date)}</span>
+                  </div>
+                  {doc.type !== 'RECEIPT' && doc.dueDate && (
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="font-semibold text-slate-500">กำหนดชำระ:</span>
+                      <span className="font-bold text-slate-800">{formatDate(doc.dueDate)}</span>
+                    </div>
+                  )}
+                  {doc.parentQuotationDocNumber && (
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="font-semibold text-slate-500">อ้างอิงใบเสนอราคา:</span>
+                      <span className="font-bold text-slate-800">{doc.parentQuotationDocNumber}</span>
+                    </div>
+                  )}
+                  {doc.sourceInvoiceDocNumber && (
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="font-semibold text-slate-500">อ้างอิงใบแจ้งหนี้:</span>
+                      <span className="font-bold text-slate-800">{doc.sourceInvoiceDocNumber}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-2 border-t border-slate-200 flex flex-col items-center justify-center">
                   <span
-                    className={`text-xs font-bold px-3.5 py-1.5 rounded-full border inline-flex items-center gap-1 shadow-xs ${
+                    className={`text-xs font-bold px-3 py-1 rounded-full border inline-flex items-center gap-1 shadow-2xs ${
                       doc.status === 'PAID'
                         ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
                         : doc.status === 'DEPOSIT_PAID'
@@ -793,17 +792,16 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                       ? 'รอชำระเงิน'
                       : doc.status}
                   </span>
+                  {hasDepositTerms && (
+                    <span className="text-[10px] text-slate-500 mt-1 font-medium text-center">
+                      {doc.paymentStage === 'DEPOSIT'
+                        ? `(งวดที่ 1: เงินมัดจำ ฿${formatCurrency(depositAmount)})`
+                        : doc.paymentStage === 'BALANCE'
+                        ? `(งวดที่ 2: ยอดคงเหลือ ฿${formatCurrency(balanceAmount)})`
+                        : '(มีเงื่อนไขแบ่งจ่ายมัดจำ)'}
+                    </span>
+                  )}
                 </div>
-
-                {hasDepositTerms && (
-                  <div className="text-[10px] text-slate-500 mt-1 font-medium">
-                    {doc.paymentStage === 'DEPOSIT'
-                      ? 'งวดที่ 1: เงินมัดจำ'
-                      : doc.paymentStage === 'BALANCE'
-                      ? 'งวดที่ 2: ยอดคงเหลือส่งมอบงาน'
-                      : 'มีเงื่อนไขแบ่งจ่ายมัดจำ'}
-                  </div>
-                )}
               </div>
             </div>
 
