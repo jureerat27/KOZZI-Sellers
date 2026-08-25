@@ -227,13 +227,19 @@ export function formatDocumentForLine(doc: SalesDocument, seller: SellerProfile)
     doc.type === 'QUOTATION'
       ? '📋 ใบเสนอราคา'
       : doc.type === 'INVOICE'
-      ? '📄 ใบแจ้งหนี้'
-      : '🧾 ใบเสร็จรับเงิน';
+      ? (doc.paymentStage === 'DEPOSIT' ? '📄 ใบแจ้งหนี้ (เงินมัดจำ)' : doc.paymentStage === 'BALANCE' ? '📄 ใบแจ้งหนี้ (ยอดคงเหลือ)' : '📄 ใบแจ้งหนี้')
+      : (doc.paymentStage === 'DEPOSIT' ? '🧾 ใบเสร็จรับเงิน (เงินมัดจำ)' : doc.paymentStage === 'BALANCE' ? '🧾 ใบเสร็จรับเงิน (ยอดคงเหลือ)' : '🧾 ใบเสร็จรับเงิน');
 
   let text = `${typeText} (${doc.docNumber})\n`;
   text += `ร้าน: ${seller.name}\n`;
   text += `ลูกค้า: ${doc.customerName}\n`;
+  if (doc.customerTaxId) {
+    text += `เลขประจำตัวผู้เสียภาษี: ${doc.customerTaxId}\n`;
+  }
   text += `วันที่: ${formatDate(doc.date)}\n`;
+  if (doc.parentQuotationDocNumber) {
+    text += `อ้างอิงใบเสนอราคา: ${doc.parentQuotationDocNumber}\n`;
+  }
   text += `--------------------------------\n`;
   doc.items.forEach((item, index) => {
     text += `${index + 1}. ${item.productName}\n   ${item.quantity} x ฿${formatCurrency(item.price)} = ฿${formatCurrency(item.total)}\n`;
@@ -245,7 +251,15 @@ export function formatDocumentForLine(doc: SalesDocument, seller: SellerProfile)
   if (doc.discountAmount > 0) {
     text += `ส่วนลด: -฿${formatCurrency(doc.discountAmount)}\n`;
   }
-  text += `💰 ยอดรวมสุทธิ: ฿${formatCurrency(doc.grandTotal)}\n`;
+  text += `💰 ยอดเงินตามเอกสาร: ฿${formatCurrency(doc.grandTotal)}\n`;
+
+  if (doc.type === 'QUOTATION' && doc.paymentTermType === 'DEPOSIT') {
+    text += `--------------------------------\n`;
+    text += `📌 เงื่อนไขการชำระเงินมัดจำ:\n`;
+    text += `• เงินมัดจำ (${doc.depositPercent ? `${doc.depositPercent}%` : 'งวดที่ 1'}): ฿${formatCurrency(doc.depositAmount || 0)}\n`;
+    text += `• ยอดคงเหลือส่งมอบงาน: ฿${formatCurrency(doc.balanceAmount || 0)}\n`;
+  }
+
   text += `--------------------------------\n`;
 
   if (doc.type !== 'RECEIPT' && seller.promptPayNumber) {

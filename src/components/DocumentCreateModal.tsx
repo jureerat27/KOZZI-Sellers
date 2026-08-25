@@ -11,12 +11,16 @@ import {
   FileText,
   Loader2,
   AlertCircle,
+  Coins,
 } from 'lucide-react';
 import {
   Customer,
+  DepositType,
   DocumentItem,
   DocumentStatus,
   DocumentType,
+  PaymentStage,
+  PaymentTermType,
   Product,
   SalesDocument,
   SellerProfile,
@@ -70,8 +74,28 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
 
-  const getDefaultNoteForType = (type: DocumentType): string => {
+  // Deposit (มัดจำ) States
+  const [paymentTermType, setPaymentTermType] = useState<PaymentTermType>(
+    editingDoc?.paymentTermType || 'FULL'
+  );
+  const [depositType, setDepositType] = useState<DepositType>(
+    editingDoc?.depositType || 'PERCENT'
+  );
+  const [depositPercent, setDepositPercent] = useState<number>(
+    editingDoc?.depositPercent !== undefined ? editingDoc.depositPercent : 50
+  );
+  const [depositCustomFixed, setDepositCustomFixed] = useState<number>(
+    editingDoc?.depositAmount !== undefined ? editingDoc.depositAmount : 0
+  );
+  const [paymentStage, setPaymentStage] = useState<PaymentStage>(
+    editingDoc?.paymentStage || 'FULL'
+  );
+
+  const getDefaultNoteForType = (type: DocumentType, isDeposit = false): string => {
     if (type === 'QUOTATION') {
+      if (isDeposit) {
+        return 'เงื่อนไขการชำระเงิน: ชำระเงินมัดจำก่อนเริ่มสั่งผลิต/ดำเนินงาน ยอดคงเหลือชำระเมื่อส่งมอบงานเรียบร้อยแล้ว\nใบเสนอราคานี้มีผลบังคับใช้ 15 วัน';
+      }
       return seller.defaultQuotationNotes || 'ใบเสนอราคานี้มีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร หากมีข้อสงสัยกรุณาติดต่อร้านค้า';
     } else if (type === 'INVOICE') {
       return seller.defaultInvoiceNotes || 'กรุณาชำระเงินตามกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านบัญชีธนาคารของร้านค้า';
@@ -258,6 +282,18 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
       calculatedAfterDiscount + calculatedVatAmount + (Number(shippingFee) || 0)
     );
 
+    let finalDepositAmount = 0;
+    let finalBalanceAmount = 0;
+
+    if (paymentTermType === 'DEPOSIT') {
+      if (depositType === 'PERCENT') {
+        finalDepositAmount = Math.round((calculatedGrandTotal * (Number(depositPercent) || 0)) / 100);
+      } else {
+        finalDepositAmount = Math.min(calculatedGrandTotal, Number(depositCustomFixed) || 0);
+      }
+      finalBalanceAmount = Math.max(0, calculatedGrandTotal - finalDepositAmount);
+    }
+
     setIsSaving(true);
 
     try {
@@ -285,6 +321,27 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
         paymentSlipUrl: editingDoc?.paymentSlipUrl || '',
         paymentDate: editingDoc?.paymentDate || (status === 'PAID' ? docDate : ''),
         notes: notes.trim(),
+
+        // Deposit fields
+        paymentTermType,
+        depositType: paymentTermType === 'DEPOSIT' ? depositType : undefined,
+        depositPercent: paymentTermType === 'DEPOSIT' && depositType === 'PERCENT' ? Number(depositPercent) || 0 : undefined,
+        depositAmount: paymentTermType === 'DEPOSIT' ? finalDepositAmount : 0,
+        balanceAmount: paymentTermType === 'DEPOSIT' ? finalBalanceAmount : 0,
+        paymentStage: editingDoc?.paymentStage || paymentStage,
+        parentQuotationId: editingDoc?.parentQuotationId,
+        parentQuotationDocNumber: editingDoc?.parentQuotationDocNumber,
+        sourceInvoiceId: editingDoc?.sourceInvoiceId,
+        sourceInvoiceDocNumber: editingDoc?.sourceInvoiceDocNumber,
+        linkedReceiptNumbers: editingDoc?.linkedReceiptNumbers || [],
+        paidAmount: editingDoc?.paidAmount !== undefined
+          ? editingDoc.paidAmount
+          : (status === 'PAID' ? calculatedGrandTotal : (status === 'DEPOSIT_PAID' ? finalDepositAmount : 0)),
+        remainingAmount: editingDoc?.remainingAmount !== undefined
+          ? editingDoc.remainingAmount
+          : (status === 'PAID' ? 0 : (paymentTermType === 'DEPOSIT' && status === 'DEPOSIT_PAID' ? finalBalanceAmount : calculatedGrandTotal)),
+        paymentRecords: editingDoc?.paymentRecords || [],
+
         createdAt: editingDoc?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -829,12 +886,205 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
               </div>
 
               <div className="text-right">
-                <span className="text-xs text-slate-400 block">ยอดรวมสุทธิทั้งสิ้น</span>
+                <span className="text-xs text-slate-400 block">ยอดรวมสุทธิทั้งสิ้น (100%)</span>
                 <span className="text-2xl font-black text-emerald-400">
                   {formatCurrency(grandTotal)}
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Payment Terms & Deposit Section */}
+          <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-3.5">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <Coins className="w-4 h-4 text-amber-400" />
+                <span>เงื่อนไขการชำระเงิน (Payment Terms)</span>
+              </h4>
+              {paymentTermType === 'DEPOSIT' && (
+                <span className="text-[10px] font-bold text-amber-300 bg-amber-950/60 border border-amber-800/80 px-2.5 py-0.5 rounded-full">
+                  มีเงินมัดจำ (Deposit)
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={() => {
+                  setPaymentTermType('FULL');
+                  if (docType === 'QUOTATION' && status === 'PENDING_DEPOSIT') {
+                    setStatus('SENT');
+                  }
+                }}
+                className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                  paymentTermType === 'FULL'
+                    ? 'bg-slate-700 text-white border-slate-500 shadow-sm'
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <span>ชำระเต็มจำนวน (100%)</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={() => {
+                  setPaymentTermType('DEPOSIT');
+                  if (docType === 'QUOTATION' && (status === 'SENT' || status === 'DRAFT')) {
+                    setStatus('PENDING_DEPOSIT');
+                  }
+                  if (!notes || notes === seller.defaultQuotationNotes) {
+                    setNotes(getDefaultNoteForType(docType, true));
+                  }
+                }}
+                className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                  paymentTermType === 'DEPOSIT'
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500 shadow-sm'
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <span>⭐ กำหนดเงินมัดจำ (Deposit)</span>
+              </button>
+            </div>
+
+            {paymentTermType === 'DEPOSIT' && (
+              <div className="p-3.5 bg-slate-900 border border-amber-500/30 rounded-xl space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                  <label className="text-[11px] font-bold text-amber-300">
+                    วิธีคำนวณเงินมัดจำ:
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setDepositType('PERCENT')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
+                        depositType === 'PERCENT'
+                          ? 'bg-amber-500 text-slate-950 border-amber-400'
+                          : 'bg-slate-800 text-slate-300 border-slate-700'
+                      }`}
+                    >
+                      ร้อยละ (%)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDepositType('FIXED')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
+                        depositType === 'FIXED'
+                          ? 'bg-amber-500 text-slate-950 border-amber-400'
+                          : 'bg-slate-800 text-slate-300 border-slate-700'
+                      }`}
+                    >
+                      จำนวนเงินคงที่ (บาท)
+                    </button>
+                  </div>
+                </div>
+
+                {depositType === 'PERCENT' ? (
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[11px] text-slate-400">เลือกเปอร์เซ็นต์ด่วน:</span>
+                      {[20, 30, 40, 50, 60, 70].map((pct) => (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => setDepositPercent(pct)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all ${
+                            depositPercent === pct
+                              ? 'bg-amber-500/30 text-amber-300 border-amber-400'
+                              : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                          }`}
+                        >
+                          {pct}%
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-40">
+                        <label className="block text-[10px] text-slate-400 mb-0.5">ระบุเปอร์เซ็นต์ (%)</label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="1"
+                            max="99"
+                            value={depositPercent}
+                            onChange={(e) =>
+                              setDepositPercent(Math.max(1, Math.min(99, parseFloat(e.target.value) || 0)))
+                            }
+                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 font-bold focus:outline-none focus:border-amber-400 pr-7"
+                          />
+                          <span className="absolute right-2.5 top-1.5 text-xs text-slate-400 font-bold">%</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 text-right">
+                        <span className="text-[10px] text-slate-400 block">จำนวนเงินมัดจำคำนวณได้</span>
+                        <span className="text-sm font-extrabold text-amber-400">
+                          ฿{formatCurrency(Math.round((grandTotal * depositPercent) / 100))}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <label className="block text-[10px] text-slate-400 mb-0.5">ระบุจำนวนเงินมัดจำ (บาท)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max={grandTotal}
+                        value={depositCustomFixed || ''}
+                        onChange={(e) =>
+                          setDepositCustomFixed(Math.max(0, parseFloat(e.target.value) || 0))
+                        }
+                        placeholder="เช่น 3000"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 font-bold focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div className="w-40 text-right">
+                      <span className="text-[10px] text-slate-400 block">คิดเป็นร้อยละ</span>
+                      <span className="text-xs font-bold text-amber-400">
+                        {grandTotal > 0 ? ((depositCustomFixed / grandTotal) * 100).toFixed(1) : '0'}%
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Real-time Deposit Breakdown Card */}
+                <div className="p-2.5 bg-slate-950/80 rounded-lg border border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="p-2 bg-slate-900 rounded-lg border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block">ยอดรวมทั้งสิ้น (100%)</span>
+                    <span className="font-bold text-slate-200 text-xs">฿{formatCurrency(grandTotal)}</span>
+                  </div>
+                  <div className="p-2 bg-amber-950/40 rounded-lg border border-amber-800/60">
+                    <span className="text-[10px] text-amber-300 block">ยอดเงินมัดจำ</span>
+                    <span className="font-extrabold text-amber-400 text-xs">
+                      ฿{formatCurrency(
+                        depositType === 'PERCENT'
+                          ? Math.round((grandTotal * depositPercent) / 100)
+                          : Math.min(grandTotal, depositCustomFixed)
+                      )}
+                    </span>
+                  </div>
+                  <div className="p-2 bg-sky-950/40 rounded-lg border border-sky-800/60">
+                    <span className="text-[10px] text-sky-300 block">ยอดยกไปคงเหลือ</span>
+                    <span className="font-extrabold text-sky-400 text-xs">
+                      ฿{formatCurrency(
+                        Math.max(
+                          0,
+                          grandTotal -
+                            (depositType === 'PERCENT'
+                              ? Math.round((grandTotal * depositPercent) / 100)
+                              : Math.min(grandTotal, depositCustomFixed))
+                        )
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Payment Status & Dates */}
@@ -870,6 +1120,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-bold"
               >
                 <option value="SENT">ส่งแล้ว / รอชำระ</option>
+                <option value="PENDING_DEPOSIT">รอมัดจำ (รอชำระเงินมัดจำ)</option>
+                <option value="DEPOSIT_PAID">ชำระมัดจำแล้ว</option>
+                <option value="PARTIALLY_PAID">ชำระบางส่วน</option>
                 <option value="PAID">ชำระเงินเรียบร้อยแล้ว (PAID)</option>
                 <option value="DRAFT">ฉบับร่าง (DRAFT)</option>
               </select>

@@ -1,6 +1,32 @@
 export type DocumentType = 'QUOTATION' | 'INVOICE' | 'RECEIPT';
 
-export type DocumentStatus = 'DRAFT' | 'SENT' | 'APPROVED' | 'PAID' | 'CANCELLED';
+export type DocumentStatus =
+  | 'DRAFT'
+  | 'SENT'
+  | 'PENDING_DEPOSIT' // รอมัดจำ
+  | 'DEPOSIT_PAID'    // ชำระมัดจำแล้ว
+  | 'PARTIALLY_PAID'  // ชำระบางส่วน
+  | 'APPROVED'
+  | 'PAID'            // ชำระครบแล้ว
+  | 'CANCELLED';
+
+export type PaymentTermType = 'FULL' | 'DEPOSIT';
+export type DepositType = 'PERCENT' | 'FIXED';
+export type PaymentStage = 'FULL' | 'DEPOSIT' | 'BALANCE';
+
+export interface PaymentRecord {
+  id: string;
+  date: string;
+  amount: number;
+  method: string; // 'BANK_TRANSFER' | 'CASH' | 'PROMPTPAY' | etc.
+  payerName?: string;
+  receiptDocNumber?: string;
+  receiptId?: string;
+  slipUrl?: string;
+  notes?: string;
+  stage?: PaymentStage;
+  createdAt?: string;
+}
 
 export interface SellerProfile {
   name: string;
@@ -91,6 +117,23 @@ export interface SalesDocument {
   paymentDate?: string;
   notes?: string;
   referenceDocNumber?: string;
+
+  // Deposit (มัดจำ) & Payment Tracking Fields
+  paymentTermType?: PaymentTermType; // 'FULL' | 'DEPOSIT'
+  depositType?: DepositType;         // 'PERCENT' | 'FIXED'
+  depositPercent?: number;           // e.g. 30, 50
+  depositAmount?: number;            // e.g. 1500 (calculated or fixed deposit amount)
+  balanceAmount?: number;            // e.g. 1500 (remaining balance)
+  paidAmount?: number;               // real accumulated paid amount
+  remainingAmount?: number;          // real remaining amount to be paid
+  paymentStage?: PaymentStage;       // 'FULL' | 'DEPOSIT' | 'BALANCE'
+  parentQuotationId?: string;        // ID of source quotation if converted
+  parentQuotationDocNumber?: string; // Doc number of source quotation
+  sourceInvoiceId?: string;          // ID of source invoice if converted to receipt
+  sourceInvoiceDocNumber?: string;   // Doc number of source invoice
+  linkedReceiptNumbers?: string[];   // Receipts issued for this document
+  paymentRecords?: PaymentRecord[];  // History of payments received for this doc
+
   createdAt: string;
   updatedAt: string;
 }

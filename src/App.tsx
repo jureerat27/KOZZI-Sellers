@@ -18,6 +18,8 @@ import {
   DocumentType,
   Expense,
   ExpenseStatus,
+  PaymentRecord,
+  PaymentStage,
   Product,
   SalesDocument,
   SellerProfile,
@@ -283,6 +285,10 @@ export default function App() {
       notes: targetNote,
       status: targetType === 'RECEIPT' ? 'PAID' : 'SENT',
       paymentDate: targetType === 'RECEIPT' ? new Date().toISOString().split('T')[0] : '',
+      parentQuotationId: doc.type === 'QUOTATION' ? doc.id : doc.parentQuotationId,
+      parentQuotationDocNumber: doc.type === 'QUOTATION' ? doc.docNumber : doc.parentQuotationDocNumber,
+      sourceInvoiceId: doc.type === 'INVOICE' ? doc.id : doc.sourceInvoiceId,
+      sourceInvoiceDocNumber: doc.type === 'INVOICE' ? doc.docNumber : doc.sourceInvoiceDocNumber,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -290,6 +296,317 @@ export default function App() {
     setDocuments((prev) => [newDoc, ...prev]);
     await saveDocumentCloud(newDoc);
     setSelectedDoc(newDoc);
+  };
+
+  // Create Deposit Invoice from Quotation
+  const handleCreateDepositInvoice = async (quotation: SalesDocument) => {
+    const depositAmt =
+      quotation.depositAmount ||
+      (quotation.depositPercent ? Math.round((quotation.grandTotal * quotation.depositPercent) / 100) : Math.round(quotation.grandTotal * 0.5));
+    const balanceAmt = Math.max(0, quotation.grandTotal - depositAmt);
+
+    const newDocNum = generateDocNumber('INVOICE', documents);
+    const depositInvoice: SalesDocument = {
+      id: `doc-${Date.now()}`,
+      docNumber: newDocNum,
+      type: 'INVOICE',
+      date: new Date().toISOString().split('T')[0],
+      dueDate: quotation.dueDate || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+      customerId: quotation.customerId,
+      customerName: quotation.customerName,
+      customerPhone: quotation.customerPhone,
+      customerAddress: quotation.customerAddress,
+      customerTaxId: quotation.customerTaxId,
+      items: [
+        {
+          productId: `deposit-${quotation.id}`,
+          productName: `เงินมัดจำ ${quotation.depositPercent ? `${quotation.depositPercent}% ` : ''}(สำหรับ ${quotation.items[0]?.productName || 'รายการสั่งซื้อ/บริการ'})`,
+          sku: 'DEPOSIT',
+          description: `อ้างอิงใบเสนอราคา ${quotation.docNumber} ยอดรวมโครงการทั้งสิ้น ฿${quotation.grandTotal.toLocaleString()} (ยอดยกไปคงเหลือ ฿${balanceAmt.toLocaleString()})`,
+          unit: 'งวด',
+          price: depositAmt,
+          costPrice: 0,
+          quantity: 1,
+          discount: 0,
+          total: depositAmt,
+        },
+      ],
+      subtotal: depositAmt,
+      discountAmount: 0,
+      shippingFee: 0,
+      vatRate: 0,
+      vatAmount: 0,
+      grandTotal: depositAmt,
+      status: 'SENT',
+      paymentTermType: 'DEPOSIT',
+      depositType: quotation.depositType,
+      depositPercent: quotation.depositPercent,
+      depositAmount: depositAmt,
+      balanceAmount: balanceAmt,
+      paymentStage: 'DEPOSIT',
+      parentQuotationId: quotation.id,
+      parentQuotationDocNumber: quotation.docNumber,
+      notes: `ใบแจ้งหนี้ชำระเงินมัดจำ ${quotation.depositPercent ? `${quotation.depositPercent}% ` : ''}ตามใบเสนอราคา ${quotation.docNumber}\n${seller.defaultInvoiceNotes || 'กรุณาชำระเงินตามกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านบัญชีธนาคารของร้านค้า'}`,
+      paymentRecords: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Update quotation status to PENDING_DEPOSIT if not already
+    const updatedQuotation: SalesDocument = {
+      ...quotation,
+      status: quotation.status === 'DRAFT' ? 'PENDING_DEPOSIT' : (quotation.status === 'SENT' ? 'PENDING_DEPOSIT' : quotation.status),
+      depositAmount: depositAmt,
+      balanceAmount: balanceAmt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setDocuments((prev) => [
+      depositInvoice,
+      ...prev.map((d) => (d.id === quotation.id ? updatedQuotation : d)),
+    ]);
+
+    await Promise.all([
+      saveDocumentCloud(depositInvoice),
+      saveDocumentCloud(updatedQuotation),
+    ]);
+
+    setSelectedDoc(depositInvoice);
+  };
+
+  // Create Balance Invoice from Quotation
+  const handleCreateBalanceInvoice = async (quotation: SalesDocument) => {
+    const depositAmt =
+      quotation.depositAmount ||
+      (quotation.depositPercent ? Math.round((quotation.grandTotal * quotation.depositPercent) / 100) : 0);
+    const balanceAmt = quotation.balanceAmount !== undefined ? quotation.balanceAmount : Math.max(0, quotation.grandTotal - depositAmt);
+
+    const newDocNum = generateDocNumber('INVOICE', documents);
+    const balanceInvoice: SalesDocument = {
+      id: `doc-${Date.now()}`,
+      docNumber: newDocNum,
+      type: 'INVOICE',
+      date: new Date().toISOString().split('T')[0],
+      dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+      customerId: quotation.customerId,
+      customerName: quotation.customerName,
+      customerPhone: quotation.customerPhone,
+      customerAddress: quotation.customerAddress,
+      customerTaxId: quotation.customerTaxId,
+      items: [
+        {
+          productId: `balance-${quotation.id}`,
+          productName: `ชำระยอดคงเหลือส่วนที่ 2 (สำหรับ ${quotation.items[0]?.productName || 'รายการสั่งซื้อ/บริการ'})`,
+          sku: 'BALANCE',
+          description: `อ้างอิงใบเสนอราคา ${quotation.docNumber} ยอดรวมโครงการ ฿${quotation.grandTotal.toLocaleString()} (หักมัดจำแล้ว ฿${depositAmt.toLocaleString()})`,
+          unit: 'งวด',
+          price: balanceAmt,
+          costPrice: 0,
+          quantity: 1,
+          discount: 0,
+          total: balanceAmt,
+        },
+      ],
+      subtotal: balanceAmt,
+      discountAmount: 0,
+      shippingFee: 0,
+      vatRate: 0,
+      vatAmount: 0,
+      grandTotal: balanceAmt,
+      status: 'SENT',
+      paymentTermType: 'DEPOSIT',
+      depositAmount: depositAmt,
+      balanceAmount: balanceAmt,
+      paymentStage: 'BALANCE',
+      parentQuotationId: quotation.id,
+      parentQuotationDocNumber: quotation.docNumber,
+      notes: `ใบแจ้งหนี้ยอดคงเหลือส่วนส่งมอบงาน ตามใบเสนอราคา ${quotation.docNumber}\n${seller.defaultInvoiceNotes || 'กรุณาชำระเงินตามกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านบัญชีธนาคารของร้านค้า'}`,
+      paymentRecords: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setDocuments((prev) => [balanceInvoice, ...prev]);
+    await saveDocumentCloud(balanceInvoice);
+    setSelectedDoc(balanceInvoice);
+  };
+
+  // Receive Payment and auto-generate linked Receipt
+  const handleReceivePayment = async (
+    sourceDoc: SalesDocument,
+    paymentData: {
+      amount: number;
+      method: string;
+      date: string;
+      payerName?: string;
+      slipUrl?: string;
+      notes?: string;
+      stage?: PaymentStage;
+    }
+  ) => {
+    const stage: PaymentStage =
+      paymentData.stage ||
+      sourceDoc.paymentStage ||
+      (sourceDoc.paymentTermType === 'DEPOSIT' && (!sourceDoc.paidAmount || sourceDoc.paidAmount === 0) ? 'DEPOSIT' : 'FULL');
+
+    const newReceiptDocNum = generateDocNumber('RECEIPT', documents);
+    const newReceiptId = `doc-${Date.now()}`;
+
+    const newPaymentRecord: PaymentRecord = {
+      id: `pay-${Date.now()}`,
+      date: paymentData.date,
+      amount: paymentData.amount,
+      method: paymentData.method,
+      payerName: paymentData.payerName,
+      receiptDocNumber: newReceiptDocNum,
+      receiptId: newReceiptId,
+      slipUrl: paymentData.slipUrl,
+      notes: paymentData.notes,
+      stage,
+      createdAt: new Date().toISOString(),
+    };
+
+    // 1. Generate Receipt Document
+    const receiptTitleNote =
+      stage === 'DEPOSIT'
+        ? `ใบเสร็จรับเงินมัดจำ (Deposit Receipt) ตามเอกสาร ${sourceDoc.docNumber}`
+        : stage === 'BALANCE'
+        ? `ใบเสร็จรับเงินยอดคงเหลือ (Balance Receipt) ตามเอกสาร ${sourceDoc.docNumber}`
+        : `ใบเสร็จรับเงิน ชำระครบถ้วน`;
+
+    const receiptDoc: SalesDocument = {
+      id: newReceiptId,
+      docNumber: newReceiptDocNum,
+      type: 'RECEIPT',
+      date: paymentData.date,
+      dueDate: paymentData.date,
+      customerId: sourceDoc.customerId,
+      customerName: sourceDoc.customerName,
+      customerPhone: sourceDoc.customerPhone,
+      customerAddress: sourceDoc.customerAddress,
+      customerTaxId: sourceDoc.customerTaxId,
+      items: [
+        {
+          productId: `rec-item-${Date.now()}`,
+          productName:
+            stage === 'DEPOSIT'
+              ? `รับชำระเงินมัดจำ (Deposit)`
+              : stage === 'BALANCE'
+              ? `รับชำระเงินยอดคงเหลือ (Balance Payment)`
+              : `รับชำระค่าสินค้าและบริการ (${sourceDoc.items[0]?.productName || sourceDoc.docNumber})`,
+          sku: stage,
+          description: `อ้างอิงเอกสาร ${sourceDoc.docNumber} (${paymentData.notes || receiptTitleNote})`,
+          unit: 'งวด',
+          price: paymentData.amount,
+          costPrice: 0,
+          quantity: 1,
+          discount: 0,
+          total: paymentData.amount,
+        },
+      ],
+      subtotal: paymentData.amount,
+      discountAmount: 0,
+      shippingFee: 0,
+      vatRate: 0,
+      vatAmount: 0,
+      grandTotal: paymentData.amount,
+      status: 'PAID',
+      paymentMethod: paymentData.method,
+      paymentSlipUrl: paymentData.slipUrl || '',
+      paymentDate: paymentData.date,
+      paymentStage: stage,
+      parentQuotationId: sourceDoc.parentQuotationId || (sourceDoc.type === 'QUOTATION' ? sourceDoc.id : undefined),
+      parentQuotationDocNumber: sourceDoc.parentQuotationDocNumber || (sourceDoc.type === 'QUOTATION' ? sourceDoc.docNumber : undefined),
+      sourceInvoiceId: sourceDoc.type === 'INVOICE' ? sourceDoc.id : undefined,
+      sourceInvoiceDocNumber: sourceDoc.type === 'INVOICE' ? sourceDoc.docNumber : undefined,
+      notes: paymentData.notes || seller.defaultReceiptNotes || receiptTitleNote,
+      paymentRecords: [newPaymentRecord],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // 2. Update source document status and payment records
+    const existingPaid = Number(sourceDoc.paidAmount) || 0;
+    const newPaidAmount = existingPaid + paymentData.amount;
+    const remaining = Math.max(0, sourceDoc.grandTotal - newPaidAmount);
+
+    let updatedSourceStatus: DocumentStatus = 'PAID';
+    if (stage === 'DEPOSIT') {
+      updatedSourceStatus = 'DEPOSIT_PAID';
+    } else if (remaining > 0) {
+      updatedSourceStatus = 'PARTIALLY_PAID';
+    } else {
+      updatedSourceStatus = 'PAID';
+    }
+
+    const updatedSourceDoc: SalesDocument = {
+      ...sourceDoc,
+      status: updatedSourceStatus,
+      paidAmount: newPaidAmount,
+      remainingAmount: remaining,
+      paymentRecords: [...(sourceDoc.paymentRecords || []), newPaymentRecord],
+      linkedReceiptNumbers: [...(sourceDoc.linkedReceiptNumbers || []), newReceiptDocNum],
+      paymentSlipUrl: paymentData.slipUrl || sourceDoc.paymentSlipUrl,
+      paymentDate: paymentData.date,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // 3. If there is a parent quotation, update it as well
+    let updatedParentQuotation: SalesDocument | null = null;
+    const parentId = sourceDoc.parentQuotationId;
+    if (parentId && parentId !== sourceDoc.id) {
+      const parentQt = documents.find((d) => d.id === parentId);
+      if (parentQt) {
+        const pExistingPaid = Number(parentQt.paidAmount) || 0;
+        const pNewPaid = pExistingPaid + paymentData.amount;
+        const pRem = Math.max(0, parentQt.grandTotal - pNewPaid);
+        let pStatus: DocumentStatus = 'PAID';
+        if (pRem === 0 || stage === 'BALANCE') {
+          pStatus = 'PAID';
+        } else if (stage === 'DEPOSIT') {
+          pStatus = 'DEPOSIT_PAID';
+        } else {
+          pStatus = 'PARTIALLY_PAID';
+        }
+        updatedParentQuotation = {
+          ...parentQt,
+          status: pStatus,
+          paidAmount: pNewPaid,
+          remainingAmount: pRem,
+          paymentRecords: [...(parentQt.paymentRecords || []), newPaymentRecord],
+          linkedReceiptNumbers: [...(parentQt.linkedReceiptNumbers || []), newReceiptDocNum],
+          updatedAt: new Date().toISOString(),
+        };
+      }
+    }
+
+    // 4. Commit all changes to state and Firestore
+    setDocuments((prev) => {
+      let next = [receiptDoc, ...prev.map((d) => (d.id === sourceDoc.id ? updatedSourceDoc : d))];
+      if (updatedParentQuotation) {
+        next = next.map((d) => (d.id === updatedParentQuotation!.id ? updatedParentQuotation! : d));
+      }
+      return next;
+    });
+
+    const promises: Promise<any>[] = [
+      saveDocumentCloud(receiptDoc),
+      saveDocumentCloud(updatedSourceDoc),
+    ];
+    if (updatedParentQuotation) {
+      promises.push(saveDocumentCloud(updatedParentQuotation));
+    }
+    await Promise.all(promises);
+
+    // Notify LINE if token enabled
+    if (seller.lineNotifyToken) {
+      sendLineNotification(
+        seller.lineNotifyToken,
+        `💰 ได้รับชำระเงิน (${stage === 'DEPOSIT' ? 'มัดจำ' : stage === 'BALANCE' ? 'คงเหลือ' : 'เต็มจำนวน'})\nเลขที่ใบเสร็จ: ${newReceiptDocNum}\nลูกค้า: ${sourceDoc.customerName}\nยอดเงิน: ฿${paymentData.amount.toLocaleString()}\nช่องทาง: ${paymentData.method}`
+      ).catch(console.error);
+    }
+
+    setSelectedDoc(receiptDoc);
   };
 
   const handleDeleteDocument = (docId: string) => {
@@ -561,11 +878,16 @@ export default function App() {
       {selectedDoc && (
         <DocumentDetailView
           doc={selectedDoc}
+          documents={documents}
           seller={seller}
           customers={customers}
           onClose={() => setSelectedDoc(null)}
+          onSelectDoc={(d) => setSelectedDoc(d)}
           onUpdateStatus={handleUpdateDocStatus}
           onConvertDoc={handleConvertDoc}
+          onCreateDepositInvoice={handleCreateDepositInvoice}
+          onCreateBalanceInvoice={handleCreateBalanceInvoice}
+          onReceivePayment={handleReceivePayment}
           onSendLineNotify={handleSendLineNotify}
           onEditDoc={handleEditDocument}
           onSaveDocument={handleSaveDocument}

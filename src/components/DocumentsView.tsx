@@ -165,21 +165,28 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
           </div>
         ) : (
           filteredDocs.map((doc) => {
-            const statusBg =
-              doc.status === 'PAID'
-                ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                : doc.status === 'SENT' || doc.status === 'APPROVED'
-                ? 'bg-sky-100 text-sky-800 border-sky-200'
-                : 'bg-slate-100 text-slate-600 border-slate-200';
+            let statusBg = 'bg-slate-100 text-slate-600 border-slate-200';
+            let statusText = 'ฉบับร่าง 📝';
 
-            const statusText =
-              doc.status === 'PAID'
-                ? 'ชำระแล้ว 🟢'
-                : doc.status === 'SENT'
-                ? 'ส่งแล้ว 🔵'
-                : doc.status === 'APPROVED'
-                ? 'อนุมัติแล้ว ✨'
-                : 'ฉบับร่าง 📝';
+            if (doc.status === 'PAID') {
+              statusBg = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+              statusText = 'ชำระแล้ว 🟢';
+            } else if (doc.status === 'DEPOSIT_PAID') {
+              statusBg = 'bg-teal-100 text-teal-800 border-teal-200';
+              statusText = 'ชำระมัดจำแล้ว 🟢';
+            } else if (doc.status === 'PENDING_DEPOSIT') {
+              statusBg = 'bg-amber-100 text-amber-800 border-amber-200';
+              statusText = 'รอมัดจำ ⏳';
+            } else if (doc.status === 'PARTIALLY_PAID') {
+              statusBg = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+              statusText = 'ชำระบางส่วน 🟡';
+            } else if (doc.status === 'SENT') {
+              statusBg = 'bg-sky-100 text-sky-800 border-sky-200';
+              statusText = 'ส่งแล้ว 🔵';
+            } else if (doc.status === 'APPROVED') {
+              statusBg = 'bg-purple-100 text-purple-800 border-purple-200';
+              statusText = 'อนุมัติแล้ว ✨';
+            }
 
             const typeBadgeColor =
               doc.type === 'QUOTATION'
@@ -199,11 +206,33 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="font-bold text-sm text-slate-800">{doc.docNumber}</span>
                       <span className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold ${typeBadgeColor}`}>
                         {doc.type}
                       </span>
+                      {doc.paymentStage && (
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-md border font-bold ${
+                            doc.paymentStage === 'DEPOSIT'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : doc.paymentStage === 'BALANCE'
+                              ? 'bg-purple-50 text-purple-700 border-purple-200'
+                              : 'bg-slate-50 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          {doc.paymentStage === 'DEPOSIT'
+                            ? '💰 เงินมัดจำ'
+                            : doc.paymentStage === 'BALANCE'
+                            ? '🏷️ ยอดคงเหลือ'
+                            : 'เต็มจำนวน'}
+                        </span>
+                      )}
+                      {doc.type === 'QUOTATION' && doc.paymentTermType === 'DEPOSIT' && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-md border font-bold bg-amber-50 text-amber-700 border-amber-200">
+                          ⭐ มัดจำ {doc.depositPercent ? `${doc.depositPercent}%` : `฿${formatCurrency(doc.depositAmount || 0)}`}
+                        </span>
+                      )}
                       <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${statusBg}`}>
                         {statusText}
                       </span>
@@ -217,8 +246,14 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                         </span>
                       ) : null}
                     </p>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
-                      📅 ออกเมื่อ: {formatDate(doc.date)} • 📦 รายการสินค้า ({doc.items.length} รายการ)
+                    <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                      <span>📅 ออกเมื่อ: {formatDate(doc.date)}</span>
+                      <span>• 📦 {doc.items.length} รายการ</span>
+                      {doc.parentQuotationDocNumber && (
+                        <span className="text-slate-400 font-mono text-[10px] bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
+                          QT: {doc.parentQuotationDocNumber}
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>
