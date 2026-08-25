@@ -433,9 +433,14 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                             {item.description}
                           </div>
                         ) : null}
+                        {item.discount && item.discount > 0 ? (
+                          <div className="text-[10px] text-emerald-600 font-medium mt-0.5">
+                            ส่วนลดรายการ: -฿{formatCurrency(item.discount)}
+                          </div>
+                        ) : null}
                       </td>
                       <td className="py-3 px-3 text-center font-bold text-slate-700">
-                        {item.quantity}
+                        {item.quantity} {item.unit ? <span className="font-normal text-slate-500 text-[11px]">{item.unit}</span> : ''}
                       </td>
                       <td className="py-3 px-3 text-right text-slate-600">
                         {formatCurrency(item.price)}

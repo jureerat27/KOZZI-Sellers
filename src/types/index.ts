@@ -55,12 +55,13 @@ export interface Customer {
 }
 
 export interface DocumentItem {
-  productId: string;
+  productId?: string;
   productName: string;
-  sku: string;
+  sku?: string;
   description?: string;
+  unit?: string;
   price: number;
-  costPrice: number;
+  costPrice?: number;
   quantity: number;
   discount: number;
   total: number;

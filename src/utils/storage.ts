@@ -473,7 +473,7 @@ export function generateDocNumber(type: 'QUOTATION' | 'INVOICE' | 'RECEIPT'): st
 export function updateStockForDocument(doc: SalesDocument, isCancellation = false): void {
   const products = getProducts();
   const updatedProducts = products.map((p) => {
-    const item = doc.items.find((i) => i.productId === p.id);
+    const item = doc.items.find((i) => i.productId && i.productId === p.id);
     if (item) {
       const change = isCancellation ? item.quantity : -item.quantity;
       const newStock = Math.max(0, p.stock + change);

@@ -99,47 +99,62 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
     }
   };
 
-  const handleAddItem = (product: Product) => {
-    const existingIndex = items.findIndex((i) => i.productId === product.id);
-    if (existingIndex >= 0) {
-      const updated = [...items];
-      updated[existingIndex].quantity += 1;
-      updated[existingIndex].total =
-        (updated[existingIndex].price - updated[existingIndex].discount) *
-        updated[existingIndex].quantity;
-      setItems(updated);
-    } else {
-      setItems([
-        ...items,
-        {
-          productId: product.id,
-          productName: product.name,
-          sku: product.sku,
-          description: product.description || '',
-          price: product.price,
-          costPrice: product.costPrice,
-          quantity: 1,
-          discount: 0,
-          total: product.price,
-        },
-      ]);
+  const handleAddNewItem = () => {
+    setItems((prev) => [
+      ...prev,
+      {
+        productId: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        productName: '',
+        sku: '',
+        description: '',
+        unit: 'ชุด',
+        price: 0,
+        costPrice: 0,
+        quantity: 1,
+        discount: 0,
+        total: 0,
+      },
+    ]);
+  };
+
+  const handleProductNameChange = (index: number, name: string) => {
+    const updated = [...items];
+    const item = { ...updated[index], productName: name };
+
+    // Auto-suggest fill if the entered name matches an existing inventory product
+    const matched = products.find(
+      (p) => p.name.trim().toLowerCase() === name.trim().toLowerCase()
+    );
+    if (matched) {
+      if (!item.price) item.price = matched.price;
+      if (!item.unit) item.unit = matched.unit || 'ชุด';
+      if (!item.description && matched.description) item.description = matched.description;
+      item.productId = matched.id;
+      item.sku = matched.sku || '';
+      item.costPrice = matched.costPrice || 0;
     }
+
+    item.total = Math.max(0, (item.price * item.quantity) - (item.discount || 0));
+    updated[index] = item;
+    setItems(updated);
   };
 
   const handleUpdateItem = (
     index: number,
-    field: 'quantity' | 'price' | 'discount' | 'description',
+    field: 'quantity' | 'price' | 'discount' | 'description' | 'unit' | 'productName',
     val: number | string
   ) => {
     const updated = [...items];
     const item = { ...updated[index] };
 
-    if (field === 'quantity') item.quantity = Math.max(1, typeof val === 'number' ? val : 1);
-    if (field === 'price') item.price = Math.max(0, typeof val === 'number' ? val : 0);
-    if (field === 'discount') item.discount = Math.max(0, typeof val === 'number' ? val : 0);
+    if (field === 'quantity') item.quantity = Math.max(0, typeof val === 'number' ? val : parseFloat(val) || 0);
+    if (field === 'price') item.price = Math.max(0, typeof val === 'number' ? val : parseFloat(val) || 0);
+    if (field === 'discount') item.discount = Math.max(0, typeof val === 'number' ? val : parseFloat(val) || 0);
     if (field === 'description') item.description = String(val);
+    if (field === 'unit') item.unit = String(val);
+    if (field === 'productName') item.productName = String(val);
 
-    item.total = (item.price - item.discount) * item.quantity;
+    item.total = Math.max(0, (item.price * item.quantity) - (item.discount || 0));
     updated[index] = item;
     setItems(updated);
   };
@@ -179,7 +194,12 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
       return;
     }
     if (items.length === 0) {
-      alert('กรุณาเลือกรายการสินค้าอย่างน้อย 1 รายการ');
+      alert('กรุณาเพิ่มรายการสินค้าและบริการอย่างน้อย 1 รายการ');
+      return;
+    }
+    const emptyItemIndex = items.findIndex((it) => !it.productName.trim());
+    if (emptyItemIndex >= 0) {
+      alert(`กรุณากรอกชื่อสินค้า/รายการ ในลำดับที่ ${emptyItemIndex + 1}`);
       return;
     }
 
@@ -414,101 +434,206 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
             </div>
           )}
 
-          {/* Items Selector & Table */}
-          <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-3">
+          {/* Items Section */}
+          <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-3.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                 <Package className="w-4 h-4 text-emerald-400" />
-                <span>รายการสินค้าและบริการ</span>
+                <span>รายการสินค้าและบริการ {items.length > 0 ? `(${items.length} รายการ)` : ''}</span>
               </label>
 
-              {/* Add Product Dropdown */}
-              <div className="relative">
-                <select
-                  onChange={(e) => {
-                    const prod = products.find((p) => p.id === e.target.value);
-                    if (prod) handleAddItem(prod);
-                    e.target.value = '';
-                  }}
-                  className="bg-emerald-950 border border-emerald-700 text-emerald-300 text-xs font-semibold rounded-lg px-3 py-1.5 focus:outline-none cursor-pointer"
-                >
-                  <option value="">+ เลือกสินค้าเพิ่มลงบิล</option>
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      [{p.sku}] {p.name} - ฿{p.price} (คงเหลือ: {p.stock})
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Add Item Button in Header */}
+              <button
+                type="button"
+                onClick={handleAddNewItem}
+                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>+ เพิ่มรายการ</span>
+              </button>
             </div>
 
-            {/* Items Table */}
+            {/* Global Datalists for Auto-suggest */}
+            <datalist id="document-units-list">
+              <option value="ชุด" />
+              <option value="ชิ้น" />
+              <option value="เครื่อง" />
+              <option value="อัน" />
+              <option value="รายการ" />
+              <option value="ครั้ง" />
+              <option value="งาน" />
+              <option value="กล่อง" />
+              <option value="เมตร" />
+              <option value="แพ็ค" />
+              <option value="คู่" />
+            </datalist>
+
+            {/* Empty State */}
             {items.length === 0 ? (
-              <div className="p-6 text-center border-2 border-dashed border-slate-700/80 rounded-xl text-slate-400 text-xs">
-                ยังไม่มีรายการสินค้า กรุณาเลือกสินค้าจากดรอปดาวน์ด้านบน
+              <div className="p-8 text-center border-2 border-dashed border-slate-700/80 rounded-2xl bg-slate-900/40 text-slate-400 space-y-3">
+                <div className="w-12 h-12 mx-auto rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+                  <Package className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm text-slate-200">ยังไม่มีรายการสินค้าและบริการ</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    กดปุ่มด้านล่างเพื่อเพิ่มรายการสินค้า สินค้าสั่งทำ (Made to Order) หรือบริการ
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddNewItem}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition-colors cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ เพิ่มรายการ</span>
+                </button>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {items.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-3 bg-slate-900 border border-slate-700/80 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
+                    className="p-3.5 bg-slate-900 border border-slate-700/80 rounded-xl space-y-2.5 text-xs relative group hover:border-slate-600 transition-colors"
                   >
-                    <div className="flex-1 space-y-1 w-full sm:w-auto">
-                      <p className="font-bold text-slate-100">{item.productName}</p>
-                      <input
-                        type="text"
-                        placeholder="รายละเอียดสินค้า (แสดงแทนรหัสสินค้า)"
-                        value={item.description || ''}
-                        onChange={(e) =>
-                          handleUpdateItem(idx, 'description', e.target.value)
-                        }
-                        className="w-full bg-slate-800 border border-slate-700/80 rounded px-2 py-1 text-[11px] text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                      />
-                    </div>
+                    {/* Top Row: Index Badge, Product Name (Free text with datalist auto-suggest), and Delete button */}
+                    <div className="flex items-start gap-2.5">
+                      <span className="w-6 h-6 rounded-lg bg-slate-800 text-emerald-400 font-bold flex items-center justify-center text-xs shrink-0 mt-1 border border-slate-700">
+                        {idx + 1}
+                      </span>
 
-                    <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                      <div className="flex items-center gap-1">
-                        <span className="text-slate-400">จำนวน:</span>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[11px] font-semibold text-slate-300">
+                            ชื่อสินค้า / รายการ <span className="text-rose-400">*</span>
+                          </label>
+                          {item.sku && (
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              SKU: {item.sku}
+                            </span>
+                          )}
+                        </div>
                         <input
-                          type="number"
-                          min="1"
-                          value={item.quantity}
-                          onChange={(e) =>
-                            handleUpdateItem(idx, 'quantity', parseInt(e.target.value) || 1)
-                          }
-                          className="w-16 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-center text-slate-100 font-bold"
+                          type="text"
+                          required
+                          list={`product-suggestions-${idx}`}
+                          placeholder="พิมพ์ชื่อสินค้า เช่น ราวตากผ้า Xiaomi Mijia Pro, ราวตากผ้า V8-QM, ค่าติดตั้ง..."
+                          value={item.productName}
+                          onChange={(e) => handleProductNameChange(idx, e.target.value)}
+                          className="w-full bg-slate-800/90 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-500 font-medium focus:outline-none focus:border-emerald-500"
                         />
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <span className="text-slate-400">ราคา/หน่วย:</span>
-                        <input
-                          type="number"
-                          value={item.price}
-                          onChange={(e) =>
-                            handleUpdateItem(idx, 'price', parseFloat(e.target.value) || 0)
-                          }
-                          className="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-center text-slate-100 font-bold"
-                        />
-                      </div>
-
-                      <div className="text-right min-w-[70px]">
-                        <span className="font-extrabold text-emerald-400 text-sm">
-                          {formatCurrency(item.total)}
-                        </span>
+                        <datalist id={`product-suggestions-${idx}`}>
+                          {products.map((p) => (
+                            <option key={p.id} value={p.name}>
+                              {p.name} (฿{p.price}/{p.unit || 'ชิ้น'})
+                            </option>
+                          ))}
+                        </datalist>
                       </div>
 
                       <button
                         type="button"
                         onClick={() => handleRemoveItem(idx)}
-                        className="p-1.5 text-rose-400 hover:bg-rose-950 rounded-lg transition-colors"
+                        title="ลบรายการนี้"
+                        className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors shrink-0 mt-5 cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
+
+                    {/* Second Row: Description / Specs / Options */}
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="รายละเอียด / รุ่น / ตัวเลือกสินค้า เช่น สีขาว / พร้อมติดตั้ง (ถ้ามี)"
+                        value={item.description || ''}
+                        onChange={(e) => handleUpdateItem(idx, 'description', e.target.value)}
+                        className="w-full bg-slate-800/60 border border-slate-700/60 rounded-lg px-3 py-1.5 text-[11px] text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+
+                    {/* Third Row: Quantity, Unit, Price per Unit, Discount, and Total */}
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 border-t border-slate-800/60">
+                      {/* Quantity */}
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-0.5">จำนวน</label>
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="any"
+                          value={item.quantity === 0 ? '' : item.quantity}
+                          onChange={(e) =>
+                            handleUpdateItem(idx, 'quantity', parseFloat(e.target.value) || 0)
+                          }
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-center text-xs text-slate-100 font-bold focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      {/* Unit */}
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-0.5">หน่วย</label>
+                        <input
+                          type="text"
+                          list="document-units-list"
+                          placeholder="ชิ้น / ชุด"
+                          value={item.unit || ''}
+                          onChange={(e) => handleUpdateItem(idx, 'unit', e.target.value)}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-center text-xs text-slate-100 font-medium focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      {/* Price per unit */}
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-0.5">ราคา/หน่วย (฿)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="any"
+                          value={item.price === 0 ? '' : item.price}
+                          onChange={(e) =>
+                            handleUpdateItem(idx, 'price', parseFloat(e.target.value) || 0)
+                          }
+                          placeholder="0.00"
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-right text-xs text-slate-100 font-bold focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      {/* Item discount */}
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-0.5">ส่วนลด (฿)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="any"
+                          value={item.discount === 0 ? '' : item.discount}
+                          onChange={(e) =>
+                            handleUpdateItem(idx, 'discount', parseFloat(e.target.value) || 0)
+                          }
+                          placeholder="0.00"
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-right text-xs text-slate-100 font-medium focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      {/* Item Total */}
+                      <div className="col-span-2 sm:col-span-1 bg-slate-800/80 border border-slate-700/60 rounded-lg p-1.5 flex flex-col justify-center text-right">
+                        <span className="text-[10px] text-slate-400">จำนวนเงินรวม</span>
+                        <span className="font-extrabold text-emerald-400 text-xs sm:text-sm font-mono truncate">
+                          ฿{formatCurrency(item.total)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 ))}
+
+                {/* Add Item Bottom Button */}
+                <button
+                  type="button"
+                  onClick={handleAddNewItem}
+                  className="w-full py-2.5 border-2 border-dashed border-slate-700 hover:border-emerald-500/70 bg-slate-800/40 hover:bg-slate-800/80 text-emerald-400 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ เพิ่มรายการ</span>
+                </button>
               </div>
             )}
           </div>
