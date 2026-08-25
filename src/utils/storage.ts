@@ -453,17 +453,31 @@ export function saveSyncLog(log: SyncLog): void {
  * Generate Next Auto Document Number
  * e.g. QT-202608-0001, INV-202608-0002, REC-202608-0001
  */
-export function generateDocNumber(type: 'QUOTATION' | 'INVOICE' | 'RECEIPT'): string {
+export function generateDocNumber(
+  type: 'QUOTATION' | 'INVOICE' | 'RECEIPT',
+  existingDocs?: SalesDocument[]
+): string {
   const prefix = type === 'QUOTATION' ? 'QT' : type === 'INVOICE' ? 'INV' : 'REC';
   const now = new Date();
   const yearMonth = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-  const docs = getDocuments();
+  const docs = existingDocs && existingDocs.length > 0 ? existingDocs : getDocuments();
 
-  const matchingDocs = docs.filter(
-    (d) => d.type === type && d.docNumber.startsWith(`${prefix}-${yearMonth}`)
-  );
+  const pattern = new RegExp(`^${prefix}-${yearMonth}-(\\d+)`);
+  let maxSeq = 0;
 
-  const nextCount = matchingDocs.length + 1;
+  for (const d of docs) {
+    if (d.type === type && d.docNumber) {
+      const match = d.docNumber.match(pattern);
+      if (match && match[1]) {
+        const seq = parseInt(match[1], 10);
+        if (!isNaN(seq) && seq > maxSeq) {
+          maxSeq = seq;
+        }
+      }
+    }
+  }
+
+  const nextCount = maxSeq + 1;
   return `${prefix}-${yearMonth}-${nextCount.toString().padStart(4, '0')}`;
 }
 

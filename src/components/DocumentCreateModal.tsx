@@ -9,6 +9,8 @@ import {
   Calendar,
   CheckCircle,
   FileText,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react';
 import {
   Customer,
@@ -30,7 +32,7 @@ interface DocumentCreateModalProps {
   customers: Customer[];
   seller: SellerProfile;
   onClose: () => void;
-  onSave: (doc: SalesDocument) => void;
+  onSave: (doc: SalesDocument) => Promise<SalesDocument> | void;
   onAddCustomer: (customer: Customer) => void;
 }
 
@@ -62,6 +64,12 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
   const [shippingFee, setShippingFee] = useState<number>(editingDoc?.shippingFee || 0);
   const [discountAmount, setDiscountAmount] = useState<number>(editingDoc?.discountAmount || 0);
   const [vatRate, setVatRate] = useState<number>(editingDoc?.vatRate || 0); // 0 or 7
+
+  // Save states
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+
   const getDefaultNoteForType = (type: DocumentType): string => {
     if (type === 'QUOTATION') {
       return seller.defaultQuotationNotes || 'ใบเสนอราคานี้มีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร หากมีข้อสงสัยกรุณาติดต่อร้านค้า';
@@ -94,8 +102,8 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
     const cust = customers.find((c) => c.id === id);
     if (cust) {
       setCustomerName(cust.name);
-      setCustomerPhone(cust.phone);
-      setCustomerAddress(cust.address);
+      setCustomerPhone(cust.phone || '');
+      setCustomerAddress(cust.address || '');
       setCustomerTaxId(cust.taxId || '');
     }
   };
@@ -179,8 +187,8 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
     setSelectedCustomerId(newCust.id);
     setCustomerName(newCust.name);
     setCustomerTaxId(newCust.taxId || '');
-    setCustomerPhone(newCust.phone);
-    setCustomerAddress(newCust.address);
+    setCustomerPhone(newCust.phone || '');
+    setCustomerAddress(newCust.address || '');
     setNewCustName('');
     setNewCustTaxId('');
     setNewCustPhone('');
@@ -189,56 +197,121 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
   };
 
   // Calculations
-  const subtotal = items.reduce((acc, item) => acc + item.total, 0);
-  const afterDiscount = Math.max(0, subtotal - discountAmount);
+  const subtotal = items.reduce((acc, item) => acc + (item.total || 0), 0);
+  const afterDiscount = Math.max(0, subtotal - (Number(discountAmount) || 0));
   const vatAmount = vatRate > 0 ? (afterDiscount * vatRate) / 100 : 0;
-  const grandTotal = Math.round(afterDiscount + vatAmount + shippingFee);
+  const grandTotal = Math.round(afterDiscount + vatAmount + (Number(shippingFee) || 0));
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaveError(null);
+    setSaveSuccess(null);
+
+    // 1. Validate customer name
     if (!customerName.trim()) {
-      alert('กรุณากรอกชื่อลูกค้า');
+      setSaveError('กรุณากรอกชื่อลูกค้า / บริษัท');
       return;
     }
+
+    // 2. Validate items
     if (items.length === 0) {
-      alert('กรุณาเพิ่มรายการสินค้าและบริการอย่างน้อย 1 รายการ');
+      setSaveError('กรุณาเพิ่มรายการสินค้าและบริการอย่างน้อย 1 รายการ');
       return;
     }
-    const emptyItemIndex = items.findIndex((it) => !it.productName.trim());
+
+    const emptyItemIndex = items.findIndex((it) => !it.productName || !it.productName.trim());
     if (emptyItemIndex >= 0) {
-      alert(`กรุณากรอกชื่อสินค้า/รายการ ในลำดับที่ ${emptyItemIndex + 1}`);
+      setSaveError(`กรุณากรอกชื่อสินค้า/รายการ ในลำดับที่ ${emptyItemIndex + 1}`);
       return;
     }
 
-    const docNum = editingDoc ? editingDoc.docNumber : generateDocNumber(docType);
-    const savedDoc: SalesDocument = {
-      id: editingDoc ? editingDoc.id : `doc-${Date.now()}`,
-      docNumber: docNum,
-      type: docType,
-      date: docDate,
-      dueDate,
-      customerId: selectedCustomerId || `cust-temp-${Date.now()}`,
-      customerName,
-      customerPhone,
-      customerAddress,
-      customerTaxId,
-      items,
-      subtotal,
-      discountAmount,
-      shippingFee,
-      vatRate,
-      vatAmount,
-      grandTotal,
-      status,
-      paymentMethod,
-      paymentSlipUrl: editingDoc?.paymentSlipUrl,
-      paymentDate: editingDoc?.paymentDate,
-      notes,
-      createdAt: editingDoc ? editingDoc.createdAt : new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    const invalidQtyIndex = items.findIndex((it) => !it.quantity || it.quantity <= 0);
+    if (invalidQtyIndex >= 0) {
+      setSaveError(`กรุณาระบุจำนวนสินค้าให้มากกว่า 0 ในลำดับที่ ${invalidQtyIndex + 1}`);
+      return;
+    }
 
-    onSave(savedDoc);
+    // 3. Clean items data
+    const cleanedItems: DocumentItem[] = items.map((it, idx) => {
+      const price = Number(it.price) || 0;
+      const quantity = Number(it.quantity) || 1;
+      const discount = Number(it.discount) || 0;
+      const total = Math.max(0, price * quantity - discount);
+      return {
+        productId: it.productId || `manual-item-${Date.now()}-${idx}`,
+        productName: it.productName.trim(),
+        sku: it.sku || '',
+        description: it.description || '',
+        unit: it.unit || 'ชุด',
+        price,
+        costPrice: Number(it.costPrice) || 0,
+        quantity,
+        discount,
+        total,
+      };
+    });
+
+    const calculatedSubtotal = cleanedItems.reduce((acc, it) => acc + it.total, 0);
+    const calculatedAfterDiscount = Math.max(0, calculatedSubtotal - (Number(discountAmount) || 0));
+    const calculatedVatAmount = vatRate > 0 ? (calculatedAfterDiscount * vatRate) / 100 : 0;
+    const calculatedGrandTotal = Math.round(
+      calculatedAfterDiscount + calculatedVatAmount + (Number(shippingFee) || 0)
+    );
+
+    setIsSaving(true);
+
+    try {
+      const docNum = editingDoc ? editingDoc.docNumber : generateDocNumber(docType);
+      const savedDoc: SalesDocument = {
+        id: editingDoc ? editingDoc.id : `doc-${Date.now()}`,
+        docNumber: docNum,
+        type: docType,
+        date: docDate || new Date().toISOString().split('T')[0],
+        dueDate: dueDate || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+        customerId: selectedCustomerId || `cust-temp-${Date.now()}`,
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+        customerAddress: customerAddress.trim(),
+        customerTaxId: customerTaxId.trim(),
+        items: cleanedItems,
+        subtotal: calculatedSubtotal,
+        discountAmount: Number(discountAmount) || 0,
+        shippingFee: Number(shippingFee) || 0,
+        vatRate: Number(vatRate) || 0,
+        vatAmount: calculatedVatAmount,
+        grandTotal: calculatedGrandTotal,
+        status,
+        paymentMethod,
+        paymentSlipUrl: editingDoc?.paymentSlipUrl || '',
+        paymentDate: editingDoc?.paymentDate || (status === 'PAID' ? docDate : ''),
+        notes: notes.trim(),
+        createdAt: editingDoc?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      await onSave(savedDoc);
+
+      const typeLabel =
+        docType === 'QUOTATION'
+          ? 'ใบเสนอราคา'
+          : docType === 'INVOICE'
+          ? 'ใบแจ้งหนี้'
+          : 'ใบเสร็จรับเงิน';
+
+      setSaveSuccess(`บันทึก${typeLabel} (${savedDoc.docNumber}) สำเร็จเรียบร้อยแล้ว`);
+
+      // Close modal after showing success state briefly
+      setTimeout(() => {
+        onClose();
+      }, 400);
+    } catch (err: any) {
+      console.error('Save sales document failed in modal:', err);
+      setSaveError(
+        err?.message || 'เกิดข้อผิดพลาดในการบันทึกเอกสาร กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง'
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -261,7 +334,8 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors"
+            disabled={isSaving}
+            className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors disabled:opacity-50"
           >
             <X className="w-5 h-5" />
           </button>
@@ -269,6 +343,21 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
         {/* Modal Body */}
         <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-5 space-y-6">
+          {/* Status / Error / Success Messages */}
+          {saveError && (
+            <div className="p-3.5 bg-rose-950/80 border border-rose-800 text-rose-200 text-xs rounded-xl flex items-center gap-2.5 shadow-sm">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span className="font-medium">{saveError}</span>
+            </div>
+          )}
+
+          {saveSuccess && (
+            <div className="p-3.5 bg-emerald-950/80 border border-emerald-800 text-emerald-200 text-xs rounded-xl flex items-center gap-2.5 shadow-sm">
+              <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span className="font-medium">{saveSuccess}</span>
+            </div>
+          )}
+
           {/* Document Type Selector */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
@@ -277,6 +366,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
+                disabled={isSaving}
                 onClick={() => {
                   setDocType('QUOTATION');
                   setStatus('SENT');
@@ -293,6 +383,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
               <button
                 type="button"
+                disabled={isSaving}
                 onClick={() => {
                   setDocType('INVOICE');
                   setStatus('SENT');
@@ -309,6 +400,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
               <button
                 type="button"
+                disabled={isSaving}
                 onClick={() => {
                   setDocType('RECEIPT');
                   setStatus('PAID');
@@ -337,6 +429,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 <select
                   value={selectedCustomerId}
                   onChange={(e) => handleSelectCustomer(e.target.value)}
+                  disabled={isSaving}
                   className="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-emerald-500"
                 >
                   <option value="">-- เลือกลูกค้าจากคลัง --</option>
@@ -349,8 +442,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
                 <button
                   type="button"
+                  disabled={isSaving}
                   onClick={() => setShowQuickCustomer(true)}
-                  className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1"
+                  className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer disabled:opacity-50"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>เพิ่มลูกค้าใหม่</span>
@@ -366,6 +460,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 <input
                   type="text"
                   required
+                  disabled={isSaving}
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="เช่น คุณวิภาวรรณ สุขเกษม หรือ บริษัท ABC จำกัด"
@@ -380,6 +475,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 </label>
                 <input
                   type="text"
+                  disabled={isSaving}
                   value={customerTaxId}
                   onChange={(e) => setCustomerTaxId(e.target.value)}
                   placeholder="เช่น 1490700030250 (13 หลัก)"
@@ -391,6 +487,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 <label className="block text-[11px] font-bold text-slate-300 mb-1">เบอร์โทรศัพท์</label>
                 <input
                   type="text"
+                  disabled={isSaving}
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   placeholder="เช่น 0898765432"
@@ -402,6 +499,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 <label className="block text-[11px] font-bold text-slate-300 mb-1">ที่อยู่จัดส่ง / ออกเอกสาร</label>
                 <input
                   type="text"
+                  disabled={isSaving}
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
                   placeholder="เช่น 88/9 หมู่บ้านปัญญา บางนา กม.7 สมุทรปราการ"
@@ -449,14 +547,14 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowQuickCustomer(false)}
-                  className="px-3 py-1 bg-slate-700 text-xs rounded-lg text-slate-300"
+                  className="px-3 py-1 bg-slate-700 text-xs rounded-lg text-slate-300 cursor-pointer"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="button"
                   onClick={handleQuickAddCustomer}
-                  className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold rounded-lg text-white"
+                  className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold rounded-lg text-white cursor-pointer"
                 >
                   บันทึกลูกค้า
                 </button>
@@ -475,8 +573,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
               {/* Add Item Button in Header */}
               <button
                 type="button"
+                disabled={isSaving}
                 onClick={handleAddNewItem}
-                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer disabled:opacity-50"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>+ เพิ่มรายการ</span>
@@ -512,8 +611,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 </div>
                 <button
                   type="button"
+                  disabled={isSaving}
                   onClick={handleAddNewItem}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ เพิ่มรายการ</span>
@@ -546,6 +646,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                         <input
                           type="text"
                           required
+                          disabled={isSaving}
                           list={`product-suggestions-${idx}`}
                           placeholder="พิมพ์ชื่อสินค้า เช่น ราวตากผ้า Xiaomi Mijia Pro, ราวตากผ้า V8-QM, ค่าติดตั้ง..."
                           value={item.productName}
@@ -563,9 +664,10 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
                       <button
                         type="button"
+                        disabled={isSaving}
                         onClick={() => handleRemoveItem(idx)}
                         title="ลบรายการนี้"
-                        className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors shrink-0 mt-5 cursor-pointer"
+                        className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors shrink-0 mt-5 cursor-pointer disabled:opacity-50"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -575,6 +677,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                     <div>
                       <input
                         type="text"
+                        disabled={isSaving}
                         placeholder="รายละเอียด / รุ่น / ตัวเลือกสินค้า เช่น สีขาว / พร้อมติดตั้ง (ถ้ามี)"
                         value={item.description || ''}
                         onChange={(e) => handleUpdateItem(idx, 'description', e.target.value)}
@@ -591,6 +694,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                           type="number"
                           min="0.01"
                           step="any"
+                          disabled={isSaving}
                           value={item.quantity === 0 ? '' : item.quantity}
                           onChange={(e) =>
                             handleUpdateItem(idx, 'quantity', parseFloat(e.target.value) || 0)
@@ -604,6 +708,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                         <label className="block text-[10px] text-slate-400 mb-0.5">หน่วย</label>
                         <input
                           type="text"
+                          disabled={isSaving}
                           list="document-units-list"
                           placeholder="ชิ้น / ชุด"
                           value={item.unit || ''}
@@ -619,6 +724,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                           type="number"
                           min="0"
                           step="any"
+                          disabled={isSaving}
                           value={item.price === 0 ? '' : item.price}
                           onChange={(e) =>
                             handleUpdateItem(idx, 'price', parseFloat(e.target.value) || 0)
@@ -635,6 +741,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                           type="number"
                           min="0"
                           step="any"
+                          disabled={isSaving}
                           value={item.discount === 0 ? '' : item.discount}
                           onChange={(e) =>
                             handleUpdateItem(idx, 'discount', parseFloat(e.target.value) || 0)
@@ -658,8 +765,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 {/* Add Item Bottom Button */}
                 <button
                   type="button"
+                  disabled={isSaving}
                   onClick={handleAddNewItem}
-                  className="w-full py-2.5 border-2 border-dashed border-slate-700 hover:border-emerald-500/70 bg-slate-800/40 hover:bg-slate-800/80 text-emerald-400 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                  className="w-full py-2.5 border-2 border-dashed border-slate-700 hover:border-emerald-500/70 bg-slate-800/40 hover:bg-slate-800/80 text-emerald-400 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ เพิ่มรายการ</span>
@@ -681,6 +789,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 <input
                   type="number"
                   min="0"
+                  disabled={isSaving}
                   value={discountAmount}
                   onChange={(e) => setDiscountAmount(parseFloat(e.target.value) || 0)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"
@@ -692,6 +801,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 <input
                   type="number"
                   min="0"
+                  disabled={isSaving}
                   value={shippingFee}
                   onChange={(e) => setShippingFee(parseFloat(e.target.value) || 0)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"
@@ -702,6 +812,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 <label className="block text-[11px] text-slate-400 mb-1">ภาษีมูลค่าเพิ่ม VAT</label>
                 <select
                   value={vatRate}
+                  disabled={isSaving}
                   onChange={(e) => setVatRate(parseInt(e.target.value) || 0)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"
                 >
@@ -754,6 +865,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
               <label className="block text-[11px] text-slate-400 mb-1">สถานะเอกสาร</label>
               <select
                 value={status}
+                disabled={isSaving}
                 onChange={(e) => setStatus(e.target.value as DocumentStatus)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-bold"
               >
@@ -769,6 +881,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
             <label className="block text-[11px] text-slate-400 mb-1">หมายเหตุท้ายเอกสาร</label>
             <textarea
               rows={2}
+              disabled={isSaving}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
@@ -779,17 +892,28 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
           <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3 sticky bottom-0 bg-slate-900/90 py-3">
             <button
               type="button"
+              disabled={isSaving}
               onClick={onClose}
-              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl"
+              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+              disabled={isSaving}
+              className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
             >
-              <CheckCircle className="w-4 h-4" />
-              <span>บันทึกออกเอกสาร</span>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>กำลังบันทึกเอกสาร...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  <span>บันทึกออกเอกสาร</span>
+                </>
+              )}
             </button>
           </div>
         </form>

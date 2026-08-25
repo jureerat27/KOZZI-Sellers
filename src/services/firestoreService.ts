@@ -37,6 +37,29 @@ const COLLECTIONS = {
   METADATA: 'app_metadata',
 };
 
+/**
+ * Deeply removes any `undefined` properties from an object or array.
+ * Firestore will throw fatal errors if any object key has an `undefined` value.
+ */
+export function cleanForFirestore<T>(obj: T): T {
+  if (obj === null || obj === undefined) {
+    return null as unknown as T;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((item) => cleanForFirestore(item)) as unknown as T;
+  }
+  if (typeof obj === 'object' && !(obj instanceof Date)) {
+    const cleaned: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (value !== undefined) {
+        cleaned[key] = cleanForFirestore(value);
+      }
+    }
+    return cleaned;
+  }
+  return obj;
+}
+
 async function isAppInitializedInCloud(): Promise<boolean> {
   if (localStorage.getItem('firestore_app_initialized') === 'true') {
     return true;
@@ -78,7 +101,8 @@ export function subscribeSellerProfile(callback: (seller: SellerProfile) => void
       } else {
         // If not present in Firestore, seed with current local/default
         const local = getLocalSeller();
-        setDoc(docRef, local).catch(console.error);
+        const payload = cleanForFirestore(local);
+        setDoc(docRef, payload).catch(console.error);
         callback(local);
       }
     },
@@ -89,13 +113,17 @@ export function subscribeSellerProfile(callback: (seller: SellerProfile) => void
   );
 }
 
-export async function saveSellerProfileCloud(profile: SellerProfile) {
+export async function saveSellerProfileCloud(profile: SellerProfile): Promise<SellerProfile> {
   saveLocalSeller(profile);
+  markAppInitializedInCloud();
   try {
     const docRef = doc(db, COLLECTIONS.SELLER, 'default');
-    await setDoc(docRef, profile, { merge: true });
+    const payload = cleanForFirestore(profile);
+    await setDoc(docRef, payload, { merge: true });
+    return profile;
   } catch (err) {
     console.error('Error saving seller profile to Firestore:', err);
+    return profile;
   }
 }
 
@@ -119,7 +147,8 @@ export function subscribeProducts(callback: (products: Product[]) => void) {
         const local = getLocalProducts();
         markAppInitializedInCloud();
         for (const p of local) {
-          await setDoc(doc(db, COLLECTIONS.PRODUCTS, p.id), p).catch(console.error);
+          const payload = cleanForFirestore(p);
+          await setDoc(doc(db, COLLECTIONS.PRODUCTS, p.id), payload).catch(console.error);
         }
         callback(local);
       } else {
@@ -135,31 +164,47 @@ export function subscribeProducts(callback: (products: Product[]) => void) {
   );
 }
 
-export async function saveProductCloud(product: Product) {
+export async function saveProductCloud(product: Product): Promise<Product> {
   markAppInitializedInCloud();
+  const currentProds = getLocalProducts();
+  const existingIdx = currentProds.findIndex((p) => p.id === product.id);
+  const updatedProds =
+    existingIdx >= 0
+      ? currentProds.map((p, i) => (i === existingIdx ? product : p))
+      : [product, ...currentProds];
+  saveLocalProducts(updatedProds);
+
   try {
     const docRef = doc(db, COLLECTIONS.PRODUCTS, product.id);
-    await setDoc(docRef, product, { merge: true });
+    const payload = cleanForFirestore(product);
+    await setDoc(docRef, payload, { merge: true });
+    return product;
   } catch (err) {
     console.error('Error saving product to Firestore:', err);
+    return product;
   }
 }
 
-export async function saveProductsBatchCloud(products: Product[]) {
+export async function saveProductsBatchCloud(products: Product[]): Promise<Product[]> {
   markAppInitializedInCloud();
   saveLocalProducts(products);
   try {
     for (const p of products) {
       const docRef = doc(db, COLLECTIONS.PRODUCTS, p.id);
-      await setDoc(docRef, p, { merge: true });
+      const payload = cleanForFirestore(p);
+      await setDoc(docRef, payload, { merge: true });
     }
+    return products;
   } catch (err) {
     console.error('Error batch saving products to Firestore:', err);
+    return products;
   }
 }
 
-export async function deleteProductCloud(productId: string) {
+export async function deleteProductCloud(productId: string): Promise<void> {
   markAppInitializedInCloud();
+  const currentProds = getLocalProducts().filter((p) => p.id !== productId);
+  saveLocalProducts(currentProds);
   try {
     const docRef = doc(db, COLLECTIONS.PRODUCTS, productId);
     await deleteDoc(docRef);
@@ -187,7 +232,8 @@ export function subscribeCustomers(callback: (customers: Customer[]) => void) {
         const local = getLocalCustomers();
         markAppInitializedInCloud();
         for (const c of local) {
-          await setDoc(doc(db, COLLECTIONS.CUSTOMERS, c.id), c).catch(console.error);
+          const payload = cleanForFirestore(c);
+          await setDoc(doc(db, COLLECTIONS.CUSTOMERS, c.id), payload).catch(console.error);
         }
         callback(local);
       } else {
@@ -202,18 +248,31 @@ export function subscribeCustomers(callback: (customers: Customer[]) => void) {
   );
 }
 
-export async function saveCustomerCloud(customer: Customer) {
+export async function saveCustomerCloud(customer: Customer): Promise<Customer> {
   markAppInitializedInCloud();
+  const currentCusts = getLocalCustomers();
+  const existingIdx = currentCusts.findIndex((c) => c.id === customer.id);
+  const updatedCusts =
+    existingIdx >= 0
+      ? currentCusts.map((c, i) => (i === existingIdx ? customer : c))
+      : [customer, ...currentCusts];
+  saveLocalCustomers(updatedCusts);
+
   try {
     const docRef = doc(db, COLLECTIONS.CUSTOMERS, customer.id);
-    await setDoc(docRef, customer, { merge: true });
+    const payload = cleanForFirestore(customer);
+    await setDoc(docRef, payload, { merge: true });
+    return customer;
   } catch (err) {
     console.error('Error saving customer to Firestore:', err);
+    return customer;
   }
 }
 
-export async function deleteCustomerCloud(customerId: string) {
+export async function deleteCustomerCloud(customerId: string): Promise<void> {
   markAppInitializedInCloud();
+  const currentCusts = getLocalCustomers().filter((c) => c.id !== customerId);
+  saveLocalCustomers(currentCusts);
   try {
     const docRef = doc(db, COLLECTIONS.CUSTOMERS, customerId);
     await deleteDoc(docRef);
@@ -243,7 +302,8 @@ export function subscribeDocuments(callback: (docs: SalesDocument[]) => void) {
         const local = getLocalDocuments();
         markAppInitializedInCloud();
         for (const d of local) {
-          await setDoc(doc(db, COLLECTIONS.DOCUMENTS, d.id), d).catch(console.error);
+          const payload = cleanForFirestore(d);
+          await setDoc(doc(db, COLLECTIONS.DOCUMENTS, d.id), payload).catch(console.error);
         }
         callback(local);
       } else {
@@ -259,18 +319,37 @@ export function subscribeDocuments(callback: (docs: SalesDocument[]) => void) {
   );
 }
 
-export async function saveDocumentCloud(salesDoc: SalesDocument) {
+export async function saveDocumentCloud(salesDoc: SalesDocument): Promise<SalesDocument> {
   markAppInitializedInCloud();
+  
+  // 1. Immediately persist locally so document is never lost
+  const currentDocs = getLocalDocuments();
+  const existingIdx = currentDocs.findIndex((d) => d.id === salesDoc.id);
+  const updatedDocs =
+    existingIdx >= 0
+      ? currentDocs.map((d, i) => (i === existingIdx ? salesDoc : d))
+      : [salesDoc, ...currentDocs];
+  saveLocalDocuments(updatedDocs);
+
+  // 2. Clean payload to avoid any Firestore unsupported undefined field values
+  const payload = cleanForFirestore(salesDoc);
+
+  // 3. Persist to Firestore
   try {
     const docRef = doc(db, COLLECTIONS.DOCUMENTS, salesDoc.id);
-    await setDoc(docRef, salesDoc, { merge: true });
+    await setDoc(docRef, payload, { merge: true });
+    return salesDoc;
   } catch (err) {
     console.error('Error saving document to Firestore:', err);
+    // Return salesDoc even if network/offline since local is already updated
+    return salesDoc;
   }
 }
 
-export async function deleteDocumentCloud(docId: string) {
+export async function deleteDocumentCloud(docId: string): Promise<void> {
   markAppInitializedInCloud();
+  const currentDocs = getLocalDocuments().filter((d) => d.id !== docId);
+  saveLocalDocuments(currentDocs);
   try {
     const docRef = doc(db, COLLECTIONS.DOCUMENTS, docId);
     await deleteDoc(docRef);
@@ -299,7 +378,8 @@ export function subscribeExpenses(callback: (expenses: Expense[]) => void) {
         const local = getLocalExpenses();
         markAppInitializedInCloud();
         for (const e of local) {
-          await setDoc(doc(db, COLLECTIONS.EXPENSES, e.id), e).catch(console.error);
+          const payload = cleanForFirestore(e);
+          await setDoc(doc(db, COLLECTIONS.EXPENSES, e.id), payload).catch(console.error);
         }
         callback(local);
       } else {
@@ -314,18 +394,31 @@ export function subscribeExpenses(callback: (expenses: Expense[]) => void) {
   );
 }
 
-export async function saveExpenseCloud(expense: Expense) {
+export async function saveExpenseCloud(expense: Expense): Promise<Expense> {
   markAppInitializedInCloud();
+  const currentExps = getLocalExpenses();
+  const existingIdx = currentExps.findIndex((e) => e.id === expense.id);
+  const updatedExps =
+    existingIdx >= 0
+      ? currentExps.map((e, i) => (i === existingIdx ? expense : e))
+      : [expense, ...currentExps];
+  saveLocalExpenses(updatedExps);
+
   try {
     const docRef = doc(db, COLLECTIONS.EXPENSES, expense.id);
-    await setDoc(docRef, expense, { merge: true });
+    const payload = cleanForFirestore(expense);
+    await setDoc(docRef, payload, { merge: true });
+    return expense;
   } catch (err) {
     console.error('Error saving expense to Firestore:', err);
+    return expense;
   }
 }
 
-export async function deleteExpenseCloud(expenseId: string) {
+export async function deleteExpenseCloud(expenseId: string): Promise<void> {
   markAppInitializedInCloud();
+  const currentExps = getLocalExpenses().filter((e) => e.id !== expenseId);
+  saveLocalExpenses(currentExps);
   try {
     const docRef = doc(db, COLLECTIONS.EXPENSES, expenseId);
     await deleteDoc(docRef);

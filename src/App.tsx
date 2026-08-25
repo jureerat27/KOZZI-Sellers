@@ -34,6 +34,7 @@ import {
   saveSellerProfile,
   saveSyncLog,
   updateStockForDocument,
+  generateDocNumber,
 } from './utils/storage';
 import { sendLineNotification } from './utils/line';
 import {
@@ -188,37 +189,54 @@ export default function App() {
     setIsCreateDocOpen(true);
   };
 
-  const handleSaveDocument = (savedDoc: SalesDocument) => {
-    const existingIndex = documents.findIndex((d) => d.id === savedDoc.id);
-    
-    // Save to Firestore real-time cloud database
-    saveDocumentCloud(savedDoc);
-    setIsCreateDocOpen(false);
-    setEditingDoc(null);
+  const handleSaveDocument = async (savedDoc: SalesDocument): Promise<SalesDocument> => {
+    try {
+      const isNewDoc = !documents.some((d) => d.id === savedDoc.id);
 
-    if (selectedDoc && selectedDoc.id === savedDoc.id) {
-      setSelectedDoc(savedDoc);
-    }
+      // 1. Immediately update React state for instant UI update
+      setDocuments((prev) => {
+        const existingIndex = prev.findIndex((d) => d.id === savedDoc.id);
+        if (existingIndex >= 0) {
+          return prev.map((d, i) => (i === existingIndex ? savedDoc : d));
+        }
+        return [savedDoc, ...prev];
+      });
 
-    // Update product stock if document status is SENT or PAID or APPROVED
-    if (savedDoc.status === 'PAID' || savedDoc.status === 'SENT' || savedDoc.status === 'APPROVED') {
-      updateStockForDocument(savedDoc);
-      const updatedProds = getProducts();
-      setProducts(updatedProds);
-      saveProductsBatchCloud(updatedProds);
-    }
+      // 2. Persist to Firestore & Local Storage
+      const result = await saveDocumentCloud(savedDoc);
+      if (!result || !result.id) {
+        throw new Error('ไม่สามารถบันทึกเอกสารลงฐานข้อมูลได้');
+      }
 
-    // Trigger LINE Notify if token present
-    if (seller.lineNotifyToken && existingIndex < 0) {
-      sendLineNotification(
-        seller.lineNotifyToken,
-        `📄 มีการออกเอกสารใหม่ (${savedDoc.docNumber})\nประเภท: ${savedDoc.type}\nลูกค้า: ${savedDoc.customerName}\nยอดรวม: ฿${savedDoc.grandTotal.toLocaleString()}`
-      );
-    }
+      if (selectedDoc && selectedDoc.id === savedDoc.id) {
+        setSelectedDoc(savedDoc);
+      }
 
-    // Auto sync to sheets if enabled
-    if (seller.autoSync) {
-      syncToGoogleSheets();
+      // 3. Update product stock if document status is SENT or PAID or APPROVED
+      if (savedDoc.status === 'PAID' || savedDoc.status === 'SENT' || savedDoc.status === 'APPROVED') {
+        updateStockForDocument(savedDoc);
+        const updatedProds = getProducts();
+        setProducts(updatedProds);
+        saveProductsBatchCloud(updatedProds);
+      }
+
+      // 4. Trigger LINE Notify if token present
+      if (seller.lineNotifyToken && isNewDoc) {
+        sendLineNotification(
+          seller.lineNotifyToken,
+          `📄 มีการออกเอกสารใหม่ (${savedDoc.docNumber})\nประเภท: ${savedDoc.type}\nลูกค้า: ${savedDoc.customerName}\nยอดรวม: ฿${savedDoc.grandTotal.toLocaleString()}`
+        ).catch(console.error);
+      }
+
+      // 5. Auto sync to sheets if enabled
+      if (seller.autoSync) {
+        syncToGoogleSheets().catch(console.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Save sales document failed in App:', error);
+      throw error;
     }
   };
 
@@ -233,11 +251,12 @@ export default function App() {
     const updatedDoc: SalesDocument = {
       ...targetDoc,
       status: newStatus,
-      paymentSlipUrl: paymentSlipUrl || targetDoc.paymentSlipUrl,
-      paymentDate: newStatus === 'PAID' ? new Date().toISOString().split('T')[0] : targetDoc.paymentDate,
+      paymentSlipUrl: paymentSlipUrl || targetDoc.paymentSlipUrl || '',
+      paymentDate: newStatus === 'PAID' ? new Date().toISOString().split('T')[0] : (targetDoc.paymentDate || ''),
       updatedAt: new Date().toISOString(),
     };
 
+    setDocuments((prev) => prev.map((d) => (d.id === docId ? updatedDoc : d)));
     saveDocumentCloud(updatedDoc);
     if (selectedDoc?.id === docId) setSelectedDoc(updatedDoc);
 
@@ -249,25 +268,27 @@ export default function App() {
     }
   };
 
-  const handleConvertDoc = (doc: SalesDocument, targetType: 'INVOICE' | 'RECEIPT') => {
+  const handleConvertDoc = async (doc: SalesDocument, targetType: 'INVOICE' | 'RECEIPT') => {
     const targetNote =
       targetType === 'INVOICE'
         ? seller.defaultInvoiceNotes || 'กรุณาชำระเงินตามกำหนดชำระผ่านพร้อมเพย์ หรือโอนผ่านบัญชีธนาคารของร้านค้า'
         : seller.defaultReceiptNotes || seller.defaultDocumentNotes || 'ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา';
 
+    const newDocNum = generateDocNumber(targetType, documents);
     const newDoc: SalesDocument = {
       ...doc,
       id: `doc-${Date.now()}`,
-      docNumber: `${targetType === 'INVOICE' ? 'INV' : 'REC'}-${new Date().toISOString().slice(0, 7).replace('-', '')}-${(documents.length + 1).toString().padStart(4, '0')}`,
+      docNumber: newDocNum,
       type: targetType,
       notes: targetNote,
       status: targetType === 'RECEIPT' ? 'PAID' : 'SENT',
-      paymentDate: targetType === 'RECEIPT' ? new Date().toISOString().split('T')[0] : undefined,
+      paymentDate: targetType === 'RECEIPT' ? new Date().toISOString().split('T')[0] : '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    saveDocumentCloud(newDoc);
+    setDocuments((prev) => [newDoc, ...prev]);
+    await saveDocumentCloud(newDoc);
     setSelectedDoc(newDoc);
   };
 
