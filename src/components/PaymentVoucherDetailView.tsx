@@ -364,13 +364,13 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             </div>
           </div>
 
-          {/* 5. SIGNATURE SECTION: Exactly 3 Generous Boxes in 1 Row */}
-          <div>
-            <div className="grid grid-cols-3 gap-2.5 text-center text-slate-700">
+          {/* 5. SIGNATURE SECTION: Clean No-Border Layout with spacious signature room */}
+          <div className="mt-7">
+            <div className="grid grid-cols-3 gap-3 text-center text-slate-700">
               {/* Box 1: ผู้จัดทำ */}
-              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[100px]">
+              <div className="flex flex-col justify-between min-h-[90px]">
                 <span className="font-bold text-[#0D2B52] text-xs">ผู้จัดทำ</span>
-                <div className="space-y-1.5 mt-auto">
+                <div className="space-y-1.5 mt-8">
                   <p className="text-slate-400 font-semibold tracking-wider text-[10px] leading-none">
                     ........................................
                   </p>
@@ -382,9 +382,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {/* Box 2: ผู้จ่ายเงิน */}
-              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[100px]">
+              <div className="flex flex-col justify-between min-h-[90px]">
                 <span className="font-bold text-[#0D2B52] text-xs">ผู้จ่ายเงิน</span>
-                <div className="space-y-1.5 mt-auto">
+                <div className="space-y-1.5 mt-8">
                   <p className="text-slate-400 font-semibold tracking-wider text-[10px] leading-none">
                     ........................................
                   </p>
@@ -394,9 +394,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {/* Box 3: ผู้รับเงิน */}
-              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[100px]">
+              <div className="flex flex-col justify-between min-h-[90px]">
                 <span className="font-bold text-[#0D2B52] text-xs">ผู้รับเงิน</span>
-                <div className="space-y-1.5 mt-auto">
+                <div className="space-y-1.5 mt-8">
                   <p className="text-slate-400 font-semibold tracking-wider text-[10px] leading-none">
                     ........................................
                   </p>
