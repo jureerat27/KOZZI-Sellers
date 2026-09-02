@@ -366,12 +366,14 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
 
           {/* 5. SIGNATURE SECTION: Exactly 3 Generous Boxes in 1 Row */}
           <div>
-            <div className="grid grid-cols-3 gap-2.5 text-center text-[10px] text-slate-700">
+            <div className="grid grid-cols-3 gap-2.5 text-center text-slate-700">
               {/* Box 1: ผู้จัดทำ */}
-              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[96px]">
-                <span className="font-bold text-[#0D2B52] text-[10px]">ผู้จัดทำ</span>
-                <div className="space-y-1 mt-auto">
-                  <p className="text-slate-400 text-[9px] leading-none">....................................</p>
+              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[100px]">
+                <span className="font-bold text-[#0D2B52] text-xs">ผู้จัดทำ</span>
+                <div className="space-y-1.5 mt-auto">
+                  <p className="text-slate-400 font-semibold tracking-wider text-[10px] leading-none">
+                    ........................................
+                  </p>
                   <p className="font-medium text-slate-700 text-[9px] truncate leading-tight">
                     ({expense.recordedBy || 'ผู้จัดทำ'})
                   </p>
@@ -380,20 +382,24 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {/* Box 2: ผู้จ่ายเงิน */}
-              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[96px]">
-                <span className="font-bold text-[#0D2B52] text-[10px]">ผู้จ่ายเงิน</span>
-                <div className="space-y-1 mt-auto">
-                  <p className="text-slate-400 text-[9px] leading-none">....................................</p>
+              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[100px]">
+                <span className="font-bold text-[#0D2B52] text-xs">ผู้จ่ายเงิน</span>
+                <div className="space-y-1.5 mt-auto">
+                  <p className="text-slate-400 font-semibold tracking-wider text-[10px] leading-none">
+                    ........................................
+                  </p>
                   <p className="font-medium text-slate-700 text-[9px] truncate leading-tight">(....................................)</p>
                   <p className="text-[8px] text-slate-500 leading-none">วันที่ ____ / ____ / ____</p>
                 </div>
               </div>
 
               {/* Box 3: ผู้รับเงิน */}
-              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[96px]">
-                <span className="font-bold text-[#0D2B52] text-[10px]">ผู้รับเงิน</span>
-                <div className="space-y-1 mt-auto">
-                  <p className="text-slate-400 text-[9px] leading-none">....................................</p>
+              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[100px]">
+                <span className="font-bold text-[#0D2B52] text-xs">ผู้รับเงิน</span>
+                <div className="space-y-1.5 mt-auto">
+                  <p className="text-slate-400 font-semibold tracking-wider text-[10px] leading-none">
+                    ........................................
+                  </p>
                   <p className="font-medium text-slate-700 text-[9px] truncate leading-tight">
                     ({expense.recipient || 'ผู้รับเงิน'})
                   </p>
