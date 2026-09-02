@@ -215,18 +215,18 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
           />
 
           {/* 2. DOCUMENT INFO SECTION: 2 Columns x 2 Rows */}
-          <div className="text-[11px] text-slate-700 space-y-1 mb-2.5">
+          <div className="text-xs text-slate-700 space-y-1.5 mb-3">
             {/* Row 1: จ่ายให้ (Left) | เลขที่เอกสาร (Right) */}
-            <div className="grid grid-cols-2 gap-2 pb-1 border-b border-[#E2ECF8] border-dashed">
-              <div className="flex items-baseline gap-1 min-w-0">
-                <span className="font-semibold text-slate-500 shrink-0 min-w-[48px]">จ่ายให้ :</span>
-                <span className="font-bold text-[#0D2B52] text-xs truncate">
+            <div className="grid grid-cols-2 gap-2 pb-1.5 border-b border-[#E2ECF8] border-dashed">
+              <div className="flex items-baseline gap-1.5 min-w-0">
+                <span className="font-semibold text-slate-500 shrink-0 min-w-[50px]">จ่ายให้ :</span>
+                <span className="font-bold text-[#0D2B52] text-sm truncate">
                   {expense.recipient || 'ไม่ระบุผู้รับเงิน / ทั่วไป'}
                 </span>
               </div>
-              <div className="flex items-baseline justify-end gap-1 min-w-0">
+              <div className="flex items-baseline justify-end gap-1.5 min-w-0">
                 <span className="font-semibold text-slate-500 shrink-0">เลขที่เอกสาร :</span>
-                <span className="font-mono font-bold text-[#0D2B52] text-xs truncate">
+                <span className="font-mono font-bold text-[#0D2B52] text-sm truncate">
                   {expense.voucherNumber || expense.id}
                 </span>
               </div>
@@ -234,11 +234,11 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
 
             {/* Row 2: ช่องทางการชำระเงิน (Left) | วันที่จ่าย (Right) */}
             <div className="grid grid-cols-2 gap-2 pt-0.5">
-              <div className="flex items-baseline gap-1 min-w-0">
-                <span className="font-semibold text-slate-500 shrink-0 min-w-[95px]">
+              <div className="flex items-baseline gap-1.5 min-w-0">
+                <span className="font-semibold text-slate-500 shrink-0 min-w-[105px]">
                   ช่องทางการชำระเงิน :
                 </span>
-                <span className="font-medium text-slate-800 text-[11px] truncate">
+                <span className="font-semibold text-slate-800 text-xs truncate">
                   {expense.paymentMethod || 'โอนเงินธนาคาร'}
                   {expense.paymentRef ? (
                     <span className="font-mono text-slate-600 ml-1">
@@ -247,40 +247,40 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                   ) : null}
                 </span>
               </div>
-              <div className="flex items-baseline justify-end gap-1 min-w-0">
+              <div className="flex items-baseline justify-end gap-1.5 min-w-0">
                 <span className="font-semibold text-slate-500 shrink-0">วันที่จ่าย :</span>
-                <span className="font-semibold text-slate-800 text-[11px]">{formatDate(expense.date)}</span>
+                <span className="font-bold text-slate-800 text-xs">{formatDate(expense.date)}</span>
               </div>
             </div>
           </div>
 
           {/* 3. EXPENSE ITEMS TABLE: Compact, Light Blue Header, Navy Blue Text */}
-          <div className="border border-[#BAE6FD] rounded-lg overflow-hidden mb-2.5">
-            <table className="w-full text-[11px] text-left">
+          <div className="border border-[#BAE6FD] rounded-lg overflow-hidden mb-3">
+            <table className="w-full text-xs text-left">
               <thead>
                 <tr className="bg-[#E0F2FE] text-[#0D2B52] font-bold border-b border-[#BAE6FD]">
-                  <th className="py-1.5 px-2 text-center w-10 border-r border-[#BAE6FD] font-bold">ลำดับ</th>
-                  <th className="py-1.5 px-2.5 border-r border-[#BAE6FD] font-bold">รายการ</th>
-                  <th className="py-1.5 px-2 border-r border-[#BAE6FD] w-28 font-bold">หมวดหมู่</th>
-                  <th className="py-1.5 px-2.5 text-right w-28 font-bold">จำนวนเงิน (บาท)</th>
+                  <th className="py-2 px-2 text-center w-10 border-r border-[#BAE6FD] font-bold text-xs">ลำดับ</th>
+                  <th className="py-2 px-3 border-r border-[#BAE6FD] font-bold text-xs">รายการ</th>
+                  <th className="py-2 px-2.5 border-r border-[#BAE6FD] w-28 font-bold text-xs">หมวดหมู่</th>
+                  <th className="py-2 px-3 text-right w-32 font-bold text-xs">จำนวนเงิน (บาท)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2ECF8]">
                 {items.map((item, idx) => (
                   <tr key={idx} className="hover:bg-sky-50/40">
-                    <td className="py-1.5 px-2 text-center font-mono text-slate-500 border-r border-[#E2ECF8]">
+                    <td className="py-2 px-2 text-center font-mono text-slate-600 border-r border-[#E2ECF8] text-xs">
                       {idx + 1}
                     </td>
-                    <td className="py-1.5 px-2.5 border-r border-[#E2ECF8]">
-                      <div className="font-semibold text-slate-900 leading-tight">{item.name}</div>
+                    <td className="py-2 px-3 border-r border-[#E2ECF8]">
+                      <div className="font-semibold text-slate-900 text-xs sm:text-sm leading-tight">{item.name}</div>
                       {item.notes && (
-                        <div className="text-[9px] text-slate-500 mt-0.5">{item.notes}</div>
+                        <div className="text-[10px] text-slate-500 mt-0.5">{item.notes}</div>
                       )}
                     </td>
-                    <td className="py-1.5 px-2 border-r border-[#E2ECF8] text-slate-700 font-medium">
+                    <td className="py-2 px-2.5 border-r border-[#E2ECF8] text-slate-700 font-medium text-xs">
                       {CATEGORY_LABELS[expense.category] || expense.category}
                     </td>
-                    <td className="py-1.5 px-2.5 text-right font-mono font-bold text-slate-900">
+                    <td className="py-2 px-3 text-right font-mono font-bold text-slate-900 text-xs sm:text-sm">
                       {formatCurrency(item.amount)}
                     </td>
                   </tr>
@@ -289,10 +289,10 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                 {/* 3 Empty blank rows for items */}
                 {[1, 2, 3].map((_, emptyIdx) => (
                   <tr key={`empty-${emptyIdx}`} className="h-6">
-                    <td className="py-1 px-2 border-r border-[#E2ECF8] text-center text-slate-300 font-mono text-[10px]">&nbsp;</td>
+                    <td className="py-1 px-2 border-r border-[#E2ECF8] text-center text-slate-300 font-mono text-xs">&nbsp;</td>
+                    <td className="py-1 px-3 border-r border-[#E2ECF8]">&nbsp;</td>
                     <td className="py-1 px-2.5 border-r border-[#E2ECF8]">&nbsp;</td>
-                    <td className="py-1 px-2 border-r border-[#E2ECF8]">&nbsp;</td>
-                    <td className="py-1 px-2.5">&nbsp;</td>
+                    <td className="py-1 px-3">&nbsp;</td>
                   </tr>
                 ))}
 
@@ -300,11 +300,11 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                 <tr className="bg-[#F0F9FF] border-t border-[#BAE6FD] font-bold text-slate-900">
                   <td
                     colSpan={3}
-                    className="py-3 px-3 text-center sm:text-left text-[#0D2B52] font-bold border-r border-[#BAE6FD] text-xs sm:text-sm tracking-wide"
+                    className="py-3.5 px-3 text-center sm:text-left text-[#0D2B52] font-bold border-r border-[#BAE6FD] text-xs sm:text-sm tracking-wide"
                   >
                     ({bahtText(expense.amount)})
                   </td>
-                  <td className="py-3 px-3 text-right font-mono font-black text-[#0D2B52] text-sm sm:text-base">
+                  <td className="py-3.5 px-3 text-right font-mono font-black text-[#0D2B52] text-sm sm:text-base">
                     {formatCurrency(expense.amount)}
                   </td>
                 </tr>
@@ -314,7 +314,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
 
           {/* 4. UNDER TABLE SECTION: Notes & Attachments */}
           {(expense.notes || expense.receiptUrl) && (
-            <div className="mt-2 mb-1 text-[10px] text-slate-600">
+            <div className="mt-2 mb-1 text-xs text-slate-600">
               {expense.notes && (
                 <div>
                   <span className="font-bold text-slate-700">หมายเหตุ: </span>
@@ -325,7 +325,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               {expense.receiptUrl && (
                 <div className="mt-1 flex items-center justify-between no-print">
                   <span className="font-semibold text-slate-700 flex items-center gap-1">
-                    <Paperclip className="w-3 h-3 text-[#0D2B52]" />
+                    <Paperclip className="w-3.5 h-3.5 text-[#0D2B52]" />
                     หลักฐานการชำระเงินแนบ
                   </span>
                   <a
@@ -345,42 +345,42 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
           <div className="mt-7">
             <div className="grid grid-cols-3 gap-3 text-center text-slate-700">
               {/* Box 1: ผู้จัดทำ */}
-              <div className="flex flex-col justify-between min-h-[90px]">
-                <span className="font-bold text-[#0D2B52] text-xs">ผู้จัดทำ</span>
+              <div className="flex flex-col justify-between min-h-[95px]">
+                <span className="font-bold text-[#0D2B52] text-sm">ผู้จัดทำ</span>
                 <div className="space-y-1.5 mt-8">
-                  <p className="text-slate-400 font-semibold tracking-wider text-[10px] leading-none">
+                  <p className="text-slate-400 font-semibold tracking-wider text-xs leading-none">
                     ........................................
                   </p>
-                  <p className="font-medium text-slate-700 text-[9px] truncate leading-tight">
+                  <p className="font-medium text-slate-700 text-[10px] sm:text-xs truncate leading-tight">
                     ({expense.recordedBy || 'ผู้จัดทำ'})
                   </p>
-                  <p className="text-[8px] text-slate-500 leading-none">วันที่ ____ / ____ / ____</p>
+                  <p className="text-[9px] sm:text-[10px] text-slate-500 leading-none">วันที่ ____ / ____ / ____</p>
                 </div>
               </div>
 
               {/* Box 2: ผู้จ่ายเงิน */}
-              <div className="flex flex-col justify-between min-h-[90px]">
-                <span className="font-bold text-[#0D2B52] text-xs">ผู้จ่ายเงิน</span>
+              <div className="flex flex-col justify-between min-h-[95px]">
+                <span className="font-bold text-[#0D2B52] text-sm">ผู้จ่ายเงิน</span>
                 <div className="space-y-1.5 mt-8">
-                  <p className="text-slate-400 font-semibold tracking-wider text-[10px] leading-none">
+                  <p className="text-slate-400 font-semibold tracking-wider text-xs leading-none">
                     ........................................
                   </p>
-                  <p className="font-medium text-slate-700 text-[9px] truncate leading-tight">(....................................)</p>
-                  <p className="text-[8px] text-slate-500 leading-none">วันที่ ____ / ____ / ____</p>
+                  <p className="font-medium text-slate-700 text-[10px] sm:text-xs truncate leading-tight">(....................................)</p>
+                  <p className="text-[9px] sm:text-[10px] text-slate-500 leading-none">วันที่ ____ / ____ / ____</p>
                 </div>
               </div>
 
               {/* Box 3: ผู้รับเงิน */}
-              <div className="flex flex-col justify-between min-h-[90px]">
-                <span className="font-bold text-[#0D2B52] text-xs">ผู้รับเงิน</span>
+              <div className="flex flex-col justify-between min-h-[95px]">
+                <span className="font-bold text-[#0D2B52] text-sm">ผู้รับเงิน</span>
                 <div className="space-y-1.5 mt-8">
-                  <p className="text-slate-400 font-semibold tracking-wider text-[10px] leading-none">
+                  <p className="text-slate-400 font-semibold tracking-wider text-xs leading-none">
                     ........................................
                   </p>
-                  <p className="font-medium text-slate-700 text-[9px] truncate leading-tight">
+                  <p className="font-medium text-slate-700 text-[10px] sm:text-xs truncate leading-tight">
                     ({expense.recipient || 'ผู้รับเงิน'})
                   </p>
-                  <p className="text-[8px] text-slate-500 leading-none">วันที่ ____ / ____ / ____</p>
+                  <p className="text-[9px] sm:text-[10px] text-slate-500 leading-none">วันที่ ____ / ____ / ____</p>
                 </div>
               </div>
             </div>
