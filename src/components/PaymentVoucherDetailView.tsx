@@ -286,15 +286,15 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                   </tr>
                 ))}
 
-                {/* Single subtle compact placeholder row if only 1 item */}
-                {items.length === 1 && (
-                  <tr className="h-5">
-                    <td className="border-r border-[#E2ECF8]"></td>
-                    <td className="border-r border-[#E2ECF8]"></td>
-                    <td className="border-r border-[#E2ECF8]"></td>
-                    <td></td>
+                {/* 3 Empty blank rows for items */}
+                {[1, 2, 3].map((_, emptyIdx) => (
+                  <tr key={`empty-${emptyIdx}`} className="h-6">
+                    <td className="py-1 px-2 border-r border-[#E2ECF8] text-center text-slate-300 font-mono text-[10px]">&nbsp;</td>
+                    <td className="py-1 px-2.5 border-r border-[#E2ECF8]">&nbsp;</td>
+                    <td className="py-1 px-2 border-r border-[#E2ECF8]">&nbsp;</td>
+                    <td className="py-1 px-2.5">&nbsp;</td>
                   </tr>
-                )}
+                ))}
 
                 {/* Table Bottom Summary Row */}
                 <tr className="bg-[#F0F9FF] border-t border-[#BAE6FD] font-bold text-slate-900">
@@ -312,56 +312,38 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             </table>
           </div>
 
-          {/* 4. UNDER TABLE SECTION: Baht Text & Total Card */}
-          <div className="grid grid-cols-12 gap-2 items-stretch mb-2.5">
-            {/* Left: Baht Text Box */}
-            <div className="col-span-7 flex flex-col justify-between p-2 bg-[#EBF5FE] border border-[#BAE6FD] rounded-lg">
-              <div>
-                <span className="text-[9px] font-semibold text-slate-500 block">
-                  จำนวนเงินตัวอักษร
-                </span>
-                <span className="font-bold text-[11px] text-[#0D2B52] mt-0.5 block leading-tight">
-                  ({bahtText(expense.amount)})
-                </span>
-              </div>
-
-              {expense.notes && (
-                <div className="mt-1 pt-1 border-t border-[#BAE6FD] text-[9px] text-slate-600">
-                  <span className="font-bold text-slate-700">หมายเหตุ: </span>
-                  <span>{expense.notes}</span>
-                </div>
-              )}
-
-              {expense.receiptUrl && (
-                <div className="mt-1 pt-1 border-t border-[#BAE6FD] text-[9px] flex items-center justify-between no-print">
-                  <span className="font-semibold text-slate-700 flex items-center gap-1">
-                    <Paperclip className="w-2.5 h-2.5 text-[#0D2B52]" />
-                    หลักฐานการชำระเงินแนบ
-                  </span>
-                  <a
-                    href={expense.receiptUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#1877F2] hover:underline font-bold"
-                  >
-                    เปิดดูไฟล์แนบ
-                  </a>
-                </div>
-              )}
-            </div>
-
-            {/* Right: Grand Total Box */}
-            <div className="col-span-5 bg-[#E0F2FE] border border-[#7DD3FC] rounded-lg p-2 text-right flex flex-col justify-between">
-              <span className="text-[10px] font-bold text-[#0D2B52] block uppercase tracking-wide">
-                รวมเป็นเงินทั้งสิ้น (TOTAL)
-              </span>
-              <div className="text-lg font-black font-mono text-[#0D2B52] tracking-tight my-0.5">
-                ฿{formatCurrency(expense.amount)}
-              </div>
-              <span className="text-[8px] text-[#0D2B52]/70 block font-medium">
-                (ยอดรวมสุทธิชำระเสร็จสมบูรณ์)
+          {/* 4. UNDER TABLE SECTION: Baht Text (No Box, Same Line, Large Font in Brackets) & Notes */}
+          <div className="mt-2.5 mb-1">
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-xs text-slate-600 font-medium">จำนวนเงิน</span>
+              <span className="text-sm sm:text-base font-bold text-[#0D2B52]">
+                ({bahtText(expense.amount)})
               </span>
             </div>
+
+            {expense.notes && (
+              <div className="mt-1.5 text-[10px] text-slate-600">
+                <span className="font-bold text-slate-700">หมายเหตุ: </span>
+                <span>{expense.notes}</span>
+              </div>
+            )}
+
+            {expense.receiptUrl && (
+              <div className="mt-1 text-[10px] flex items-center justify-between no-print">
+                <span className="font-semibold text-slate-700 flex items-center gap-1">
+                  <Paperclip className="w-3 h-3 text-[#0D2B52]" />
+                  หลักฐานการชำระเงินแนบ
+                </span>
+                <a
+                  href={expense.receiptUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[#1877F2] hover:underline font-bold"
+                >
+                  เปิดดูไฟล์แนบ
+                </a>
+              </div>
+            )}
           </div>
 
           {/* 5. SIGNATURE SECTION: Clean No-Border Layout with spacious signature room */}
