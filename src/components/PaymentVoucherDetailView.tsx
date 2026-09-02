@@ -364,13 +364,13 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             </div>
           </div>
 
-          {/* 5. SIGNATURE SECTION: Exactly 3 Compact Boxes in 1 Row */}
-          <div className="mb-2">
-            <div className="grid grid-cols-3 gap-2 text-center text-[10px] text-slate-700">
+          {/* 5. SIGNATURE SECTION: Exactly 3 Generous Boxes in 1 Row */}
+          <div>
+            <div className="grid grid-cols-3 gap-2.5 text-center text-[10px] text-slate-700">
               {/* Box 1: ผู้จัดทำ */}
-              <div className="p-1.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[72px]">
+              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[96px]">
                 <span className="font-bold text-[#0D2B52] text-[10px]">ผู้จัดทำ</span>
-                <div className="space-y-0.5">
+                <div className="space-y-1 mt-auto">
                   <p className="text-slate-400 text-[9px] leading-none">....................................</p>
                   <p className="font-medium text-slate-700 text-[9px] truncate leading-tight">
                     ({expense.recordedBy || 'ผู้จัดทำ'})
@@ -380,9 +380,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {/* Box 2: ผู้จ่ายเงิน */}
-              <div className="p-1.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[72px]">
+              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[96px]">
                 <span className="font-bold text-[#0D2B52] text-[10px]">ผู้จ่ายเงิน</span>
-                <div className="space-y-0.5">
+                <div className="space-y-1 mt-auto">
                   <p className="text-slate-400 text-[9px] leading-none">....................................</p>
                   <p className="font-medium text-slate-700 text-[9px] truncate leading-tight">(....................................)</p>
                   <p className="text-[8px] text-slate-500 leading-none">วันที่ ____ / ____ / ____</p>
@@ -390,9 +390,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {/* Box 3: ผู้รับเงิน */}
-              <div className="p-1.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[72px]">
+              <div className="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[96px]">
                 <span className="font-bold text-[#0D2B52] text-[10px]">ผู้รับเงิน</span>
-                <div className="space-y-0.5">
+                <div className="space-y-1 mt-auto">
                   <p className="text-slate-400 text-[9px] leading-none">....................................</p>
                   <p className="font-medium text-slate-700 text-[9px] truncate leading-tight">
                     ({expense.recipient || 'ผู้รับเงิน'})
@@ -401,15 +401,6 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* 6. BRAND FOOTER BAR */}
-          <div className="bg-[#EBF5FE] border border-[#BAE6FD] py-1 px-2.5 rounded-lg flex items-center justify-center gap-2 mt-1">
-            <div className="h-[1px] bg-[#0D2B52]/25 flex-1 max-w-[60px]" />
-            <span className="text-[8px] font-bold tracking-widest uppercase text-[#0D2B52]">
-              SMART LIVING, BETTER LIFE
-            </span>
-            <div className="h-[1px] bg-[#0D2B52]/25 flex-1 max-w-[60px]" />
           </div>
         </div>
       </div>
