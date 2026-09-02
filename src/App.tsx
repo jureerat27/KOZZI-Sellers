@@ -531,12 +531,12 @@ export default function App() {
     const remaining = Math.max(0, sourceDoc.grandTotal - newPaidAmount);
 
     let updatedSourceStatus: DocumentStatus = 'PAID';
-    if (stage === 'DEPOSIT') {
-      updatedSourceStatus = 'DEPOSIT_PAID';
-    } else if (remaining > 0) {
-      updatedSourceStatus = 'PARTIALLY_PAID';
-    } else {
+    if (remaining < 0.01) {
       updatedSourceStatus = 'PAID';
+    } else if (stage === 'DEPOSIT') {
+      updatedSourceStatus = 'DEPOSIT_PAID';
+    } else {
+      updatedSourceStatus = 'PARTIALLY_PAID';
     }
 
     const updatedSourceDoc: SalesDocument = {
