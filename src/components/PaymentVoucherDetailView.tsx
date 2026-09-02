@@ -296,15 +296,15 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                   </tr>
                 ))}
 
-                {/* Table Bottom Summary Row */}
+                {/* Table Bottom Summary Row: Increased height & Baht Text in parentheses */}
                 <tr className="bg-[#F0F9FF] border-t border-[#BAE6FD] font-bold text-slate-900">
                   <td
                     colSpan={3}
-                    className="py-1.5 px-2.5 text-right text-[#0D2B52] font-extrabold border-r border-[#BAE6FD] text-[11px]"
+                    className="py-3 px-3 text-center sm:text-left text-[#0D2B52] font-bold border-r border-[#BAE6FD] text-xs sm:text-sm tracking-wide"
                   >
-                    รวมเป็นเงินทั้งสิ้น (TOTAL)
+                    ({bahtText(expense.amount)})
                   </td>
-                  <td className="py-1.5 px-2.5 text-right font-mono font-black text-[#0D2B52] text-xs">
+                  <td className="py-3 px-3 text-right font-mono font-black text-[#0D2B52] text-sm sm:text-base">
                     {formatCurrency(expense.amount)}
                   </td>
                 </tr>
@@ -312,39 +312,34 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             </table>
           </div>
 
-          {/* 4. UNDER TABLE SECTION: Baht Text (No Box, Same Line, Large Font in Brackets) & Notes */}
-          <div className="mt-2.5 mb-1">
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-xs text-slate-600 font-medium">จำนวนเงิน</span>
-              <span className="text-sm sm:text-base font-bold text-[#0D2B52]">
-                ({bahtText(expense.amount)})
-              </span>
+          {/* 4. UNDER TABLE SECTION: Notes & Attachments */}
+          {(expense.notes || expense.receiptUrl) && (
+            <div className="mt-2 mb-1 text-[10px] text-slate-600">
+              {expense.notes && (
+                <div>
+                  <span className="font-bold text-slate-700">หมายเหตุ: </span>
+                  <span>{expense.notes}</span>
+                </div>
+              )}
+
+              {expense.receiptUrl && (
+                <div className="mt-1 flex items-center justify-between no-print">
+                  <span className="font-semibold text-slate-700 flex items-center gap-1">
+                    <Paperclip className="w-3 h-3 text-[#0D2B52]" />
+                    หลักฐานการชำระเงินแนบ
+                  </span>
+                  <a
+                    href={expense.receiptUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#1877F2] hover:underline font-bold"
+                  >
+                    เปิดดูไฟล์แนบ
+                  </a>
+                </div>
+              )}
             </div>
-
-            {expense.notes && (
-              <div className="mt-1.5 text-[10px] text-slate-600">
-                <span className="font-bold text-slate-700">หมายเหตุ: </span>
-                <span>{expense.notes}</span>
-              </div>
-            )}
-
-            {expense.receiptUrl && (
-              <div className="mt-1 text-[10px] flex items-center justify-between no-print">
-                <span className="font-semibold text-slate-700 flex items-center gap-1">
-                  <Paperclip className="w-3 h-3 text-[#0D2B52]" />
-                  หลักฐานการชำระเงินแนบ
-                </span>
-                <a
-                  href={expense.receiptUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#1877F2] hover:underline font-bold"
-                >
-                  เปิดดูไฟล์แนบ
-                </a>
-              </div>
-            )}
-          </div>
+          )}
 
           {/* 5. SIGNATURE SECTION: Clean No-Border Layout with spacious signature room */}
           <div className="mt-7">
