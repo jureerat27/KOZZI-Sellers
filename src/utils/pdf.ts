@@ -19,11 +19,11 @@ export async function exportElementToPdf(
 
   const format = options?.format || 'a4';
   const orientation = options?.orientation || 'p';
-  const marginMm = options?.marginMm !== undefined ? options.marginMm : 0;
+  const marginMm = options?.marginMm !== undefined ? options.marginMm : (format === 'a5' ? 5 : 0);
 
   try {
     const canvas = await html2canvas(element, {
-      scale: 2, // High resolution
+      scale: 2.5, // Crisp high resolution
       useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
@@ -103,9 +103,9 @@ export async function exportElementToPdf(
       renderWidth = renderWidth * scaleFactor;
     }
 
-    // Horizontally center on page
+    // Centered on page
     const posX = marginMm + (availableWidth - renderWidth) / 2;
-    const posY = marginMm;
+    const posY = marginMm + Math.max(0, (availableHeight - renderHeight) / 2);
 
     pdf.addImage(imgData, 'PNG', posX, posY, renderWidth, renderHeight);
     pdf.save(`${filename}.pdf`);
@@ -122,7 +122,8 @@ export function printDocument(): void {
 
 /**
  * Cleanly prints a target DOM element in an isolated hidden iframe
- * ensuring no background dashboard or outer layout elements ever leak into the printout.
+ * ensuring no background dashboard or outer layout elements ever leak into the printout,
+ * while matching the preview layout and colors 100%.
  */
 export function printElementIsolated(
   elementId: string,
@@ -160,23 +161,27 @@ export function printElementIsolated(
       .map((tag) => tag.outerHTML)
       .join('\n');
 
-    // 3. Write standalone HTML into the iframe
+    // 3. Write standalone HTML into the iframe with matching fonts and print rules
     doc.open();
     doc.write(`<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="utf-8" />
-  <title>${documentTitle || 'รายงานสรุปค่าใช้จ่ายประจำเดือน'}</title>
+  <title>${documentTitle || 'ใบสำคัญจ่าย'}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
   ${headStyles}
   <style>
     @page {
       size: ${pageSize === 'a5' ? 'A5 portrait' : 'A4 portrait'};
-      margin: ${pageSize === 'a5' ? '7mm 7mm' : '12mm 15mm'};
+      margin: ${pageSize === 'a5' ? '6mm 6mm' : '12mm 15mm'};
     }
     * {
       box-sizing: border-box !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+      color-adjust: exact !important;
     }
     html, body {
       margin: 0 !important;
@@ -191,8 +196,8 @@ export function printElementIsolated(
     }
     #print-container {
       width: 100% !important;
-      max-width: 100% !important;
-      margin: 0 !important;
+      max-width: ${pageSize === 'a5' ? '136mm' : '100%'} !important;
+      margin: 0 auto !important;
       padding: 0 !important;
       background: #ffffff !important;
       box-shadow: none !important;
@@ -205,11 +210,10 @@ export function printElementIsolated(
     #print-container > div,
     #payment-voucher-container {
       box-shadow: none !important;
-      border: none !important;
-      padding: 0 !important;
-      margin: 0 !important;
+      padding: ${pageSize === 'a5' ? '12px 14px' : '0'} !important;
+      margin: 0 auto !important;
       width: 100% !important;
-      max-width: 100% !important;
+      max-width: ${pageSize === 'a5' ? '136mm' : '100%'} !important;
       min-height: auto !important;
       page-break-inside: avoid !important;
       break-inside: avoid !important;
@@ -241,7 +245,7 @@ export function printElementIsolated(
 </html>`);
     doc.close();
 
-    // 4. Trigger print once iframe resources are settled
+    // 4. Trigger print once iframe resources and fonts are settled
     setTimeout(() => {
       try {
         iframe.contentWindow?.focus();
@@ -254,9 +258,9 @@ export function printElementIsolated(
           if (document.body.contains(iframe)) {
             document.body.removeChild(iframe);
           }
-        }, 1000);
+        }, 1200);
       }
-    }, 200);
+    }, 250);
   } catch (err) {
     console.error('Failed to setup isolated print iframe:', err);
     window.print();
