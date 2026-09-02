@@ -345,9 +345,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
           <div className="mt-14">
             <div className="grid grid-cols-3 gap-3 text-center text-slate-700">
               {/* Box 1: ผู้จัดทำ */}
-              <div className="flex flex-col justify-between min-h-[95px]">
+              <div className="flex flex-col justify-between min-h-[110px]">
                 <span className="font-bold text-[#0D2B52] text-sm">ผู้จัดทำ</span>
-                <div className="space-y-1.5 mt-8">
+                <div className="space-y-1.5 mt-12">
                   <p className="text-slate-400 font-semibold tracking-wider text-xs leading-none">
                     ........................................
                   </p>
@@ -359,9 +359,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {/* Box 2: ผู้จ่ายเงิน */}
-              <div className="flex flex-col justify-between min-h-[95px]">
+              <div className="flex flex-col justify-between min-h-[110px]">
                 <span className="font-bold text-[#0D2B52] text-sm">ผู้จ่ายเงิน</span>
-                <div className="space-y-1.5 mt-8">
+                <div className="space-y-1.5 mt-12">
                   <p className="text-slate-400 font-semibold tracking-wider text-xs leading-none">
                     ........................................
                   </p>
@@ -371,9 +371,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {/* Box 3: ผู้รับเงิน */}
-              <div className="flex flex-col justify-between min-h-[95px]">
+              <div className="flex flex-col justify-between min-h-[110px]">
                 <span className="font-bold text-[#0D2B52] text-sm">ผู้รับเงิน</span>
-                <div className="space-y-1.5 mt-8">
+                <div className="space-y-1.5 mt-12">
                   <p className="text-slate-400 font-semibold tracking-wider text-xs leading-none">
                     ........................................
                   </p>
