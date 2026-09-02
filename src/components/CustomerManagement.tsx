@@ -135,7 +135,17 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
           filteredCustomers.map((c) => {
             const customerDocs = documents.filter((d) => d.customerId === c.id || d.customerName === c.name);
             const totalSpent = customerDocs
-              .filter((d) => d.status === 'PAID')
+              .filter((d) => {
+                if (d.status === 'CANCELLED') return false;
+                if (d.type === 'RECEIPT') return true;
+                if (d.status === 'PAID' || d.status === 'APPROVED') {
+                  const hasLinkedReceipt =
+                    (d.linkedReceiptNumbers && d.linkedReceiptNumbers.length > 0) ||
+                    documents.some((r) => r.type === 'RECEIPT' && r.sourceInvoiceId === d.id);
+                  return !hasLinkedReceipt;
+                }
+                return false;
+              })
               .reduce((acc, d) => acc + d.grandTotal, 0);
 
             return (

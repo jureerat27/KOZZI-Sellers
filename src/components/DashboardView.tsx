@@ -121,12 +121,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     );
   }, [expenses, selectedMonth]);
 
-  // Paid/Completed Sales in the chosen month
+  // Paid/Completed Sales in the chosen month (Prevents double counting if an invoice has already been converted/receipted)
   const paidDocs = useMemo(() => {
-    return monthDocuments.filter(
-      (d) => d.status === 'PAID' || d.status === 'APPROVED' || d.type === 'RECEIPT'
-    );
-  }, [monthDocuments]);
+    const invoicedReceiptSourceIds = new Set<string>();
+    documents.forEach((doc) => {
+      if (doc.type === 'RECEIPT' && doc.sourceInvoiceId) {
+        invoicedReceiptSourceIds.add(doc.sourceInvoiceId);
+      }
+    });
+
+    return monthDocuments.filter((d) => {
+      if (d.status === 'CANCELLED') return false;
+      if (d.type === 'RECEIPT') return true;
+      if (d.status === 'PAID' || d.status === 'APPROVED') {
+        const hasLinkedReceipts =
+          (d.linkedReceiptNumbers && d.linkedReceiptNumbers.length > 0) ||
+          invoicedReceiptSourceIds.has(d.id);
+        return !hasLinkedReceipts;
+      }
+      return false;
+    });
+  }, [monthDocuments, documents]);
 
   // Calculation of Totals for the Selected Month
   const totalSales = useMemo(() => {

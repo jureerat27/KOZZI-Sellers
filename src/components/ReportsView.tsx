@@ -101,10 +101,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     setEndDate(end);
   };
 
-  // Filtered documents (Paid / Approved Sales Receipts) in selected date range
+  // Filtered documents (Paid / Approved Sales Receipts) in selected date range (Prevents double counting)
   const filteredReceipts = documents.filter((d) => {
-    const isPaid = d.status === 'PAID' || d.status === 'APPROVED' || d.type === 'RECEIPT';
-    return isPaid && d.date >= startDate && d.date <= endDate;
+    if (d.status === 'CANCELLED') return false;
+    const inDateRange = d.date >= startDate && d.date <= endDate;
+    if (!inDateRange) return false;
+
+    if (d.type === 'RECEIPT') return true;
+    if (d.status === 'PAID' || d.status === 'APPROVED') {
+      const hasLinkedReceipts =
+        (d.linkedReceiptNumbers && d.linkedReceiptNumbers.length > 0) ||
+        documents.some((r) => r.type === 'RECEIPT' && r.sourceInvoiceId === d.id);
+      return !hasLinkedReceipts;
+    }
+    return false;
   });
 
   const totalSales = filteredReceipts.reduce((acc, d) => acc + d.grandTotal, 0);
