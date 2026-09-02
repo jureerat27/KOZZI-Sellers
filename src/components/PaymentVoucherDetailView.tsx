@@ -260,9 +260,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               <thead>
                 <tr className="bg-[#E0F2FE] text-[#0D2B52] font-bold border-b border-[#BAE6FD]">
                   <th className="py-2 px-2 text-center w-10 border-r border-[#BAE6FD] font-bold text-xs">ลำดับ</th>
-                  <th className="py-2 px-3 border-r border-[#BAE6FD] font-bold text-xs">รายการ</th>
-                  <th className="py-2 px-2.5 border-r border-[#BAE6FD] w-28 font-bold text-xs">หมวดหมู่</th>
-                  <th className="py-2 px-3 text-right w-32 font-bold text-xs">จำนวนเงิน (บาท)</th>
+                  <th className="py-2 px-3 text-center border-r border-[#BAE6FD] font-bold text-xs">รายการ</th>
+                  <th className="py-2 px-2.5 text-center border-r border-[#BAE6FD] w-28 font-bold text-xs">หมวดหมู่</th>
+                  <th className="py-2 px-3 text-center w-32 font-bold text-xs">จำนวนเงิน (บาท)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2ECF8]">
@@ -296,11 +296,11 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                   </tr>
                 ))}
 
-                {/* Table Bottom Summary Row: Increased height & Baht Text in parentheses */}
+                {/* Table Bottom Summary Row: Increased height & Centered Baht Text in parentheses */}
                 <tr className="bg-[#F0F9FF] border-t border-[#BAE6FD] font-bold text-slate-900">
                   <td
                     colSpan={3}
-                    className="py-3.5 px-3 text-center sm:text-left text-[#0D2B52] font-bold border-r border-[#BAE6FD] text-xs sm:text-sm tracking-wide"
+                    className="py-3.5 px-3 text-center text-[#0D2B52] font-bold border-r border-[#BAE6FD] text-xs sm:text-sm tracking-wide"
                   >
                     ({bahtText(expense.amount)})
                   </td>
@@ -342,7 +342,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
           )}
 
           {/* 5. SIGNATURE SECTION: Clean No-Border Layout with spacious signature room */}
-          <div className="mt-7">
+          <div className="mt-14">
             <div className="grid grid-cols-3 gap-3 text-center text-slate-700">
               {/* Box 1: ผู้จัดทำ */}
               <div className="flex flex-col justify-between min-h-[95px]">
