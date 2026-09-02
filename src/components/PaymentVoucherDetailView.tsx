@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Expense, ExpenseCategory, ExpenseStatus, SellerProfile } from '../types';
 import { formatCurrency, formatDate, bahtText } from '../utils/format';
-import { exportElementToPdf } from '../utils/pdf';
+import { exportElementToPdf, printElementIsolated } from '../utils/pdf';
 import { DocumentHeader } from './DocumentHeader';
 
 interface PaymentVoucherDetailViewProps {
@@ -72,30 +72,30 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
   const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.PAID;
   const StatusIcon = statusCfg.icon;
 
-  const rawName =
-    seller.bankAccountName ||
-    (seller.name && !seller.name.includes('KOZZI') ? seller.name : 'จุรีรัตน์ มั่นคง');
-  const cleanName = rawName.replace(/^(นางสาว|น\.ส\.|นาง|นาย)\s*/, '');
-  const entrepreneurName = `นางสาว${cleanName || 'จุรีรัตน์ มั่นคง'}`;
-
-  const taxIdNumber = seller.taxId || '1100200300401';
-  const addressText =
-    seller.address || '59/179 หมู่ 5 ตำบลลาดสวาย อำเภอลำลูกกา จังหวัดปทุมธานี 12150';
-  const phoneText = seller.phone || '064-651-8822';
-  const emailText = seller.email || 'kozzi.th@gmail.com';
-
   const handlePrint = () => {
-    window.print();
+    printElementIsolated(
+      'payment-voucher-container',
+      `ใบสำคัญจ่าย_${expense.voucherNumber || expense.id}`,
+      'a5'
+    );
   };
 
   const handleDownloadPdf = async () => {
     try {
       setIsExporting(true);
       const filename = `Payment_Voucher_${expense.voucherNumber || expense.id}`;
-      await exportElementToPdf('printable-document-container', filename);
+      await exportElementToPdf('payment-voucher-container', filename, {
+        format: 'a5',
+        orientation: 'p',
+        marginMm: 6,
+      });
     } catch (err) {
       console.error('Error generating PDF:', err);
-      window.print();
+      printElementIsolated(
+        'payment-voucher-container',
+        `ใบสำคัญจ่าย_${expense.voucherNumber || expense.id}`,
+        'a5'
+      );
     } finally {
       setIsExporting(false);
     }
@@ -130,6 +130,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               <span className="font-extrabold text-[#0D2B52] text-sm sm:text-base">
                 {expense.voucherNumber || 'ใบสำคัญจ่าย'}
               </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 border border-sky-200">
+                ขนาด A5 (148 x 210 mm)
+              </span>
               <span
                 className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
               >
@@ -144,7 +147,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
         </div>
 
         {/* Actions right side */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Status Switcher */}
           {onUpdateStatus && (
             <select
@@ -171,7 +174,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             className="px-3.5 py-1.5 bg-[#0D2B52] hover:bg-[#081d38] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>พิมพ์</span>
+            <span>พิมพ์ (A5)</span>
           </button>
 
           <button
@@ -180,21 +183,21 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             className="px-3.5 py-1.5 bg-[#1877F2] hover:bg-blue-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-xs disabled:opacity-50 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>{isExporting ? 'กำลังสร้าง...' : 'ดาวน์โหลด PDF'}</span>
+            <span>{isExporting ? 'กำลังสร้าง...' : 'ดาวน์โหลด PDF (A5)'}</span>
           </button>
         </div>
       </div>
 
-      {/* Main Printable A4 Voucher Container */}
+      {/* Main Printable A5 Voucher Container */}
       <div className="flex justify-center">
         <div
-          id="printable-document-container"
-          className="bg-white border border-[#CBD7E6] rounded-2xl shadow-md p-6 sm:p-10 w-full max-w-4xl text-slate-800 transition-all font-sans relative"
+          id="payment-voucher-container"
+          className="bg-white border border-[#CBD7E6] rounded-2xl shadow-md p-5 sm:p-7 w-full max-w-[600px] text-slate-800 transition-all font-sans relative"
         >
           {/* Cancelled Watermark if Cancelled */}
           {statusKey === 'CANCELLED' && (
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10 opacity-15 overflow-hidden">
-              <span className="text-8xl font-black text-rose-600 border-8 border-rose-600 px-12 py-4 rounded-3xl -rotate-24 uppercase">
+              <span className="text-7xl font-black text-rose-600 border-8 border-rose-600 px-8 py-3 rounded-3xl -rotate-24 uppercase">
                 CANCELLED / ยกเลิก
               </span>
             </div>
@@ -208,82 +211,82 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             showEntrepreneurAndTaxId={true}
           />
 
-          {/* 2. DOCUMENT INFO SECTION: 2 Columns x 2 Rows (Clean, No enclosing boxes) */}
-          <div className="text-xs text-slate-700 space-y-2 mb-6">
+          {/* 2. DOCUMENT INFO SECTION: 2 Columns x 2 Rows */}
+          <div className="text-xs text-slate-700 space-y-1.5 mb-4">
             {/* Row 1: จ่ายให้ (Left) | เลขที่เอกสาร (Right) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-2 border-b border-[#E2ECF8] border-dashed">
-              <div className="flex items-baseline gap-2">
-                <span className="font-semibold text-slate-500 shrink-0 min-w-[65px]">จ่ายให้ :</span>
-                <span className="font-bold text-[#0D2B52] text-sm truncate">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pb-1.5 border-b border-[#E2ECF8] border-dashed">
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-semibold text-slate-500 shrink-0 min-w-[55px]">จ่ายให้ :</span>
+                <span className="font-bold text-[#0D2B52] text-xs sm:text-sm truncate">
                   {expense.recipient || 'ไม่ระบุผู้รับเงิน / ทั่วไป'}
                 </span>
               </div>
-              <div className="flex items-baseline justify-start sm:justify-end gap-2">
+              <div className="flex items-baseline justify-start sm:justify-end gap-1.5">
                 <span className="font-semibold text-slate-500 shrink-0">เลขที่เอกสาร :</span>
-                <span className="font-mono font-bold text-[#0D2B52] text-sm">
+                <span className="font-mono font-bold text-[#0D2B52] text-xs sm:text-sm">
                   {expense.voucherNumber || expense.id}
                 </span>
               </div>
             </div>
 
             {/* Row 2: ช่องทางการชำระเงิน (Left) | วันที่จ่าย (Right) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-0.5">
-              <div className="flex items-baseline gap-2">
-                <span className="font-semibold text-slate-500 shrink-0 min-w-[130px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-semibold text-slate-500 shrink-0 min-w-[110px]">
                   ช่องทางการชำระเงิน :
                 </span>
-                <span className="font-medium text-slate-800">
+                <span className="font-medium text-slate-800 text-xs">
                   {expense.paymentMethod || 'โอนเงินธนาคาร'}
                   {expense.paymentRef ? (
-                    <span className="font-mono text-slate-600 ml-1.5">
+                    <span className="font-mono text-slate-600 ml-1">
                       (Ref: {expense.paymentRef})
                     </span>
                   ) : null}
                 </span>
               </div>
-              <div className="flex items-baseline justify-start sm:justify-end gap-2">
+              <div className="flex items-baseline justify-start sm:justify-end gap-1.5">
                 <span className="font-semibold text-slate-500 shrink-0">วันที่จ่าย :</span>
-                <span className="font-semibold text-slate-800">{formatDate(expense.date)}</span>
+                <span className="font-semibold text-slate-800 text-xs">{formatDate(expense.date)}</span>
               </div>
             </div>
           </div>
 
           {/* 3. EXPENSE ITEMS TABLE: Light Blue Transparent Header, Navy Blue Text */}
-          <div className="border border-sky-200 rounded-t-xl overflow-hidden mb-5">
+          <div className="border border-sky-200 rounded-t-xl overflow-hidden mb-4">
             <table className="w-full text-xs text-left">
               <thead>
                 <tr className="bg-sky-500/20 text-[#0D2B52] font-bold border-b border-sky-200">
-                  <th className="py-2.5 px-3 text-center w-14 border-r border-sky-200/80 font-bold">ลำดับ</th>
-                  <th className="py-2.5 px-4 border-r border-sky-200/80 font-bold">รายการ</th>
-                  <th className="py-2.5 px-4 border-r border-sky-200/80 w-40 sm:w-48 font-bold">หมวดหมู่</th>
-                  <th className="py-2.5 px-4 text-right w-36 sm:w-40 font-bold">จำนวนเงิน (บาท)</th>
+                  <th className="py-2 px-2.5 text-center w-12 border-r border-sky-200/80 font-bold">ลำดับ</th>
+                  <th className="py-2 px-3 border-r border-sky-200/80 font-bold">รายการ</th>
+                  <th className="py-2 px-3 border-r border-sky-200/80 w-32 sm:w-36 font-bold">หมวดหมู่</th>
+                  <th className="py-2 px-3 text-right w-28 sm:w-32 font-bold">จำนวนเงิน (บาท)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2ECF8]">
                 {items.map((item, idx) => (
                   <tr key={idx} className="hover:bg-sky-50/40">
-                    <td className="py-3 px-3 text-center font-mono text-slate-500 border-r border-[#E2ECF8]">
+                    <td className="py-2 px-2.5 text-center font-mono text-slate-500 border-r border-[#E2ECF8]">
                       {idx + 1}
                     </td>
-                    <td className="py-3 px-4 border-r border-[#E2ECF8]">
-                      <div className="font-semibold text-slate-900">{item.name}</div>
+                    <td className="py-2 px-3 border-r border-[#E2ECF8]">
+                      <div className="font-semibold text-slate-900 leading-tight">{item.name}</div>
                       {item.notes && (
-                        <div className="text-[11px] text-slate-500 mt-0.5">{item.notes}</div>
+                        <div className="text-[10px] text-slate-500 mt-0.5">{item.notes}</div>
                       )}
                     </td>
-                    <td className="py-3 px-4 border-r border-[#E2ECF8] text-slate-700 font-medium">
+                    <td className="py-2 px-3 border-r border-[#E2ECF8] text-slate-700 font-medium">
                       {CATEGORY_LABELS[expense.category] || expense.category}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
+                    <td className="py-2 px-3 text-right font-mono font-bold text-slate-900">
                       {formatCurrency(item.amount)}
                     </td>
                   </tr>
                 ))}
 
-                {/* Fill subtle empty lines to maintain elegant A4 proportions if list is short */}
-                {items.length < 3 &&
-                  Array.from({ length: 3 - items.length }).map((_, i) => (
-                    <tr key={`empty-${i}`} className="h-9">
+                {/* Fill subtle empty lines if only 1 item to maintain neat A5 proportion */}
+                {items.length < 2 &&
+                  Array.from({ length: 2 - items.length }).map((_, i) => (
+                    <tr key={`empty-${i}`} className="h-7">
                       <td className="border-r border-[#E2ECF8]"></td>
                       <td className="border-r border-[#E2ECF8]"></td>
                       <td className="border-r border-[#E2ECF8]"></td>
@@ -295,11 +298,11 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                 <tr className="bg-sky-500/10 border-t-2 border-sky-200 font-bold text-slate-900">
                   <td
                     colSpan={3}
-                    className="py-2.5 px-4 text-right text-[#0D2B52] font-extrabold border-r border-sky-200"
+                    className="py-2 px-3 text-right text-[#0D2B52] font-extrabold border-r border-sky-200"
                   >
                     รวมเป็นเงินทั้งสิ้น (TOTAL)
                   </td>
-                  <td className="py-2.5 px-4 text-right font-mono font-black text-[#0D2B52] text-sm">
+                  <td className="py-2 px-3 text-right font-mono font-black text-[#0D2B52] text-xs sm:text-sm">
                     {formatCurrency(expense.amount)}
                   </td>
                 </tr>
@@ -308,29 +311,29 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
           </div>
 
           {/* 4. UNDER TABLE SECTION: 2 Parts in 1 Row (Light Blue Transparent Cards) */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-stretch mb-6">
-            {/* Left: Baht Text Box (Light Blue Transparent background 10-20%, light blue border, rounded corners) */}
-            <div className="sm:col-span-7 flex flex-col justify-between p-3.5 bg-sky-500/15 border border-sky-200 rounded-xl">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-stretch mb-4">
+            {/* Left: Baht Text Box */}
+            <div className="sm:col-span-7 flex flex-col justify-between p-3 bg-sky-500/15 border border-sky-200 rounded-xl">
               <div>
-                <span className="text-[11px] font-semibold text-slate-500 block">
+                <span className="text-[10px] font-semibold text-slate-500 block">
                   จำนวนเงินตัวอักษร
                 </span>
-                <span className="font-bold text-xs sm:text-sm text-[#0D2B52] mt-1 block">
+                <span className="font-bold text-xs text-[#0D2B52] mt-0.5 block leading-tight">
                   ({bahtText(expense.amount)})
                 </span>
               </div>
 
               {expense.notes && (
-                <div className="mt-2 pt-2 border-t border-sky-200/80 text-[11px] text-slate-600">
+                <div className="mt-1.5 pt-1.5 border-t border-sky-200/80 text-[10px] text-slate-600">
                   <span className="font-bold text-slate-700">หมายเหตุ: </span>
                   <span>{expense.notes}</span>
                 </div>
               )}
 
               {expense.receiptUrl && (
-                <div className="mt-2 pt-2 border-t border-sky-200/80 text-[11px] flex items-center justify-between">
-                  <span className="font-semibold text-slate-700 flex items-center gap-1.5">
-                    <Paperclip className="w-3.5 h-3.5 text-[#0D2B52]" />
+                <div className="mt-1.5 pt-1.5 border-t border-sky-200/80 text-[10px] flex items-center justify-between">
+                  <span className="font-semibold text-slate-700 flex items-center gap-1">
+                    <Paperclip className="w-3 h-3 text-[#0D2B52]" />
                     หลักฐานการชำระเงินแนบ
                   </span>
                   <a
@@ -345,69 +348,70 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               )}
             </div>
 
-            {/* Right: Grand Total Box (Light Blue Transparent background 15-25%, light blue border, rounded corners) */}
-            <div className="sm:col-span-5 bg-sky-500/20 border border-sky-300/80 rounded-xl p-4 text-right flex flex-col justify-between">
-              <span className="text-xs font-bold text-[#0D2B52] block uppercase tracking-wide">
+            {/* Right: Grand Total Box */}
+            <div className="sm:col-span-5 bg-sky-500/20 border border-sky-300/80 rounded-xl p-3 text-right flex flex-col justify-between">
+              <span className="text-[11px] font-bold text-[#0D2B52] block uppercase tracking-wide">
                 รวมเป็นเงินทั้งสิ้น (TOTAL)
               </span>
-              <div className="text-2xl sm:text-3xl font-black font-mono text-[#0D2B52] tracking-tight my-1">
+              <div className="text-xl sm:text-2xl font-black font-mono text-[#0D2B52] tracking-tight my-0.5">
                 ฿{formatCurrency(expense.amount)}
               </div>
-              <span className="text-[10px] text-[#0D2B52]/70 block font-medium">
+              <span className="text-[9px] text-[#0D2B52]/70 block font-medium">
                 (ยอดรวมสุทธิชำระเสร็จสมบูรณ์)
               </span>
             </div>
           </div>
 
-          {/* 5. SIGNATURE SECTION: Exactly 3 Boxes in 1 Row (Light Blue Transparent 5-10% or soft white with sky border) */}
-          <div className="mb-5">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center text-xs text-slate-700">
+          {/* 5. SIGNATURE SECTION: Exactly 3 Boxes in 1 Row */}
+          <div className="mb-4">
+            <div className="grid grid-cols-3 gap-2 text-center text-[11px] text-slate-700">
               {/* Box 1: ผู้จัดทำ */}
-              <div className="p-3.5 rounded-xl bg-sky-500/5 border border-sky-200/80 flex flex-col justify-between h-32">
-                <span className="font-bold text-[#0D2B52] text-xs">ผู้จัดทำ</span>
-                <div className="space-y-1">
-                  <p className="text-slate-400 text-[11px]">................................................</p>
-                  <p className="font-medium text-slate-700 text-[11px]">
+              <div className="p-2.5 rounded-xl bg-sky-500/5 border border-sky-200/80 flex flex-col justify-between h-24">
+                <span className="font-bold text-[#0D2B52] text-[11px]">ผู้จัดทำ</span>
+                <div className="space-y-0.5">
+                  <p className="text-slate-400 text-[10px]">....................................</p>
+                  <p className="font-medium text-slate-700 text-[10px] truncate">
                     ({expense.recordedBy || 'ผู้จัดทำ'})
                   </p>
-                  <p className="text-[10px] text-slate-500">วันที่ ____ / ____ / ____</p>
+                  <p className="text-[9px] text-slate-500">วันที่ ____ / ____ / ____</p>
                 </div>
               </div>
 
               {/* Box 2: ผู้จ่ายเงิน */}
-              <div className="p-3.5 rounded-xl bg-sky-500/5 border border-sky-200/80 flex flex-col justify-between h-32">
-                <span className="font-bold text-[#0D2B52] text-xs">ผู้จ่ายเงิน</span>
-                <div className="space-y-1">
-                  <p className="text-slate-400 text-[11px]">................................................</p>
-                  <p className="font-medium text-slate-700 text-[11px]">(................................................)</p>
-                  <p className="text-[10px] text-slate-500">วันที่ ____ / ____ / ____</p>
+              <div className="p-2.5 rounded-xl bg-sky-500/5 border border-sky-200/80 flex flex-col justify-between h-24">
+                <span className="font-bold text-[#0D2B52] text-[11px]">ผู้จ่ายเงิน</span>
+                <div className="space-y-0.5">
+                  <p className="text-slate-400 text-[10px]">....................................</p>
+                  <p className="font-medium text-slate-700 text-[10px] truncate">(....................................)</p>
+                  <p className="text-[9px] text-slate-500">วันที่ ____ / ____ / ____</p>
                 </div>
               </div>
 
               {/* Box 3: ผู้รับเงิน */}
-              <div className="p-3.5 rounded-xl bg-sky-500/5 border border-sky-200/80 flex flex-col justify-between h-32">
-                <span className="font-bold text-[#0D2B52] text-xs">ผู้รับเงิน</span>
-                <div className="space-y-1">
-                  <p className="text-slate-400 text-[11px]">................................................</p>
-                  <p className="font-medium text-slate-700 text-[11px]">
+              <div className="p-2.5 rounded-xl bg-sky-500/5 border border-sky-200/80 flex flex-col justify-between h-24">
+                <span className="font-bold text-[#0D2B52] text-[11px]">ผู้รับเงิน</span>
+                <div className="space-y-0.5">
+                  <p className="text-slate-400 text-[10px]">....................................</p>
+                  <p className="font-medium text-slate-700 text-[10px] truncate">
                     ({expense.recipient || 'ผู้รับเงิน'})
                   </p>
-                  <p className="text-[10px] text-slate-500">วันที่ ____ / ____ / ____</p>
+                  <p className="text-[9px] text-slate-500">วันที่ ____ / ____ / ____</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 6. BRAND FOOTER BAR: Light Blue Transparent Bar with Flanking Navy Lines & Navy Text (No solid navy background) */}
-          <div className="bg-sky-500/15 border border-sky-200/80 py-2 px-4 rounded-xl flex items-center justify-center gap-3 mt-4">
-            <div className="h-[1px] bg-[#0D2B52]/25 flex-1 max-w-[80px] sm:max-w-[140px]" />
-            <span className="text-[10px] sm:text-xs font-bold tracking-widest uppercase text-[#0D2B52]">
+          {/* 6. BRAND FOOTER BAR */}
+          <div className="bg-sky-500/15 border border-sky-200/80 py-1.5 px-3 rounded-xl flex items-center justify-center gap-2 mt-2">
+            <div className="h-[1px] bg-[#0D2B52]/25 flex-1 max-w-[60px] sm:max-w-[100px]" />
+            <span className="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-[#0D2B52]">
               SMART LIVING, BETTER LIFE
             </span>
-            <div className="h-[1px] bg-[#0D2B52]/25 flex-1 max-w-[80px] sm:max-w-[140px]" />
+            <div className="h-[1px] bg-[#0D2B52]/25 flex-1 max-w-[60px] sm:max-w-[100px]" />
           </div>
         </div>
       </div>
     </div>
   );
 };
+

@@ -118,6 +118,43 @@ export function bahtText(amount: number | undefined | null): string {
   }
 }
 
+export function formatMonthThai(yearMonthStr: string | undefined | null): string {
+  if (!yearMonthStr) return '';
+  try {
+    const parts = yearMonthStr.split('-');
+    if (parts.length >= 2) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10);
+      const thaiMonths = [
+        'มกราคม',
+        'กุมภาพันธ์',
+        'มีนาคม',
+        'เมษายน',
+        'พฤษภาคม',
+        'มิถุนายน',
+        'กรกฎาคม',
+        'สิงหาคม',
+        'กันยายน',
+        'ตุลาคม',
+        'พฤศจิกายน',
+        'ธันวาคม',
+      ];
+      const monthName = thaiMonths[month - 1] || parts[1];
+      const thaiYear = year + 543;
+      return `${monthName} ${thaiYear}`;
+    }
+    return yearMonthStr;
+  } catch {
+    return String(yearMonthStr || '');
+  }
+}
+
+export function formatMonthYear(yearMonthStr: string | undefined | null): string {
+  if (!yearMonthStr) return '';
+  const thai = formatMonthThai(yearMonthStr);
+  return `${thai} (${yearMonthStr})`;
+}
+
 export function generateNextVoucherNumber(dateStr: string, existingExpenses: { voucherNumber?: string; date?: string }[]): string {
   const cleanDate = (dateStr || new Date().toISOString().split('T')[0]).split('T')[0];
   const parts = cleanDate.split('-');

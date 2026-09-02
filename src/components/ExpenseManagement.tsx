@@ -16,10 +16,11 @@ import {
   Printer,
 } from 'lucide-react';
 import { Expense, ExpenseCategory, ExpenseStatus, SellerProfile } from '../types';
-import { formatCurrency, formatDate, generateNextVoucherNumber } from '../utils/format';
+import { formatCurrency, formatDate, generateNextVoucherNumber, formatMonthThai } from '../utils/format';
 import { getSellerProfile } from '../utils/storage';
 import { DatePicker } from './DatePicker';
 import { MonthlyExpenseReportModal } from './MonthlyExpenseReportModal';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 interface ExpenseManagementProps {
   expenses: Expense[];
@@ -86,6 +87,8 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
   showAddModalDirectly = false,
 }) => {
   const resolvedSeller = seller || getSellerProfile();
+  const currentMonthStr = new Date().toISOString().substring(0, 7);
+  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthStr);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
@@ -109,9 +112,50 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
   const [recordedBy, setRecordedBy] = useState('');
   const [status, setStatus] = useState<ExpenseStatus>('PAID');
 
-  const currentMonthStr = new Date().toISOString().substring(0, 7);
+  // Month navigation helper
+  const shiftMonth = (offset: number) => {
+    let targetDate: Date;
+    if (selectedMonth === 'ALL') {
+      const now = new Date();
+      targetDate = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    } else {
+      const [yStr, mStr] = selectedMonth.split('-');
+      targetDate = new Date(parseInt(yStr, 10), parseInt(mStr, 10) - 1 + offset, 1);
+    }
+    const y = targetDate.getFullYear();
+    const m = String(targetDate.getMonth() + 1).padStart(2, '0');
+    setSelectedMonth(`${y}-${m}`);
+  };
+
+  // Build unique list of months from data & past/future months
+  const availableMonths = React.useMemo(() => {
+    const monthSet = new Set<string>();
+    monthSet.add(currentMonthStr);
+
+    // Add months from existing expenses
+    expenses.forEach((e) => {
+      if (e.date && e.date.length >= 7) {
+        monthSet.add(e.date.substring(0, 7));
+      }
+    });
+
+    // Add past 6 months and next 2 months
+    const now = new Date();
+    for (let i = -6; i <= 2; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      monthSet.add(`${y}-${m}`);
+    }
+
+    return Array.from(monthSet).sort().reverse();
+  }, [expenses, currentMonthStr]);
+
+  // Expenses for the selected month (excluding CANCELLED)
   const monthlyExpenses = expenses.filter(
-    (e) => e.date.startsWith(currentMonthStr) && e.status !== 'CANCELLED'
+    (e) =>
+      (selectedMonth === 'ALL' || (e.date && e.date.startsWith(selectedMonth))) &&
+      e.status !== 'CANCELLED'
   );
   const totalMonthlyExpense = monthlyExpenses.reduce((sum, e) => sum + e.amount, 0);
 
@@ -146,12 +190,14 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
   };
 
   const filteredExpenses = expenses.filter((e) => {
+    const matchesMonth =
+      selectedMonth === 'ALL' || (e.date && e.date.startsWith(selectedMonth));
     const matchesCat = selectedCategory === 'ALL' || e.category === selectedCategory;
     const matchesStatus =
       selectedStatus === 'ALL' || (e.status || 'PAID') === selectedStatus;
-    
+
     const term = searchTerm.toLowerCase().trim();
-    if (!term) return matchesCat && matchesStatus;
+    if (!term) return matchesMonth && matchesCat && matchesStatus;
 
     const catLabel = (CATEGORY_LABELS[e.category] || '').toLowerCase();
     const voucherNo = (e.voucherNumber || '').toLowerCase();
@@ -168,7 +214,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
       dateStr.includes(term) ||
       dateFormatted.includes(term);
 
-    return matchesCat && matchesStatus && matchesSearch;
+    return matchesMonth && matchesCat && matchesStatus && matchesSearch;
   });
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -260,36 +306,88 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
         </div>
       </div>
 
-      {/* Monthly Expense Badge */}
-      <div className="bg-white/95 border border-rose-100 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-        <div>
-          <span className="text-xs text-slate-500 font-medium">
-            รวมรายจ่ายเดือนนี้ ({currentMonthStr}) [ไม่รวมรายการยกเลิก] 🗓️
-          </span>
-          <p className="text-2xl font-extrabold text-rose-500 mt-0.5 font-mono">
+      {/* Monthly Expense Badge with Month Selector */}
+      <div className="bg-white/95 border border-rose-100 p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-slate-500 font-medium">
+              {selectedMonth === 'ALL'
+                ? 'รวมรายจ่ายทุกเดือนทั้งหมด'
+                : `รวมรายจ่ายประจำเดือน ${formatMonthThai(selectedMonth)} (${selectedMonth})`}{' '}
+              [ไม่รวมรายการยกเลิก] 🗓️
+            </span>
+            {selectedMonth !== currentMonthStr && selectedMonth !== 'ALL' && (
+              <button
+                onClick={() => setSelectedMonth(currentMonthStr)}
+                className="text-[11px] px-2 py-0.5 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold border border-rose-200 transition-all cursor-pointer"
+              >
+                กลับไปเดือนปัจจุบัน
+              </button>
+            )}
+          </div>
+          <p className="text-2xl font-extrabold text-rose-500 font-mono">
             ฿{formatCurrency(totalMonthlyExpense)}
           </p>
-          <button
-            onClick={() => setIsMonthlyReportOpen(true)}
-            className="text-xs text-[#0759A6] font-bold hover:underline flex items-center gap-1 mt-1 cursor-pointer"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>ดูและพิมพ์รายงานค่าใช้จ่ายประจำเดือน</span>
-          </button>
+          <div className="flex items-center gap-3 pt-0.5">
+            <button
+              onClick={() => setIsMonthlyReportOpen(true)}
+              className="text-xs text-[#0759A6] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>ดูและพิมพ์รายงานค่าใช้จ่ายประจำเดือน</span>
+            </button>
+          </div>
         </div>
-        <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 text-rose-500 flex items-center justify-center shadow-xs self-start sm:self-auto">
-          <TrendingDown className="w-6 h-6" />
+
+        {/* Quick Month Navigator */}
+        <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 p-1.5 rounded-xl self-start md:self-center shadow-2xs">
+          <button
+            onClick={() => shiftMonth(-1)}
+            className="p-1.5 rounded-lg hover:bg-white text-slate-600 hover:text-slate-900 transition-all cursor-pointer"
+            title="เดือนก่อนหน้า"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <div className="flex items-center gap-1 px-1">
+            <Calendar className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+            <span className="text-xs font-bold text-slate-800 whitespace-nowrap min-w-[110px] text-center">
+              {selectedMonth === 'ALL' ? 'ทุกช่วงเวลา' : formatMonthThai(selectedMonth)}
+            </span>
+          </div>
+          <button
+            onClick={() => shiftMonth(1)}
+            className="p-1.5 rounded-lg hover:bg-white text-slate-600 hover:text-slate-900 transition-all cursor-pointer"
+            title="เดือนถัดไป"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
       {/* Filters and Search Bar */}
       <div className="bg-white/95 border border-rose-100 p-4 rounded-2xl space-y-3 shadow-xs">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Month / Year Selector */}
+          <div className="relative">
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300 cursor-pointer"
+            >
+              <option value="ALL">📅 ทุกเดือน (All Time)</option>
+              {availableMonths.map((m) => (
+                <option key={m} value={m}>
+                  🗓️ {formatMonthThai(m)} ({m})
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Category Filter */}
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300"
+            className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300 cursor-pointer"
           >
             <option value="ALL">🏷️ ทุกหมวดหมู่รายจ่าย</option>
             {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
@@ -303,7 +401,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300"
+            className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300 cursor-pointer"
           >
             <option value="ALL">📑 ทุกสถานะเอกสาร</option>
             <option value="PAID">✅ ชำระแล้ว</option>
@@ -316,7 +414,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
-              placeholder="ค้นหาเลขที่ PV / ผู้รับเงิน / รายการ / วันที่..."
+              placeholder="ค้นหาเลขที่ PV / ผู้รับเงิน / รายการ..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300"
@@ -328,8 +426,33 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
       {/* Expense List */}
       <div className="space-y-2.5">
         {filteredExpenses.length === 0 ? (
-          <div className="bg-white/95 border border-rose-100 rounded-2xl p-10 text-center text-slate-400 text-xs shadow-xs">
-            🌸 ไม่พบรายการรายจ่ายที่ค้นหา
+          <div className="bg-white/95 border border-rose-100 rounded-2xl p-10 text-center space-y-3 shadow-xs">
+            <p className="text-sm font-bold text-slate-700">
+              🌸 ไม่พบรายการรายจ่ายประจำเดือน{' '}
+              <span className="text-rose-600">
+                {selectedMonth === 'ALL' ? 'ทุกช่วงเวลา' : formatMonthThai(selectedMonth)}
+              </span>{' '}
+              หรือตามเงื่อนไขการค้นหา
+            </p>
+            <p className="text-xs text-slate-500">
+              ลองเลือกเดือนอื่น หรือกดปุ่มบันทึกรายจ่ายใหม่ด้านล่าง
+            </p>
+            <div className="flex items-center justify-center gap-2 pt-1">
+              {selectedMonth !== 'ALL' && (
+                <button
+                  onClick={() => setSelectedMonth('ALL')}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer"
+                >
+                  แสดงรายจ่ายทุกเดือน
+                </button>
+              )}
+              <button
+                onClick={openAddModal}
+                className="px-3.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer"
+              >
+                + บันทึกรายจ่ายใหม่
+              </button>
+            </div>
           </div>
         ) : (
           filteredExpenses.map((exp) => {

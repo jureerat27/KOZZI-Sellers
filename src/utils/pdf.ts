@@ -1,14 +1,25 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
+export interface PdfExportOptions {
+  format?: 'a4' | 'a5';
+  orientation?: 'p' | 'l';
+  marginMm?: number;
+}
+
 export async function exportElementToPdf(
   elementId: string,
-  filename: string
+  filename: string,
+  options?: PdfExportOptions
 ): Promise<void> {
   const element = document.getElementById(elementId);
   if (!element) {
     throw new Error('Document element not found for PDF export');
   }
+
+  const format = options?.format || 'a4';
+  const orientation = options?.orientation || 'p';
+  const marginMm = options?.marginMm !== undefined ? options.marginMm : 0;
 
   try {
     const canvas = await html2canvas(element, {
@@ -75,11 +86,28 @@ export async function exportElementToPdf(
     });
 
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdf = new jsPDF(orientation, 'mm', format);
     const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    const availableWidth = pdfWidth - marginMm * 2;
+    const availableHeight = pdfHeight - marginMm * 2;
+
+    let renderWidth = availableWidth;
+    let renderHeight = (canvas.height * renderWidth) / canvas.width;
+
+    // If height exceeds 1 page, scale down proportionally so it fits completely on 1 single page
+    if (renderHeight > availableHeight) {
+      const scaleFactor = availableHeight / renderHeight;
+      renderHeight = availableHeight;
+      renderWidth = renderWidth * scaleFactor;
+    }
+
+    // Horizontally center on page
+    const posX = marginMm + (availableWidth - renderWidth) / 2;
+    const posY = marginMm;
+
+    pdf.addImage(imgData, 'PNG', posX, posY, renderWidth, renderHeight);
     pdf.save(`${filename}.pdf`);
   } catch (error) {
     console.error('Failed to generate PDF:', error);
@@ -96,7 +124,11 @@ export function printDocument(): void {
  * Cleanly prints a target DOM element in an isolated hidden iframe
  * ensuring no background dashboard or outer layout elements ever leak into the printout.
  */
-export function printElementIsolated(elementId: string, documentTitle?: string): void {
+export function printElementIsolated(
+  elementId: string,
+  documentTitle?: string,
+  pageSize: 'a4' | 'a5' = 'a4'
+): void {
   const element = document.getElementById(elementId);
   if (!element) {
     console.warn(`Element with id "${elementId}" not found for isolated print. Falling back to window.print().`);
@@ -138,8 +170,8 @@ export function printElementIsolated(elementId: string, documentTitle?: string):
   ${headStyles}
   <style>
     @page {
-      size: A4 portrait;
-      margin: 12mm 15mm;
+      size: ${pageSize === 'a5' ? 'A5 portrait' : 'A4 portrait'};
+      margin: ${pageSize === 'a5' ? '8mm 8mm' : '12mm 15mm'};
     }
     * {
       box-sizing: border-box !important;
