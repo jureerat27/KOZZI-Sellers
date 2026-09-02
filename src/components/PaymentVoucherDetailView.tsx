@@ -215,28 +215,28 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
           {/* 2. DOCUMENT INFO SECTION: 2 Columns x 2 Rows */}
           <div className="text-[11px] text-slate-700 space-y-1 mb-2.5">
             {/* Row 1: จ่ายให้ (Left) | เลขที่เอกสาร (Right) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pb-1 border-b border-[#E2ECF8] border-dashed">
-              <div className="flex items-baseline gap-1">
-                <span className="font-semibold text-slate-500 shrink-0 min-w-[50px]">จ่ายให้ :</span>
+            <div className="grid grid-cols-2 gap-2 pb-1 border-b border-[#E2ECF8] border-dashed">
+              <div className="flex items-baseline gap-1 min-w-0">
+                <span className="font-semibold text-slate-500 shrink-0 min-w-[48px]">จ่ายให้ :</span>
                 <span className="font-bold text-[#0D2B52] text-xs truncate">
                   {expense.recipient || 'ไม่ระบุผู้รับเงิน / ทั่วไป'}
                 </span>
               </div>
-              <div className="flex items-baseline justify-start sm:justify-end gap-1">
+              <div className="flex items-baseline justify-end gap-1 min-w-0">
                 <span className="font-semibold text-slate-500 shrink-0">เลขที่เอกสาร :</span>
-                <span className="font-mono font-bold text-[#0D2B52] text-xs">
+                <span className="font-mono font-bold text-[#0D2B52] text-xs truncate">
                   {expense.voucherNumber || expense.id}
                 </span>
               </div>
             </div>
 
             {/* Row 2: ช่องทางการชำระเงิน (Left) | วันที่จ่าย (Right) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-0.5">
-              <div className="flex items-baseline gap-1">
+            <div className="grid grid-cols-2 gap-2 pt-0.5">
+              <div className="flex items-baseline gap-1 min-w-0">
                 <span className="font-semibold text-slate-500 shrink-0 min-w-[95px]">
                   ช่องทางการชำระเงิน :
                 </span>
-                <span className="font-medium text-slate-800 text-[11px]">
+                <span className="font-medium text-slate-800 text-[11px] truncate">
                   {expense.paymentMethod || 'โอนเงินธนาคาร'}
                   {expense.paymentRef ? (
                     <span className="font-mono text-slate-600 ml-1">
@@ -245,7 +245,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                   ) : null}
                 </span>
               </div>
-              <div className="flex items-baseline justify-start sm:justify-end gap-1">
+              <div className="flex items-baseline justify-end gap-1 min-w-0">
                 <span className="font-semibold text-slate-500 shrink-0">วันที่จ่าย :</span>
                 <span className="font-semibold text-slate-800 text-[11px]">{formatDate(expense.date)}</span>
               </div>
@@ -253,14 +253,14 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
           </div>
 
           {/* 3. EXPENSE ITEMS TABLE: Compact, Light Blue Header, Navy Blue Text */}
-          <div className="border border-sky-200 rounded-lg overflow-hidden mb-2.5">
+          <div className="border border-[#BAE6FD] rounded-lg overflow-hidden mb-2.5">
             <table className="w-full text-[11px] text-left">
               <thead>
-                <tr className="bg-sky-500/20 text-[#0D2B52] font-bold border-b border-sky-200">
-                  <th className="py-1.5 px-2 text-center w-10 border-r border-sky-200/80 font-bold">ลำดับ</th>
-                  <th className="py-1.5 px-2.5 border-r border-sky-200/80 font-bold">รายการ</th>
-                  <th className="py-1.5 px-2 border-r border-sky-200/80 w-28 sm:w-32 font-bold">หมวดหมู่</th>
-                  <th className="py-1.5 px-2.5 text-right w-24 sm:w-28 font-bold">จำนวนเงิน (บาท)</th>
+                <tr className="bg-[#E0F2FE] text-[#0D2B52] font-bold border-b border-[#BAE6FD]">
+                  <th className="py-1.5 px-2 text-center w-10 border-r border-[#BAE6FD] font-bold">ลำดับ</th>
+                  <th className="py-1.5 px-2.5 border-r border-[#BAE6FD] font-bold">รายการ</th>
+                  <th className="py-1.5 px-2 border-r border-[#BAE6FD] w-28 font-bold">หมวดหมู่</th>
+                  <th className="py-1.5 px-2.5 text-right w-28 font-bold">จำนวนเงิน (บาท)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2ECF8]">
@@ -295,14 +295,14 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
                 )}
 
                 {/* Table Bottom Summary Row */}
-                <tr className="bg-sky-500/10 border-t border-sky-200 font-bold text-slate-900">
+                <tr className="bg-[#F0F9FF] border-t border-[#BAE6FD] font-bold text-slate-900">
                   <td
                     colSpan={3}
-                    className="py-1.5 px-2.5 text-right text-[#0D2B52] font-extrabold border-r border-sky-200 text-[11px]"
+                    className="py-1.5 px-2.5 text-right text-[#0D2B52] font-extrabold border-r border-[#BAE6FD] text-[11px]"
                   >
                     รวมเป็นเงินทั้งสิ้น (TOTAL)
                   </td>
-                  <td className="py-1.5 px-2.5 text-right font-mono font-black text-[#0D2B52] text-xs sm:text-sm">
+                  <td className="py-1.5 px-2.5 text-right font-mono font-black text-[#0D2B52] text-xs">
                     {formatCurrency(expense.amount)}
                   </td>
                 </tr>
@@ -311,9 +311,9 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
           </div>
 
           {/* 4. UNDER TABLE SECTION: Baht Text & Total Card */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-stretch mb-2.5">
+          <div className="grid grid-cols-12 gap-2 items-stretch mb-2.5">
             {/* Left: Baht Text Box */}
-            <div className="sm:col-span-7 flex flex-col justify-between p-2 bg-sky-500/15 border border-sky-200 rounded-lg">
+            <div className="col-span-7 flex flex-col justify-between p-2 bg-[#EBF5FE] border border-[#BAE6FD] rounded-lg">
               <div>
                 <span className="text-[9px] font-semibold text-slate-500 block">
                   จำนวนเงินตัวอักษร
@@ -324,14 +324,14 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {expense.notes && (
-                <div className="mt-1 pt-1 border-t border-sky-200/80 text-[9px] text-slate-600">
+                <div className="mt-1 pt-1 border-t border-[#BAE6FD] text-[9px] text-slate-600">
                   <span className="font-bold text-slate-700">หมายเหตุ: </span>
                   <span>{expense.notes}</span>
                 </div>
               )}
 
               {expense.receiptUrl && (
-                <div className="mt-1 pt-1 border-t border-sky-200/80 text-[9px] flex items-center justify-between no-print">
+                <div className="mt-1 pt-1 border-t border-[#BAE6FD] text-[9px] flex items-center justify-between no-print">
                   <span className="font-semibold text-slate-700 flex items-center gap-1">
                     <Paperclip className="w-2.5 h-2.5 text-[#0D2B52]" />
                     หลักฐานการชำระเงินแนบ
@@ -349,11 +349,11 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             </div>
 
             {/* Right: Grand Total Box */}
-            <div className="sm:col-span-5 bg-sky-500/20 border border-sky-300/80 rounded-lg p-2 text-right flex flex-col justify-between">
+            <div className="col-span-5 bg-[#E0F2FE] border border-[#7DD3FC] rounded-lg p-2 text-right flex flex-col justify-between">
               <span className="text-[10px] font-bold text-[#0D2B52] block uppercase tracking-wide">
                 รวมเป็นเงินทั้งสิ้น (TOTAL)
               </span>
-              <div className="text-lg sm:text-xl font-black font-mono text-[#0D2B52] tracking-tight my-0.5">
+              <div className="text-lg font-black font-mono text-[#0D2B52] tracking-tight my-0.5">
                 ฿{formatCurrency(expense.amount)}
               </div>
               <span className="text-[8px] text-[#0D2B52]/70 block font-medium">
@@ -366,7 +366,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
           <div className="mb-2">
             <div className="grid grid-cols-3 gap-2 text-center text-[10px] text-slate-700">
               {/* Box 1: ผู้จัดทำ */}
-              <div className="p-1.5 rounded-lg bg-sky-500/5 border border-sky-200/80 flex flex-col justify-between h-[72px]">
+              <div className="p-1.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[72px]">
                 <span className="font-bold text-[#0D2B52] text-[10px]">ผู้จัดทำ</span>
                 <div className="space-y-0.5">
                   <p className="text-slate-400 text-[9px] leading-none">....................................</p>
@@ -378,7 +378,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {/* Box 2: ผู้จ่ายเงิน */}
-              <div className="p-1.5 rounded-lg bg-sky-500/5 border border-sky-200/80 flex flex-col justify-between h-[72px]">
+              <div className="p-1.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[72px]">
                 <span className="font-bold text-[#0D2B52] text-[10px]">ผู้จ่ายเงิน</span>
                 <div className="space-y-0.5">
                   <p className="text-slate-400 text-[9px] leading-none">....................................</p>
@@ -388,7 +388,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
               </div>
 
               {/* Box 3: ผู้รับเงิน */}
-              <div className="p-1.5 rounded-lg bg-sky-500/5 border border-sky-200/80 flex flex-col justify-between h-[72px]">
+              <div className="p-1.5 rounded-lg bg-[#F8FAFC] border border-[#BAE6FD] flex flex-col justify-between h-[72px]">
                 <span className="font-bold text-[#0D2B52] text-[10px]">ผู้รับเงิน</span>
                 <div className="space-y-0.5">
                   <p className="text-slate-400 text-[9px] leading-none">....................................</p>
@@ -402,12 +402,12 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
           </div>
 
           {/* 6. BRAND FOOTER BAR */}
-          <div className="bg-sky-500/15 border border-sky-200/80 py-1 px-2.5 rounded-lg flex items-center justify-center gap-2 mt-1">
-            <div className="h-[1px] bg-[#0D2B52]/25 flex-1 max-w-[50px] sm:max-w-[80px]" />
-            <span className="text-[8px] sm:text-[9px] font-bold tracking-widest uppercase text-[#0D2B52]">
+          <div className="bg-[#EBF5FE] border border-[#BAE6FD] py-1 px-2.5 rounded-lg flex items-center justify-center gap-2 mt-1">
+            <div className="h-[1px] bg-[#0D2B52]/25 flex-1 max-w-[60px]" />
+            <span className="text-[8px] font-bold tracking-widest uppercase text-[#0D2B52]">
               SMART LIVING, BETTER LIFE
             </span>
-            <div className="h-[1px] bg-[#0D2B52]/25 flex-1 max-w-[50px] sm:max-w-[80px]" />
+            <div className="h-[1px] bg-[#0D2B52]/25 flex-1 max-w-[60px]" />
           </div>
         </div>
       </div>

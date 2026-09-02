@@ -28,7 +28,68 @@ export async function exportElementToPdf(
       logging: false,
       backgroundColor: '#ffffff',
       onclone: (clonedDoc, clonedElement) => {
-        // 1. Replace oklch(...) in all <style> tags of the cloned document to prevent html2canvas CSS parsing crashes
+        // 1. Convert all external <link rel="stylesheet"> into inline <style> tags with oklch sanitized
+        // In production builds, CSS is bundled into <link> stylesheets which html2canvas parses
+        const linkTags = Array.from(clonedDoc.querySelectorAll('link[rel="stylesheet"]'));
+        linkTags.forEach((link) => {
+          const href = link.getAttribute('href') || '';
+          let fullCss = '';
+
+          // Look through document.styleSheets and clonedDoc.styleSheets to extract parsed CSS rules
+          const allSheets = [...Array.from(document.styleSheets), ...Array.from(clonedDoc.styleSheets)];
+          for (const sheet of allSheets) {
+            try {
+              if (sheet.href && href && (sheet.href.includes(href) || href.includes(sheet.href))) {
+                const rules = sheet.cssRules || sheet.rules;
+                if (rules && rules.length > 0) {
+                  fullCss = Array.from(rules).map((r) => r.cssText).join('\n');
+                  if (fullCss) break;
+                }
+              }
+            } catch (e) {
+              // ignore cross-origin stylesheet access restrictions
+            }
+          }
+
+          // If extracted CSS rules, replace oklch and replace the <link> with a <style> tag
+          if (fullCss) {
+            const styleEl = clonedDoc.createElement('style');
+            styleEl.textContent = fullCss.replace(/oklch\s*\([^)]+\)/gi, 'rgb(100, 100, 100)');
+            link.parentNode?.replaceChild(styleEl, link);
+          }
+        });
+
+        // 2. Scan all clonedDoc.styleSheets directly for any remaining oklch rules and sanitize
+        try {
+          const sheets = Array.from(clonedDoc.styleSheets);
+          sheets.forEach((sheet) => {
+            try {
+              const rules = sheet.cssRules || sheet.rules;
+              if (rules) {
+                let hasOklch = false;
+                let sheetCss = '';
+                for (let i = 0; i < rules.length; i++) {
+                  const ruleText = rules[i].cssText;
+                  sheetCss += ruleText + '\n';
+                  if (/oklch/i.test(ruleText)) {
+                    hasOklch = true;
+                  }
+                }
+                if (hasOklch && sheet.ownerNode && sheet.ownerNode.parentNode) {
+                  const styleEl = clonedDoc.createElement('style');
+                  styleEl.textContent = sheetCss.replace(/oklch\s*\([^)]+\)/gi, 'rgb(100, 100, 100)');
+                  sheet.ownerNode.parentNode.replaceChild(styleEl, sheet.ownerNode);
+                }
+              }
+            } catch (e) {
+              // ignore
+            }
+          });
+        } catch (e) {
+          // ignore
+        }
+
+        // 3. Replace oklch(...) in all <style> tags of the cloned document
         const styleTags = clonedDoc.querySelectorAll('style');
         styleTags.forEach((style) => {
           if (style.textContent && /oklch/i.test(style.textContent)) {
@@ -39,7 +100,7 @@ export async function exportElementToPdf(
           }
         });
 
-        // 2. Replace oklch in inline style attributes if any exist
+        // 4. Replace oklch in inline style attributes if any exist
         const allClonedNodes = clonedDoc.querySelectorAll('*');
         allClonedNodes.forEach((node) => {
           const styleAttr = node.getAttribute('style');
@@ -51,20 +112,20 @@ export async function exportElementToPdf(
           }
         });
 
-        // 3. Inline resolved computed RGB colors from original DOM to preserve exact visual colors
+        // 5. Inline resolved computed RGB colors from original DOM to preserve exact visual colors
         const originalAll = element.querySelectorAll('*');
         const clonedAll = clonedElement.querySelectorAll('*');
 
         const applyComputedRgb = (orig: Element, clone: HTMLElement) => {
           try {
             const cs = window.getComputedStyle(orig);
-            if (cs.color && cs.color.includes('rgb')) {
+            if (cs.color && cs.color.includes('rgb') && !/oklch/i.test(cs.color)) {
               clone.style.color = cs.color;
             }
-            if (cs.backgroundColor && cs.backgroundColor.includes('rgb')) {
+            if (cs.backgroundColor && cs.backgroundColor.includes('rgb') && !/oklch/i.test(cs.backgroundColor)) {
               clone.style.backgroundColor = cs.backgroundColor;
             }
-            if (cs.borderColor && cs.borderColor.includes('rgb')) {
+            if (cs.borderColor && cs.borderColor.includes('rgb') && !/oklch/i.test(cs.borderColor)) {
               clone.style.borderColor = cs.borderColor;
             }
           } catch (e) {
@@ -103,16 +164,16 @@ export async function exportElementToPdf(
       renderWidth = renderWidth * scaleFactor;
     }
 
-    // Centered on page
+    // Top-aligned on page
     const posX = marginMm + (availableWidth - renderWidth) / 2;
-    const posY = marginMm + Math.max(0, (availableHeight - renderHeight) / 2);
+    const posY = marginMm;
 
     pdf.addImage(imgData, 'PNG', posX, posY, renderWidth, renderHeight);
     pdf.save(`${filename}.pdf`);
   } catch (error) {
     console.error('Failed to generate PDF:', error);
-    // Fallback to native print dialog
-    window.print();
+    // Fallback to isolated print
+    printElementIsolated(elementId, filename, format);
   }
 }
 
@@ -192,33 +253,24 @@ export function printElementIsolated(
       font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
       width: 100% !important;
       min-height: auto !important;
-      overflow: hidden !important;
     }
     #print-container {
       width: 100% !important;
-      max-width: ${pageSize === 'a5' ? '136mm' : '100%'} !important;
+      max-width: 100% !important;
       margin: 0 auto !important;
       padding: 0 !important;
       background: #ffffff !important;
-      box-shadow: none !important;
-      border: none !important;
       page-break-inside: avoid !important;
       break-inside: avoid !important;
-      page-break-after: avoid !important;
-      break-after: avoid !important;
     }
     #print-container > div,
     #payment-voucher-container {
       box-shadow: none !important;
-      padding: ${pageSize === 'a5' ? '12px 14px' : '0'} !important;
       margin: 0 auto !important;
       width: 100% !important;
-      max-width: ${pageSize === 'a5' ? '136mm' : '100%'} !important;
-      min-height: auto !important;
+      max-width: 100% !important;
       page-break-inside: avoid !important;
       break-inside: avoid !important;
-      page-break-after: avoid !important;
-      break-after: avoid !important;
     }
     .no-print {
       display: none !important;
@@ -245,8 +297,11 @@ export function printElementIsolated(
 </html>`);
     doc.close();
 
-    // 4. Trigger print once iframe resources and fonts are settled
-    setTimeout(() => {
+    // 4. Trigger print once iframe resources and fonts (Sarabun) are fully loaded
+    let printed = false;
+    const triggerPrint = () => {
+      if (printed) return;
+      printed = true;
       try {
         iframe.contentWindow?.focus();
         iframe.contentWindow?.print();
@@ -260,7 +315,25 @@ export function printElementIsolated(
           }
         }, 1200);
       }
-    }, 250);
+    };
+
+    // Use document.fonts.ready from the iframe to guarantee Sarabun font is fully rendered
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (iframeDoc && 'fonts' in iframeDoc && iframeDoc.fonts && typeof iframeDoc.fonts.ready?.then === 'function') {
+      iframeDoc.fonts.ready
+        .then(() => {
+          // Slight 50ms buffer for layout paint
+          setTimeout(triggerPrint, 50);
+        })
+        .catch(() => {
+          triggerPrint();
+        });
+      // Fallback timeout in case fonts.ready hangs or takes too long
+      setTimeout(triggerPrint, 600);
+    } else {
+      // Fallback for browsers without document.fonts API
+      setTimeout(triggerPrint, 250);
+    }
   } catch (err) {
     console.error('Failed to setup isolated print iframe:', err);
     window.print();

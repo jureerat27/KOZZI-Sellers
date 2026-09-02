@@ -56,23 +56,23 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   return (
     <div className={`w-full ${className}`}>
       {/* Top Header Section */}
-      <div className={`flex flex-col sm:flex-row justify-between items-start ${compact ? 'gap-2' : 'gap-4'}`}>
+      <div className={`flex flex-row justify-between items-start ${compact ? 'gap-2' : 'gap-4'}`}>
         {/* Left Side: Logo + Store Name on Top, and Lines starting from the Far-Left under Logo */}
-        <div className={`max-w-lg ${compact ? 'space-y-1' : 'space-y-1.5'}`}>
+        <div className={`flex-1 min-w-0 ${compact ? 'space-y-1' : 'space-y-1.5'}`}>
           {/* Row 1: Logo on Left + Store Name on the Right of Logo */}
           <div className={`flex items-center ${compact ? 'gap-2' : 'gap-3'}`}>
             {seller.logoUrl ? (
               <img
                 src={seller.logoUrl}
                 alt={storeName}
-                className={`${compact ? 'h-8 max-w-[110px]' : 'h-10 sm:h-12 max-w-[140px]'} w-auto object-contain shrink-0`}
+                className={`${compact ? 'h-8 max-w-[110px]' : 'h-10 max-w-[140px]'} w-auto object-contain shrink-0`}
               />
             ) : (
-              <div className={`${compact ? 'h-8 px-2.5 text-sm' : 'h-10 px-3.5 text-lg'} rounded-xl bg-sky-500/15 border border-sky-300 text-[#0D2B52] flex items-center justify-center font-black tracking-wider shrink-0 shadow-xs`}>
+              <div className={`${compact ? 'h-8 px-2.5 text-xs' : 'h-10 px-3.5 text-base'} rounded-xl bg-sky-100 border border-sky-300 text-[#0D2B52] flex items-center justify-center font-black tracking-wider shrink-0`}>
                 {storeName.split(' ')[0] || 'KOZZI'}
               </div>
             )}
-            <span className={`${compact ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} font-black text-[#0D2B52] leading-tight`}>
+            <span className={`${compact ? 'text-sm' : 'text-base sm:text-lg'} font-black text-[#0D2B52] leading-tight truncate`}>
               {storeName}
             </span>
           </div>
@@ -107,15 +107,15 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
         </div>
 
         {/* Right Side: Document Title Frame & English Title below */}
-        <div className="flex flex-col items-center sm:items-end shrink-0 self-stretch sm:self-auto pt-0.5 sm:pt-0">
-          {/* Light Blue Transparent Rounded Box for Title */}
-          <div className={`bg-sky-500/20 border border-sky-300/80 ${compact ? 'px-4 py-1.5 min-w-[140px] sm:min-w-[155px] rounded-lg' : 'px-7 py-2.5 min-w-[170px] sm:min-w-[190px] rounded-xl'} text-center`}>
-            <h1 className={`${compact ? 'text-sm sm:text-base' : 'text-base sm:text-xl'} font-black tracking-wide text-[#0D2B52] leading-tight`}>
+        <div className="flex flex-col items-end shrink-0 pl-2">
+          {/* Light Blue Box for Title */}
+          <div className={`bg-[#E0F2FE] border border-[#7DD3FC] ${compact ? 'px-3.5 py-1.5 min-w-[140px] rounded-lg' : 'px-6 py-2 min-w-[170px] rounded-xl'} text-center`}>
+            <h1 className={`${compact ? 'text-sm' : 'text-base sm:text-xl'} font-black tracking-wide text-[#0D2B52] leading-tight`}>
               {titleThai}
             </h1>
           </div>
           {/* English Title text outside the box below, centered with the box */}
-          <div className={`${compact ? 'text-[9px] sm:text-[10px] mt-0.5 w-full sm:w-[155px]' : 'text-[11px] sm:text-xs mt-1.5 w-full sm:w-[190px]'} font-black tracking-widest text-[#0D2B52] uppercase text-center`}>
+          <div className={`${compact ? 'text-[9px] mt-0.5 w-[140px]' : 'text-[11px] mt-1.5 w-[170px]'} font-black tracking-widest text-[#0D2B52] uppercase text-center`}>
             {titleEnglish}
           </div>
         </div>

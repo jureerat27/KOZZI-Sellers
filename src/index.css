@@ -27,6 +27,12 @@
     margin: 12mm 14mm;
   }
 
+  /* Specific A5 portrait @page for Payment Voucher container */
+  @page voucher-page {
+    size: A5 portrait;
+    margin: 6mm 6mm;
+  }
+
   html, body, #root, #root > div {
     background-color: #ffffff !important;
     background: #ffffff !important;
@@ -154,26 +160,16 @@
     visibility: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 
   #payment-voucher-container {
+    page: voucher-page;
     visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    max-width: 148mm !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
     box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
-    transform: none !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     page-break-after: avoid !important;
