@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Cloud,
   Settings,
@@ -7,8 +7,11 @@ import {
   FileSpreadsheet,
   Search,
   Menu,
+  LogOut,
+  User as UserIcon,
 } from 'lucide-react';
 import { SellerProfile, SyncLog } from '../types';
+import { User } from 'firebase/auth';
 
 export type TabType = 'dashboard' | 'documents' | 'products' | 'expenses' | 'customers' | 'reports';
 export type ActiveTab = TabType;
@@ -23,6 +26,8 @@ interface NavbarProps {
   onSyncGoogleSheets: () => void;
   lowStockCount: number;
   onOpenMobileMenu?: () => void;
+  currentUser?: User | null;
+  onLogout?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -32,7 +37,23 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSyncGoogleSheets,
   lowStockCount,
   onOpenMobileMenu,
+  currentUser,
+  onLogout,
 }) => {
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  // Derive display initials
+  const initials = currentUser?.displayName
+    ? currentUser.displayName
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : currentUser?.email
+    ? currentUser.email.slice(0, 2).toUpperCase()
+    : 'AD';
+
   return (
     <header className="sticky top-0 z-20 bg-white border-b border-[#E2E8F0] text-[#1F2A44] shadow-2xs h-16 flex items-center px-4 sm:px-6">
       <div className="w-full max-w-[1600px] mx-auto flex items-center justify-between gap-4">
@@ -110,12 +131,77 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Settings className="w-5 h-5" />
           </button>
 
-          {/* User Avatar Pill */}
-          <div className="flex items-center gap-1.5 pl-1.5 border-l border-slate-200 cursor-pointer">
-            <div className="w-8 h-8 rounded-full bg-[#0D2B52] text-white font-black text-xs flex items-center justify-center shadow-xs">
-              AD
-            </div>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-500 hidden sm:block" />
+          {/* User Avatar Pill & Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="flex items-center gap-2 pl-2 pr-1.5 py-1 rounded-xl hover:bg-slate-100 border-l border-slate-200 transition-colors text-left"
+            >
+              {currentUser?.photoURL ? (
+                <img
+                  src={currentUser.photoURL}
+                  alt={currentUser.displayName || 'User'}
+                  className="w-8 h-8 rounded-full object-cover border border-slate-200"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-[#0D2B52] text-white font-black text-xs flex items-center justify-center shadow-xs">
+                  {initials}
+                </div>
+              )}
+              <div className="hidden sm:block text-left">
+                <div className="text-xs font-bold text-[#0D2B52] leading-tight truncate max-w-[120px]">
+                  {currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Admin'}
+                </div>
+                <div className="text-[10px] text-slate-400 truncate max-w-[120px]">
+                  {currentUser?.email || 'เจ้าของร้าน'}
+                </div>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-500 hidden sm:block ml-0.5" />
+            </button>
+
+            {/* User Dropdown Menu */}
+            {isUserMenuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-20"
+                  onClick={() => setIsUserMenuOpen(false)}
+                ></div>
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-30 animate-fadeIn">
+                  <div className="px-4 py-2.5 border-b border-slate-100">
+                    <div className="text-xs font-bold text-slate-800 truncate">
+                      {currentUser?.displayName || 'เจ้าของร้าน'}
+                    </div>
+                    <div className="text-[11px] text-slate-400 font-medium truncate">
+                      {currentUser?.email}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      onOpenSettings();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    <Settings className="w-4 h-4 text-slate-400" />
+                    <span>ตั้งค่าร้านค้า</span>
+                  </button>
+
+                  {onLogout && (
+                    <button
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        onLogout();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors border-t border-slate-100 mt-1"
+                    >
+                      <LogOut className="w-4 h-4 text-red-500" />
+                      <span>ออกจากระบบ (Log Out)</span>
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -12,6 +12,7 @@ import { CustomerManagement } from './components/CustomerManagement';
 import { ReportsView } from './components/ReportsView';
 import { SettingsModal } from './components/SettingsModal';
 import { PromptPayModal } from './components/PromptPayModal';
+import { LoginView } from './components/LoginView';
 import {
   Customer,
   DocumentStatus,
@@ -57,8 +58,13 @@ import {
   subscribeProducts,
   subscribeSellerProfile,
 } from './services/firestoreService';
+import { subscribeAuthState, logOut, User } from './services/authService';
+import { Loader2, ShoppingBag } from 'lucide-react';
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState<boolean>(true);
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -85,6 +91,28 @@ export default function App() {
   } | null>(null);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Subscribe to Firebase Auth state
+  useEffect(() => {
+    const unsubAuth = subscribeAuthState((user) => {
+      setCurrentUser(user);
+      setAuthLoading(false);
+    });
+
+    return () => {
+      unsubAuth();
+    };
+  }, []);
+
+  // Handle Logout
+  const handleLogout = async () => {
+    try {
+      await logOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+      alert('เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง');
+    }
+  };
 
   // Subscribe to Firestore real-time database updates across all devices
   useEffect(() => {
@@ -735,16 +763,40 @@ export default function App() {
     }
   };
 
+  // 1. Loading screen while initializing auth state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0A203F] via-[#0D2B52] to-[#08182B] flex flex-col items-center justify-center p-4 text-white">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 border border-white/20 shadow-inner mb-4 animate-pulse">
+          <ShoppingBag className="w-8 h-8 text-sky-300" />
+        </div>
+        <div className="flex items-center gap-2.5 text-sm font-bold text-sky-100">
+          <Loader2 className="w-4 h-4 animate-spin text-sky-400" />
+          <span>กำลังตรวจสอบสถานะการเข้าสู่ระบบ...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Unauthenticated state: Only display the Login/Register Screen
+  if (!currentUser) {
+    return <LoginView />;
+  }
+
+  // 3. Authenticated App Layout
   return (
     <div className="min-h-screen bg-[#F5F7FB] text-[#1F2A44] font-sans">
       {/* 1. Left Sidebar */}
       <Sidebar
+        seller={seller}
         activeTab={activeTab}
         onChangeTab={setActiveTab}
         lowStockCount={lowStockCount}
         onOpenSettings={() => setIsSettingsOpen(true)}
         isOpenMobile={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        currentUser={currentUser}
+        onLogout={handleLogout}
       />
 
       {/* 2. Main Right Column */}
@@ -760,6 +812,8 @@ export default function App() {
           onSyncGoogleSheets={syncToGoogleSheets}
           lowStockCount={lowStockCount}
           onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
+          currentUser={currentUser}
+          onLogout={handleLogout}
         />
 
         {/* Main View Area */}
