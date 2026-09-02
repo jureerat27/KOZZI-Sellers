@@ -192,7 +192,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
       <div className="flex justify-center">
         <div
           id="payment-voucher-container"
-          className="bg-white border border-[#CBD7E6] rounded-2xl shadow-md p-4 sm:p-5 w-full max-w-[540px] text-slate-800 transition-all font-sans relative"
+          className="bg-white p-4 sm:p-5 w-full max-w-[540px] text-slate-800 transition-all font-sans relative"
         >
           {/* Cancelled Watermark if Cancelled */}
           {statusKey === 'CANCELLED' && (
@@ -209,6 +209,8 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
             titleThai="ใบสำคัญจ่าย"
             titleEnglish="PAYMENT VOUCHER"
             showEntrepreneurAndTaxId={true}
+            showStoreName={false}
+            showPhoneAndEmail={false}
             compact={true}
           />
 

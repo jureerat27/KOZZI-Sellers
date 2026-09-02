@@ -10,6 +10,8 @@ export interface DocumentHeaderProps {
   className?: string;
   showDivider?: boolean;
   showEntrepreneurAndTaxId?: boolean;
+  showStoreName?: boolean;
+  showPhoneAndEmail?: boolean;
   compact?: boolean;
 }
 
@@ -21,6 +23,8 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   className = '',
   showDivider = true,
   showEntrepreneurAndTaxId,
+  showStoreName = true,
+  showPhoneAndEmail = true,
   compact = false,
 }) => {
   // 1. Dynamic Store Name from latest Merchant Profile
@@ -67,14 +71,16 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
                 alt={storeName}
                 className={`${compact ? 'h-8 max-w-[110px]' : 'h-10 max-w-[140px]'} w-auto object-contain shrink-0`}
               />
-            ) : (
+            ) : showStoreName ? (
               <div className={`${compact ? 'h-8 px-2.5 text-xs' : 'h-10 px-3.5 text-base'} rounded-xl bg-sky-100 border border-sky-300 text-[#0D2B52] flex items-center justify-center font-black tracking-wider shrink-0`}>
                 {storeName.split(' ')[0] || 'KOZZI'}
               </div>
+            ) : null}
+            {showStoreName && (
+              <span className={`${compact ? 'text-sm' : 'text-base sm:text-lg'} font-black text-[#0D2B52] leading-tight truncate`}>
+                {storeName}
+              </span>
             )}
-            <span className={`${compact ? 'text-sm' : 'text-base sm:text-lg'} font-black text-[#0D2B52] leading-tight truncate`}>
-              {storeName}
-            </span>
           </div>
 
           {/* Details below Logo: Address, Phone, Email, and optionally Entrepreneur/Tax ID for Payment Voucher & Receipt */}
@@ -92,17 +98,19 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             <p className="text-slate-600 leading-snug">
               {addressText}
             </p>
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 pt-0.5 text-slate-600">
-              <span className="flex items-center gap-1 font-medium">
-                <Phone className={`${compact ? 'w-2.5 h-2.5' : 'w-3 h-3'} text-[#0D2B52] shrink-0`} />
-                <span>{phoneText}</span>
-              </span>
-              <span className="text-slate-300">|</span>
-              <span className="flex items-center gap-1 font-medium">
-                <Mail className={`${compact ? 'w-2.5 h-2.5' : 'w-3 h-3'} text-[#0D2B52] shrink-0`} />
-                <span>{emailText}</span>
-              </span>
-            </div>
+            {showPhoneAndEmail && (
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 pt-0.5 text-slate-600">
+                <span className="flex items-center gap-1 font-medium">
+                  <Phone className={`${compact ? 'w-2.5 h-2.5' : 'w-3 h-3'} text-[#0D2B52] shrink-0`} />
+                  <span>{phoneText}</span>
+                </span>
+                <span className="text-slate-300">|</span>
+                <span className="flex items-center gap-1 font-medium">
+                  <Mail className={`${compact ? 'w-2.5 h-2.5' : 'w-3 h-3'} text-[#0D2B52] shrink-0`} />
+                  <span>{emailText}</span>
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

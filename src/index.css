@@ -166,6 +166,8 @@
   #payment-voucher-container {
     page: voucher-page;
     visibility: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
     margin: 0 auto !important;
     width: 100% !important;
