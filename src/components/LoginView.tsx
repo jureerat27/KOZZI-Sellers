@@ -37,6 +37,8 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   // Helper to translate Firebase Auth errors into helpful Thai messages
   const getThaiErrorMessage = (code?: string, defaultMsg?: string): string => {
     switch (code) {
+      case 'auth/operation-not-allowed':
+        return 'ยังไม่ได้เปิดใช้งาน Email/Password ใน Firebase Console (กรุณาไปที่ Firebase Console > Authentication > Sign-in method แล้วกดเปิด Enable "Email/Password" หรือเข้าสู่ระบบด้วยปุ่ม Google แทน)';
       case 'auth/invalid-email':
         return 'รูปแบบอีเมลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง';
       case 'auth/user-not-found':
