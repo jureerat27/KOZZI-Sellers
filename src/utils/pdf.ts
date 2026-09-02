@@ -171,7 +171,7 @@ export function printElementIsolated(
   <style>
     @page {
       size: ${pageSize === 'a5' ? 'A5 portrait' : 'A4 portrait'};
-      margin: ${pageSize === 'a5' ? '8mm 8mm' : '12mm 15mm'};
+      margin: ${pageSize === 'a5' ? '7mm 7mm' : '12mm 15mm'};
     }
     * {
       box-sizing: border-box !important;
@@ -187,6 +187,7 @@ export function printElementIsolated(
       font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
       width: 100% !important;
       min-height: auto !important;
+      overflow: hidden !important;
     }
     #print-container {
       width: 100% !important;
@@ -196,8 +197,13 @@ export function printElementIsolated(
       background: #ffffff !important;
       box-shadow: none !important;
       border: none !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      page-break-after: avoid !important;
+      break-after: avoid !important;
     }
-    #print-container > div {
+    #print-container > div,
+    #payment-voucher-container {
       box-shadow: none !important;
       border: none !important;
       padding: 0 !important;
@@ -205,13 +211,19 @@ export function printElementIsolated(
       width: 100% !important;
       max-width: 100% !important;
       min-height: auto !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      page-break-after: avoid !important;
+      break-after: avoid !important;
     }
     .no-print {
       display: none !important;
     }
-    tr {
+    table, tr, td, th, tbody, thead, tfoot {
       page-break-inside: avoid !important;
       break-inside: avoid !important;
+      page-break-after: avoid !important;
+      break-after: avoid !important;
     }
     thead {
       display: table-header-group !important;

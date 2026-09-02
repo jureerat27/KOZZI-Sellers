@@ -10,6 +10,7 @@ export interface DocumentHeaderProps {
   className?: string;
   showDivider?: boolean;
   showEntrepreneurAndTaxId?: boolean;
+  compact?: boolean;
 }
 
 export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
@@ -20,6 +21,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   className = '',
   showDivider = true,
   showEntrepreneurAndTaxId,
+  compact = false,
 }) => {
   // 1. Dynamic Store Name from latest Merchant Profile
   const storeName =
@@ -54,50 +56,50 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   return (
     <div className={`w-full ${className}`}>
       {/* Top Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+      <div className={`flex flex-col sm:flex-row justify-between items-start ${compact ? 'gap-2' : 'gap-4'}`}>
         {/* Left Side: Logo + Store Name on Top, and Lines starting from the Far-Left under Logo */}
-        <div className="max-w-lg space-y-1.5">
+        <div className={`max-w-lg ${compact ? 'space-y-1' : 'space-y-1.5'}`}>
           {/* Row 1: Logo on Left + Store Name on the Right of Logo */}
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center ${compact ? 'gap-2' : 'gap-3'}`}>
             {seller.logoUrl ? (
               <img
                 src={seller.logoUrl}
                 alt={storeName}
-                className="h-10 sm:h-12 w-auto max-w-[140px] object-contain shrink-0"
+                className={`${compact ? 'h-8 max-w-[110px]' : 'h-10 sm:h-12 max-w-[140px]'} w-auto object-contain shrink-0`}
               />
             ) : (
-              <div className="h-10 px-3.5 rounded-xl bg-sky-500/15 border border-sky-300 text-[#0D2B52] flex items-center justify-center font-black text-lg tracking-wider shrink-0 shadow-xs">
+              <div className={`${compact ? 'h-8 px-2.5 text-sm' : 'h-10 px-3.5 text-lg'} rounded-xl bg-sky-500/15 border border-sky-300 text-[#0D2B52] flex items-center justify-center font-black tracking-wider shrink-0 shadow-xs`}>
                 {storeName.split(' ')[0] || 'KOZZI'}
               </div>
             )}
-            <span className="text-base sm:text-lg font-black text-[#0D2B52] leading-tight">
+            <span className={`${compact ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} font-black text-[#0D2B52] leading-tight`}>
               {storeName}
             </span>
           </div>
 
           {/* Details below Logo: Address, Phone, Email, and optionally Entrepreneur/Tax ID for Payment Voucher & Receipt */}
-          <div className="space-y-0.5 text-xs text-slate-600 pt-1">
+          <div className={`space-y-0.5 ${compact ? 'text-[11px] leading-tight pt-0.5' : 'text-xs text-slate-600 pt-1'}`}>
             {shouldShowTaxAndOwner && (
               <>
                 <p className="font-semibold text-slate-800">
                   ชื่อผู้ประกอบการ : {entrepreneurName}
                 </p>
-                <p>
+                <p className="text-slate-600">
                   เลขประจำตัวผู้เสียภาษีอากร : {taxIdNumber}
                 </p>
               </>
             )}
-            <p className="leading-relaxed">
+            <p className="text-slate-600 leading-snug">
               {addressText}
             </p>
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 pt-0.5">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 pt-0.5 text-slate-600">
               <span className="flex items-center gap-1 font-medium">
-                <Phone className="w-3 h-3 text-[#0D2B52] shrink-0" />
+                <Phone className={`${compact ? 'w-2.5 h-2.5' : 'w-3 h-3'} text-[#0D2B52] shrink-0`} />
                 <span>{phoneText}</span>
               </span>
               <span className="text-slate-300">|</span>
               <span className="flex items-center gap-1 font-medium">
-                <Mail className="w-3 h-3 text-[#0D2B52] shrink-0" />
+                <Mail className={`${compact ? 'w-2.5 h-2.5' : 'w-3 h-3'} text-[#0D2B52] shrink-0`} />
                 <span>{emailText}</span>
               </span>
             </div>
@@ -105,22 +107,22 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
         </div>
 
         {/* Right Side: Document Title Frame & English Title below */}
-        <div className="flex flex-col items-center sm:items-end shrink-0 self-stretch sm:self-auto pt-1 sm:pt-0">
-          {/* Light Blue Transparent Rounded Box for Title (15-25% opacity, soft sky border, Navy Blue Text) */}
-          <div className="bg-sky-500/20 border border-sky-300/80 px-7 py-2.5 rounded-xl text-center min-w-[170px] sm:min-w-[190px]">
-            <h1 className="text-base sm:text-xl font-black tracking-wide text-[#0D2B52] leading-tight">
+        <div className="flex flex-col items-center sm:items-end shrink-0 self-stretch sm:self-auto pt-0.5 sm:pt-0">
+          {/* Light Blue Transparent Rounded Box for Title */}
+          <div className={`bg-sky-500/20 border border-sky-300/80 ${compact ? 'px-4 py-1.5 min-w-[140px] sm:min-w-[155px] rounded-lg' : 'px-7 py-2.5 min-w-[170px] sm:min-w-[190px] rounded-xl'} text-center`}>
+            <h1 className={`${compact ? 'text-sm sm:text-base' : 'text-base sm:text-xl'} font-black tracking-wide text-[#0D2B52] leading-tight`}>
               {titleThai}
             </h1>
           </div>
           {/* English Title text outside the box below, centered with the box */}
-          <div className="text-[11px] sm:text-xs font-black tracking-widest text-[#0D2B52] uppercase mt-1.5 text-center w-full sm:w-[190px]">
+          <div className={`${compact ? 'text-[9px] sm:text-[10px] mt-0.5 w-full sm:w-[155px]' : 'text-[11px] sm:text-xs mt-1.5 w-full sm:w-[190px]'} font-black tracking-widest text-[#0D2B52] uppercase text-center`}>
             {titleEnglish}
           </div>
         </div>
       </div>
 
       {/* Full-Width Horizontal Navy Blue Accent Divider Line */}
-      {showDivider && <div className="h-[2px] bg-[#0D2B52] w-full my-4" />}
+      {showDivider && <div className={`h-[1.5px] bg-[#0D2B52] w-full ${compact ? 'my-2' : 'my-4'}`} />}
     </div>
   );
 };
