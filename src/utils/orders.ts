@@ -71,6 +71,7 @@ export function paymentState(o: Order): { label: string; tone: Tone } {
   if (price > 0 && paid >= price) return { label: 'จ่ายครบแล้ว', tone: 'green' };
   if (o.awaitingShopeePayout && paid === 0) return { label: 'รอชำระจากช้อปปี้', tone: 'amber' };
   if (paid === 0) return { label: price > 0 ? 'ยังไม่ชำระ' : 'ยังไม่ระบุราคา', tone: 'neutral' };
+  if (price <= 0) return { label: `รับแล้ว ฿${fmtMoney(paid)} · ยังไม่ระบุราคา`, tone: 'amber' };
   return { label: `มัดจำ ฿${fmtMoney(paid)} · เก็บหน้างาน ฿${fmtMoney(price - paid)}`, tone: 'amber' };
 }
 
@@ -204,3 +205,18 @@ export function compressImage(file: File, maxDim = 1280, targetBytes = 180_000):
 }
 
 export const MAX_SITE_PHOTOS = 4;
+
+/** ตัวเลือกเวลาทุก 30 นาที 07:00–20:00 */
+export const TIME_OPTIONS: string[] = Array.from({ length: 27 }, (_, i) => {
+  const mins = 7 * 60 + i * 30;
+  return `${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
+});
+
+/** ข้อความช่วงเวลานัด เช่น "10:00–13:00 น." */
+export function fmtTimeRange(o: { scheduledTimeStart?: string; scheduledTimeEnd?: string }): string {
+  const a = o.scheduledTimeStart;
+  const b = o.scheduledTimeEnd;
+  if (a && b) return `${a}–${b} น.`;
+  if (a) return `${a} น.`;
+  return '';
+}

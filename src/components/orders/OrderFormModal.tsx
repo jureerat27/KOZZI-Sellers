@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, ImagePlus, Loader2, PackagePlus, Trash2 } 
 import { FulfillmentType, Order, OrderOptions, OrderPayment, Product, QueueStatus } from '../../types';
 import {
   MAX_SITE_PHOTOS,
+  TIME_OPTIONS,
   addYears,
   compressImage,
   findStockProduct,
@@ -156,6 +157,10 @@ export const OrderFormModal: React.FC<Props> = ({
     }
     if (!f.orderNumber.trim()) {
       setError('กรุณากรอกเลขออเดอร์');
+      return;
+    }
+    if (f.scheduledTimeStart && f.scheduledTimeEnd && f.scheduledTimeEnd <= f.scheduledTimeStart) {
+      setError('เวลาสิ้นสุดต้องหลังเวลาเริ่ม');
       return;
     }
     if (orders.some((o) => o.id !== f.id && o.orderNumber === f.orderNumber.trim())) {
@@ -379,6 +384,37 @@ export const OrderFormModal: React.FC<Props> = ({
           </Field>
           <Field label={f.fulfillment === 'ติดตั้ง' ? 'วันที่นัดติดตั้ง' : 'วันที่จัดส่ง'}>
             <DateInput clearable value={f.scheduledDate} onChange={(v) => set('scheduledDate', v || undefined)} />
+          </Field>
+          <Field label="ช่วงเวลา">
+            <div className="flex items-center gap-2">
+              <select
+                className={inputCls}
+                value={f.scheduledTimeStart || ''}
+                onChange={(e) => set('scheduledTimeStart', e.target.value || undefined)}
+                aria-label="เวลาเริ่ม"
+              >
+                <option value="">ตั้งแต่</option>
+                {TIME_OPTIONS.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <span className="text-zinc-500 text-sm shrink-0">ถึง</span>
+              <select
+                className={inputCls}
+                value={f.scheduledTimeEnd || ''}
+                onChange={(e) => set('scheduledTimeEnd', e.target.value || undefined)}
+                aria-label="เวลาสิ้นสุด"
+              >
+                <option value="">ถึง</option>
+                {TIME_OPTIONS.filter((t) => !f.scheduledTimeStart || t > f.scheduledTimeStart).map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
           </Field>
           <Field label="สถานะคิว">
             <Select value={f.queueStatus} onChange={(v) => set('queueStatus', (v || 'ยังไม่ลงคิว') as QueueStatus)} options={QUEUE} />

@@ -5,6 +5,7 @@ import {
   addYears,
   balanceDue,
   fmtDate,
+  fmtTimeRange,
   fmtMoney,
   paidTotal,
   paymentState,
@@ -223,7 +224,9 @@ export const OrderDetailModal: React.FC<Props> = ({
 
           <Section title={o.fulfillment === 'ติดตั้ง' ? 'งานติดตั้ง' : 'งานจัดส่ง'}>
             <Row label="การดำเนินการ">{o.fulfillment}</Row>
-            <Row label={o.fulfillment === 'ติดตั้ง' ? 'วันที่นัดติดตั้ง' : 'วันที่จัดส่ง'}>{fmtDate(o.scheduledDate)}</Row>
+            <Row label={o.fulfillment === 'ติดตั้ง' ? 'วันที่นัดติดตั้ง' : 'วันที่จัดส่ง'}>{fmtDate(o.scheduledDate)}
+              {fmtTimeRange(o) && ` · ${fmtTimeRange(o)}`}
+            </Row>
             <Row label="สถานะคิว">{o.queueStatus}</Row>
             {o.fulfillment === 'ติดตั้ง' && (
               <>

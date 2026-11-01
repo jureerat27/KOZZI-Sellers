@@ -270,6 +270,8 @@ export interface Order {
   technician?: string;
   installArea?: string;
   scheduledDate?: string;     // วันที่นัดติดตั้ง/จัดส่ง
+  scheduledTimeStart?: string; // เวลาเริ่ม เช่น 10:00
+  scheduledTimeEnd?: string;   // เวลาสิ้นสุด เช่น 13:00
   queueStatus: QueueStatus;
   sitePhotos?: string[];      // รูปหน้างาน (บีบอัดแล้ว)
 

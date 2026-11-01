@@ -15,6 +15,7 @@ import {
   balanceDue,
   fmtDate,
   fmtMoney,
+  fmtTimeRange,
   nextOrderNumber,
   paidTotal,
   paymentState,
@@ -320,6 +321,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                         <Td className="max-w-[160px] truncate">{o.installArea}</Td>
                         <Td className={o.scheduledDate && o.scheduledDate < today && o.queueStatus !== 'เสร็จแล้ว' ? 'text-rose-700 font-semibold' : ''}>
                           {o.scheduledDate ? fmtDate(o.scheduledDate) : ''}
+                          {fmtTimeRange(o) && <div className="text-[10px] text-zinc-500 font-normal">{fmtTimeRange(o)}</div>}
                         </Td>
                         <Td>{o.queueStatus === 'ยังไม่ลงคิว' ? '' : o.queueStatus}</Td>
                         <Td>
@@ -534,12 +536,15 @@ const QueueView: React.FC<{
             {title(k)} <span className="text-zinc-400 font-normal">({groups.get(k)!.length})</span>
           </div>
           <div className="divide-y divide-zinc-100">
-            {groups.get(k)!.map((o) => {
+            {[...groups.get(k)!]
+              .sort((a, b) => (a.scheduledTimeStart || '99').localeCompare(b.scheduledTimeStart || '99'))
+              .map((o) => {
               const pay = paymentState(o);
               return (
                 <button key={o.id} onClick={() => onOpen(o)} className="w-full text-left px-4 py-3 hover:bg-zinc-50 flex flex-wrap items-start gap-x-4 gap-y-1">
                   <div className="min-w-[180px] flex-1">
                     <div className="text-sm font-semibold text-zinc-900">
+                      {fmtTimeRange(o) && <span className="mr-2 px-1.5 py-0.5 rounded bg-zinc-900 text-white text-[11px]">{fmtTimeRange(o)}</span>}
                       {o.customerName} <span className="text-zinc-400 font-normal">· {o.orderNumber}</span>
                     </div>
                     <div className="text-xs text-zinc-600">
