@@ -45,7 +45,7 @@ interface ReportsViewProps {
   seller?: SellerProfile;
 }
 
-const CATEGORY_COLORS = ['#18181B', '#A1A1AA', '#52525B', '#D4D4D8', '#3F3F46', '#71717A', '#E4E4E7'];
+const CATEGORY_COLORS = ['#0068F0', '#18181B', '#7FB3F8', '#A1A1AA', '#003E9E', '#D4D4D8', '#3F3F46'];
 
 export const ReportsView: React.FC<ReportsViewProps> = ({
   documents,
@@ -261,7 +261,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               <button
                 type="button"
                 onClick={handleApplySearch}
-                className="px-4 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer ml-1"
+                className="px-4 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-extrabold rounded-lg flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer ml-1"
               >
                 <Search className="w-4 h-4" />
                 <span>ค้นหา</span>
@@ -363,7 +363,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
           <button
             onClick={() => setPrintModalType('SUMMARY')}
-            className="w-full py-2.5 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-bold rounded-lg shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-98"
+            className="w-full py-2.5 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-98"
           >
             <Printer className="w-4 h-4 text-white" />
             <span>พิมพ์ / ดาวน์โหลด PDF รายงานสรุป</span>
@@ -551,7 +551,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleTriggerPrint}
-                  className="px-4 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg shadow-2xs flex items-center gap-2 transition-all active:scale-98"
+                  className="px-4 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-extrabold rounded-lg shadow-2xs flex items-center gap-2 transition-all active:scale-98"
                 >
                   <Printer className="w-4 h-4 text-white" />
                   <span>พิมพ์ / บันทึกเป็น PDF</span>

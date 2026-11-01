@@ -234,7 +234,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
             <button
               onClick={handleDownloadPdf}
               disabled={isExportingPdf}
-              className="px-4 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg shadow-xs flex items-center gap-2 transition-all active:scale-98 cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-extrabold rounded-lg shadow-xs flex items-center gap-2 transition-all active:scale-98 cursor-pointer disabled:opacity-50"
             >
               <Download className="w-4 h-4" />
               <span>{isExportingPdf ? 'กำลังสร้าง PDF...' : 'ดาวน์โหลด PDF'}</span>

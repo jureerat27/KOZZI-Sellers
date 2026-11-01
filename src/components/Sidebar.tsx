@@ -84,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 />
               </div>
             ) : (
-              <div className="w-10 h-10 rounded-lg bg-[#27272A] border border-zinc-500/30 text-white flex items-center justify-center font-black shadow-md shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-[#0068F0] border border-[#0068F0] text-white flex items-center justify-center font-black shadow-md shrink-0">
                 <ShoppingBag className="w-5 h-5 text-white" />
               </div>
             )}
@@ -117,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => handleSelect(tab.id)}
                 className={`w-full flex items-center justify-between px-3.5 py-3 rounded-lg text-sm font-bold transition-all duration-150 ${
                   isActive
-                    ? 'bg-[#27272A] text-white shadow-md border border-zinc-500/20'
+                    ? 'bg-[#0068F0] text-white shadow-md border border-[#0068F0]'
                     : 'text-zinc-300 hover:bg-white/10 hover:text-white'
                 }`}
               >

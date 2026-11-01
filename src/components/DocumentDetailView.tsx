@@ -28,7 +28,7 @@ import {
 import { PaymentRecord, PaymentStage, SalesDocument, SellerProfile } from '../types';
 import { generatePromptPayQRDataUrl } from '../utils/promptpay';
 import { exportElementToPdf, printDocument } from '../utils/pdf';
-import { formatDocumentForLine, generateFlexReceipt, sendLineOaPushNotification } from '../utils/line';
+import { formatDocumentForLine } from '../utils/line';
 import { formatCurrency, formatDate } from '../utils/format';
 import { DatePicker } from './DatePicker';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal';
@@ -58,7 +58,6 @@ interface DocumentDetailViewProps {
       stage?: PaymentStage;
     }
   ) => void;
-  onSendLineNotify: (message: string) => void;
   onEditDoc?: (doc: SalesDocument) => void;
   onSaveDocument?: (updatedDoc: SalesDocument) => void;
   onDeleteDoc?: (docId: string) => void;
@@ -76,7 +75,6 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   onCreateDepositInvoice,
   onCreateBalanceInvoice,
   onReceivePayment,
-  onSendLineNotify,
   onEditDoc,
   onSaveDocument,
   onDeleteDoc,
@@ -86,9 +84,6 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [slipUrl, setSlipUrl] = useState<string>(doc.paymentSlipUrl || '');
   const [isExporting, setIsExporting] = useState(false);
-  const [showLineOaModal, setShowLineOaModal] = useState(false);
-  const [lineUserIdInput, setLineUserIdInput] = useState('');
-  const [isSendingOa, setIsSendingOa] = useState(false);
 
   // Receive Payment Modal state
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -273,60 +268,6 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Send Line Notify
-  const handleSendToLineNotify = () => {
-    const text = formatDocumentForLine(doc, seller);
-    onSendLineNotify(text);
-  };
-
-  // LINE OA Modal
-  const handleOpenLineOaModal = () => {
-    if (!seller.lineOaChannelAccessToken) {
-      alert('กรุณาตั้งค่า Channel Access Token สำหรับ LINE OA ในหน้า "ตั้งค่าระบบ" ก่อนนะคะ/ครับ');
-      return;
-    }
-    const matchedCustomer = customers.find(
-      (c) => c.id === doc.customerId || c.name === doc.customerName
-    );
-    if (matchedCustomer && matchedCustomer.lineUserId) {
-      setLineUserIdInput(matchedCustomer.lineUserId);
-    }
-    setShowLineOaModal(true);
-  };
-
-  const handleSendLineOaFlexReceipt = async () => {
-    if (!lineUserIdInput.trim()) {
-      alert('กรุณาระบุ LINE User ID ของลูกค้าก่อน');
-      return;
-    }
-    if (!seller.lineOaChannelAccessToken) {
-      alert('กรุณาตั้งค่า Channel Access Token ในหน้าตั้งค่าก่อน');
-      return;
-    }
-
-    setIsSendingOa(true);
-    try {
-      const flexMsg = generateFlexReceipt(doc, seller);
-      const res = await sendLineOaPushNotification(
-        seller.lineOaChannelAccessToken,
-        lineUserIdInput.trim(),
-        undefined,
-        flexMsg
-      );
-
-      if (res.success) {
-        alert(`✅ ส่ง Flex Receipt การ์ดบิลเข้า LINE ของคุณ ${doc.customerName} สำเร็จแล้ว!`);
-        setShowLineOaModal(false);
-      } else {
-        alert(`❌ เกิดข้อผิดพลาดจาก LINE OA API: ${res.error}`);
-      }
-    } catch (err: any) {
-      alert(`❌ เกิดข้อผิดพลาด: ${err.message}`);
-    } finally {
-      setIsSendingOa(false);
-    }
-  };
-
   const handleSlipUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -507,24 +448,6 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             >
               <Copy className="w-3.5 h-3.5" />
               <span>{copied ? 'คัดลอกแล้ว!' : 'คัดลอกส่ง LINE'}</span>
-            </button>
-
-            <button
-              onClick={handleSendToLineNotify}
-              className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-lg border border-zinc-700 flex items-center gap-1.5"
-              title="ส่งเข้ากลุ่มไลน์ร้านค้า"
-            >
-              <Send className="w-3.5 h-3.5 text-emerald-400" />
-              <span>แจ้งเตือน LINE</span>
-            </button>
-
-            <button
-              onClick={handleOpenLineOaModal}
-              className="px-3 py-1.5 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-bold rounded-lg flex items-center gap-1.5 shadow active:scale-98"
-              title="ส่ง Flex Receipt การ์ดบิลเข้า LINE ของลูกค้าโดยตรง"
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span>ส่ง LINE ลูกค้า</span>
             </button>
 
             <button
@@ -1402,77 +1325,6 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>บันทึกรับเงิน & ออกใบเสร็จทันที</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* LINE OA Send Modal */}
-      {showLineOaModal && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-zinc-900 border border-emerald-500/30 text-zinc-100 rounded-xl w-full max-w-md p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="font-bold text-base text-emerald-400 flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" />
-                <span>ส่ง Flex Receipt เข้า LINE OA ของลูกค้า</span>
-              </h3>
-              <button
-                onClick={() => setShowLineOaModal(false)}
-                className="p-1 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div className="bg-zinc-800/80 p-3 rounded-lg border border-zinc-700 text-xs space-y-1">
-                <div className="text-zinc-400 font-bold">รายละเอียดเอกสารที่จะส่ง:</div>
-                <div className="font-bold text-white text-sm">{doc.docNumber} ({docTitle})</div>
-                <div className="text-zinc-300">ลูกค้า: <strong className="text-emerald-400">{doc.customerName}</strong></div>
-                <div className="text-emerald-400 font-bold">ยอดสุทธิ: {formatCurrency(doc.grandTotal)} บาท</div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-zinc-300 mb-1">
-                  LINE User ID ของลูกค้า *
-                </label>
-                <input
-                  type="text"
-                  value={lineUserIdInput}
-                  onChange={(e) => setLineUserIdInput(e.target.value)}
-                  placeholder="เช่น U1234567890abcdef..."
-                  className="w-full bg-zinc-950 border border-emerald-500/40 rounded-lg px-3 py-2 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-400"
-                />
-                <p className="text-[10px] text-zinc-400 mt-1">
-                  LINE User ID สามารถคัดลอกได้จากข้อมูลลูกค้า หรือแชท LINE OA เมื่อลูกค้าทักข้อความมา
-                </p>
-              </div>
-
-              <div className="bg-emerald-950/40 border border-emerald-800/50 p-3 rounded-lg text-[11px] text-emerald-300 space-y-1">
-                <div className="font-bold flex items-center gap-1 text-emerald-400">
-                  <span>รูปแบบข้อความ Flex Message การ์ดบิล</span>
-                </div>
-                <p>ระบบจะสร้างการ์ดบิลใบเสร็จรับเงินพร้อมยอดชำระและรายการสินค้า ส่งเข้า LINE ของลูกค้าโดยตรงทันที!</p>
-              </div>
-            </div>
-
-            <div className="pt-2 flex items-center justify-end gap-2 border-t border-zinc-800">
-              <button
-                type="button"
-                onClick={() => setShowLineOaModal(false)}
-                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold rounded-lg"
-              >
-                ยกเลิก
-              </button>
-              <button
-                type="button"
-                disabled={isSendingOa}
-                onClick={handleSendLineOaFlexReceipt}
-                className="px-5 py-2 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-bold rounded-lg shadow-lg flex items-center gap-1.5 active:scale-98 transition-all"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>{isSendingOa ? 'กำลังส่งเข้า LINE...' : 'ส่ง Flex Receipt ทันที'}</span>
               </button>
             </div>
           </div>

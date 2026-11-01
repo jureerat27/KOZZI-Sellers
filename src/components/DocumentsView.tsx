@@ -23,7 +23,6 @@ interface DocumentsViewProps {
   onOpenDocDetail: (doc: SalesDocument) => void;
   onDeleteDoc: (docId: string) => void;
   onShowPromptPayQR: (amount: number, docNum: string) => void;
-  onSendLineNotify: (message: string) => void;
   onEditDoc?: (doc: SalesDocument) => void;
 }
 
@@ -33,7 +32,6 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
   onOpenDocDetail,
   onDeleteDoc,
   onShowPromptPayQR,
-  onSendLineNotify,
   onEditDoc,
 }) => {
   const [typeFilter, setTypeFilter] = useState<'ALL' | DocumentType>('ALL');
@@ -72,7 +70,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => onCreateDoc('QUOTATION')}
-            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-3.5 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
           >
             <FilePlus className="w-4 h-4" />
             <span>+ ใบเสนอราคา</span>
@@ -80,7 +78,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
           <button
             onClick={() => onCreateDoc('INVOICE')}
-            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-3.5 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
           >
             <Receipt className="w-4 h-4" />
             <span>+ ใบแจ้งหนี้</span>
@@ -88,7 +86,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
           <button
             onClick={() => onCreateDoc('RECEIPT')}
-            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-3.5 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
           >
             <CheckCircle className="w-4 h-4" />
             <span>+ ใบเสร็จ</span>

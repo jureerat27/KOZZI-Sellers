@@ -216,13 +216,13 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap ${
-                tab === t.id ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:bg-zinc-100'
+                tab === t.id ? 'bg-[#0068F0] text-white' : 'text-zinc-600 hover:bg-zinc-100'
               }`}
             >
               <Icon className="w-4 h-4" />
               {t.label}
               {!!t.badge && (
-                <span className={`text-[10px] px-1.5 rounded-full ${tab === t.id ? 'bg-white text-zinc-900' : 'bg-zinc-200 text-zinc-700'}`}>
+                <span className={`text-[10px] px-1.5 rounded-full ${tab === t.id ? 'bg-white text-[#0068F0]' : 'bg-zinc-200 text-zinc-700'}`}>
                   {t.badge}
                 </span>
               )}

@@ -299,7 +299,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
 
           <button
             onClick={openAddModal}
-            className="px-4 py-2.5 bg-gradient-to-r from-zinc-900 to-zinc-900 hover:from-zinc-900 hover:to-zinc-900 text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+            className="px-4 py-2.5 bg-gradient-to-r from-[#0068F0] to-[#0068F0] hover:from-[#0052C7] hover:to-[#0052C7] text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
           >
             <Plus className="w-4 h-4" />
             <span>+ บันทึกรายจ่ายใหม่</span>
@@ -449,7 +449,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
               )}
               <button
                 onClick={openAddModal}
-                className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg transition-all shadow-xs cursor-pointer"
+                className="px-3.5 py-1.5 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg transition-all shadow-xs cursor-pointer"
               >
                 + บันทึกรายจ่ายใหม่
               </button>
@@ -741,7 +741,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer"
+                  className="px-5 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer"
                 >
                   {editingExpense ? 'บันทึกการแก้ไข' : 'บันทึกรายจ่าย & สร้าง PV'}
                 </button>

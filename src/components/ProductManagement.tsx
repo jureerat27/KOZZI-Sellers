@@ -23,7 +23,6 @@ interface ProductManagementProps {
   onSaveProduct: (product: Product) => void;
   onDeleteProduct: (id: string) => void;
   onUpdateStock: (id: string, newStock: number) => void;
-  onSendLineNotify: (message: string) => void;
   showAddModalDirectly?: boolean;
 }
 
@@ -33,7 +32,6 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
   onSaveProduct,
   onDeleteProduct,
   onUpdateStock,
-  onSendLineNotify,
   showAddModalDirectly = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -151,7 +149,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
 
         <button
           onClick={handleOpenAddModal}
-          className="px-4 py-2 bg-gradient-to-r from-zinc-900 to-zinc-900 hover:from-zinc-900 hover:to-zinc-900 text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all"
+          className="px-4 py-2 bg-gradient-to-r from-[#0068F0] to-[#0068F0] hover:from-[#0052C7] hover:to-[#0052C7] text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>+ เพิ่มสินค้าใหม่</span>
@@ -490,7 +488,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg shadow-xs"
+                  className="px-5 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg shadow-xs"
                 >
                   บันทึกสินค้า
                 </button>

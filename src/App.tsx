@@ -43,7 +43,6 @@ import {
   generateDocNumber,
   getOrders,
 } from './utils/storage';
-import { sendLineNotification } from './utils/line';
 import {
   deleteCustomerCloud,
   deleteDocumentCloud,
@@ -281,14 +280,6 @@ export default function App() {
         saveProductsBatchCloud(updatedProds);
       }
 
-      // 4. Trigger LINE Notify if token present
-      if (seller.lineNotifyToken && isNewDoc) {
-        sendLineNotification(
-          seller.lineNotifyToken,
-          `📄 มีการออกเอกสารใหม่ (${savedDoc.docNumber})\nประเภท: ${savedDoc.type}\nลูกค้า: ${savedDoc.customerName}\nยอดรวม: ฿${savedDoc.grandTotal.toLocaleString()}`
-        ).catch(console.error);
-      }
-
       // 5. Auto sync to sheets if enabled
       if (seller.autoSync) {
         syncToGoogleSheets().catch(console.error);
@@ -320,13 +311,6 @@ export default function App() {
     setDocuments((prev) => prev.map((d) => (d.id === docId ? updatedDoc : d)));
     saveDocumentCloud(updatedDoc);
     if (selectedDoc?.id === docId) setSelectedDoc(updatedDoc);
-
-    if (seller.lineNotifyToken && newStatus === 'PAID') {
-      sendLineNotification(
-        seller.lineNotifyToken,
-        `💰 แจ้งเตือนได้รับชำระเงินเรียบร้อย! (${updatedDoc.docNumber})\nลูกค้า: ${updatedDoc.customerName}\nยอดชำระ: ฿${updatedDoc.grandTotal.toLocaleString()}`
-      );
-    }
   };
 
   const handleConvertDoc = async (doc: SalesDocument, targetType: 'INVOICE' | 'RECEIPT') => {
@@ -657,14 +641,6 @@ export default function App() {
     }
     await Promise.all(promises);
 
-    // Notify LINE if token enabled
-    if (seller.lineNotifyToken) {
-      sendLineNotification(
-        seller.lineNotifyToken,
-        `💰 ได้รับชำระเงิน (${stage === 'DEPOSIT' ? 'มัดจำ' : stage === 'BALANCE' ? 'คงเหลือ' : 'เต็มจำนวน'})\nเลขที่ใบเสร็จ: ${newReceiptDocNum}\nลูกค้า: ${sourceDoc.customerName}\nยอดเงิน: ฿${paymentData.amount.toLocaleString()}\nช่องทาง: ${paymentData.method}`
-      ).catch(console.error);
-    }
-
     setSelectedDoc(receiptDoc);
   };
 
@@ -877,20 +853,6 @@ export default function App() {
     }
   };
 
-  const handleSendLineNotify = async (msg: string) => {
-    if (!seller.lineNotifyToken) {
-      alert('กรุณากรอก LINE Notify Token ในเมนูตั้งค่าก่อนครับ');
-      setIsSettingsOpen(true);
-      return;
-    }
-    const res = await sendLineNotification(seller.lineNotifyToken, msg);
-    if (res.success) {
-      alert('ส่งการแจ้งเตือนเข้า LINE เรียบร้อยแล้ว!');
-    } else {
-      alert(`การส่ง LINE ล้มเหลว: ${res.error}`);
-    }
-  };
-
   const handleExportBackupJson = () => {
     const backupData = {
       seller,
@@ -973,7 +935,7 @@ export default function App() {
           </div>
           <button
             onClick={handleLogout}
-            className="w-full py-3 px-4 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-bold rounded-lg shadow-md transition-all cursor-pointer"
+            className="w-full py-3 px-4 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg shadow-md transition-all cursor-pointer"
           >
             ออกจากระบบเพื่อเปลี่ยนบัญชี Google
           </button>
@@ -1032,7 +994,6 @@ export default function App() {
               onOpenAddProduct={() => setActiveTab('products')}
               onGoToProducts={() => setActiveTab('products')}
               onGoToDocuments={() => setActiveTab('documents')}
-              onSendLineNotify={handleSendLineNotify}
               onShowPromptPayQR={(amount, docNumber) =>
                 setPromptPayModalData({ amount, docNumber })
               }
@@ -1048,7 +1009,6 @@ export default function App() {
             onShowPromptPayQR={(amount, docNumber) =>
               setPromptPayModalData({ amount, docNumber })
             }
-            onSendLineNotify={handleSendLineNotify}
             onEditDoc={handleEditDocument}
           />
         )}
@@ -1060,7 +1020,6 @@ export default function App() {
             onSaveProduct={handleSaveProduct}
             onDeleteProduct={handleDeleteProduct}
             onUpdateStock={handleUpdateStock}
-            onSendLineNotify={handleSendLineNotify}
           />
         )}
 
@@ -1157,7 +1116,6 @@ export default function App() {
           onCreateDepositInvoice={handleCreateDepositInvoice}
           onCreateBalanceInvoice={handleCreateBalanceInvoice}
           onReceivePayment={handleReceivePayment}
-          onSendLineNotify={handleSendLineNotify}
           onEditDoc={handleEditDocument}
           onSaveDocument={handleSaveDocument}
           onDeleteDoc={handleDeleteDocument}
@@ -1182,7 +1140,6 @@ export default function App() {
           onClose={() => setIsSettingsOpen(false)}
           onSaveSeller={handleSaveSeller}
           onSyncGoogleSheets={syncToGoogleSheets}
-          onTestLineNotify={handleSendLineNotify}
           onExportBackupJson={handleExportBackupJson}
           onImportBackupJson={handleImportBackupJson}
         />

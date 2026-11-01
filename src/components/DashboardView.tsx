@@ -42,7 +42,6 @@ interface DashboardViewProps {
   onOpenAddProduct: () => void;
   onGoToProducts: () => void;
   onGoToDocuments: () => void;
-  onSendLineNotify: (message: string) => void;
   onShowPromptPayQR: (amount: number, docNum: string) => void;
 }
 
@@ -54,7 +53,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenDocDetail,
   onGoToProducts,
   onGoToDocuments,
-  onSendLineNotify,
 }) => {
   const currentMonthStr = new Date().toISOString().substring(0, 7);
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthStr);
@@ -171,18 +169,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     { name: 'กำไรสุทธิ', value: Math.max(0, netProfit), percentage: profitPct, color: '#F97316' },
   ];
 
-  const handleNotifyLowStockLINE = () => {
-    if (lowStockProducts.length === 0) {
-      onSendLineNotify(`📦 สต็อกสินค้า ร้าน ${seller.name}: สินค้าทุกรายการอยู่ในระดับปกติ มีสต็อกพร้อมขายค่ะ/ครับ`);
-      return;
-    }
-    let msg = `⚠️ แจ้งเตือนสินค้าใกล้หมดสต็อก ร้าน ${seller.name}\n`;
-    lowStockProducts.forEach((p, idx) => {
-      msg += `${idx + 1}. ${p.name} (คงเหลือ ${p.stock} ${p.unit})\n`;
-    });
-    onSendLineNotify(msg);
-  };
-
   // Recent Documents in selected month (or all if ALL selected)
   const recentDocuments = useMemo(() => {
     return monthDocuments.slice(0, 5);
@@ -265,14 +251,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         <div className="flex items-center gap-3 shrink-0 z-10">
-          <button
-            onClick={handleNotifyLowStockLINE}
-            className="px-5 py-2.5 bg-[#18181B] hover:bg-[#18181B] text-white rounded-lg text-xs font-extrabold flex items-center gap-2 transition-all shadow-xs active:scale-98"
-          >
-            <MessageSquare className="w-4 h-4 fill-white stroke-none" />
-            <span>ส่งแจ้งเตือนเข้า LINE</span>
-          </button>
-
           <button
             onClick={onGoToProducts}
             className="px-5 py-2.5 bg-white hover:bg-[#F4F4F5] text-[#18181B] border border-[#D4D4D8] rounded-lg text-xs font-extrabold flex items-center gap-2 transition-all shadow-2xs hover:border-[#71717A] active:scale-98"

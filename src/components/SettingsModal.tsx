@@ -19,7 +19,6 @@ import {
   PenLine,
 } from 'lucide-react';
 import { SellerProfile, SyncLog } from '../types';
-import { sendLineOaPushNotification } from '../utils/line';
 
 interface SettingsModalProps {
   seller: SellerProfile;
@@ -27,7 +26,6 @@ interface SettingsModalProps {
   onClose: () => void;
   onSaveSeller: (profile: SellerProfile) => void;
   onSyncGoogleSheets: () => void;
-  onTestLineNotify: (token: string) => void;
   onExportBackupJson: () => void;
   onImportBackupJson: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -38,7 +36,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   onSaveSeller,
   onSyncGoogleSheets,
-  onTestLineNotify,
   onExportBackupJson,
   onImportBackupJson,
 }) => {
@@ -53,11 +50,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [bankName, setBankName] = useState(seller.bankName);
   const [bankAccountNo, setBankAccountNo] = useState(seller.bankAccountNo);
   const [bankAccountName, setBankAccountName] = useState(seller.bankAccountName);
-  const [lineNotifyToken, setLineNotifyToken] = useState(seller.lineNotifyToken);
-  const [lineOaChannelAccessToken, setLineOaChannelAccessToken] = useState(seller.lineOaChannelAccessToken || '');
-  const [lineOaBasicId, setLineOaBasicId] = useState(seller.lineOaBasicId || '');
-  const [testLineUserId, setTestLineUserId] = useState('');
-  const [isTestingOa, setIsTestingOa] = useState(false);
   const [logoUrl, setLogoUrl] = useState(seller.logoUrl || '');
   const [signatureUrl, setSignatureUrl] = useState(seller.signatureUrl || '');
   const [defaultQuotationNotes, setDefaultQuotationNotes] = useState(
@@ -114,34 +106,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
-  const handleTestLineOaPush = async () => {
-    if (!lineOaChannelAccessToken) {
-      alert('กรุณากรอก LINE OA Channel Access Token ก่อนทดสอบ');
-      return;
-    }
-    if (!testLineUserId) {
-      alert('กรุณากรอก LINE User ID ของลูกค้าที่ต้องการทดสอบส่ง');
-      return;
-    }
-    setIsTestingOa(true);
-    try {
-      const res = await sendLineOaPushNotification(
-        lineOaChannelAccessToken,
-        testLineUserId,
-        `💬 [ SellersApp ] ทดสอบการส่งข้อความจากระบบแจ้งเตือนร้านค้าผ่าน LINE OA (${lineOaBasicId || 'Official Account'})\nยินดีต้อนรับสู่ระบบส่งบิล/ใบเสร็จเข้าไลน์ลูกค้าโดยตรง! ✨`
-      );
-      if (res.success) {
-        alert('✅ ส่งข้อความผ่าน LINE OA เข้าไลน์ลูกค้าสำเร็จแล้ว!');
-      } else {
-        alert(`❌ ไม่สามารถส่งข้อความได้: ${res.error}`);
-      }
-    } catch (err: any) {
-      alert(`❌ เกิดข้อผิดพลาด: ${err.message}`);
-    } finally {
-      setIsTestingOa(false);
-    }
-  };
-
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const updated: SellerProfile = {
@@ -157,9 +121,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       bankName,
       bankAccountNo,
       bankAccountName: bankAccountName || ownerName,
-      lineNotifyToken,
-      lineOaChannelAccessToken,
-      lineOaBasicId,
       logoUrl,
       signatureUrl,
       defaultDocumentNotes: defaultReceiptNotes,
@@ -185,7 +146,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 ตั้งค่าระบบร้านค้า & สำรองข้อมูล
               </h2>
               <p className="text-xs text-zinc-500">
-                จัดการโลโก้ร้านค้า, ข้อมูลผู้ขาย, พร้อมเพย์, LINE Notify และ Google Sheets Sync
+                จัดการโลโก้ร้านค้า, ข้อมูลผู้ขาย, พร้อมเพย์ และ Google Sheets Sync
               </p>
             </div>
           </div>
@@ -277,7 +238,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
 
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-1">
-                    <label className="px-4 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg cursor-pointer transition-all flex items-center gap-2 shadow-xs active:scale-98">
+                    <label className="px-4 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-extrabold rounded-lg cursor-pointer transition-all flex items-center gap-2 shadow-xs active:scale-98">
                       <Upload className="w-4 h-4 text-white" />
                       <span>อัปโหลดรูปภาพโลโก้</span>
                       <input
@@ -460,7 +421,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <p className="text-[11px] text-zinc-500">
                     อัปโหลดรูปภาพลายเซ็น (ไฟล์ PNG พื้นหลังใส หรือรูปถ่ายลายเซ็น) เพื่อให้แสดงบนเอกสารโดยอัตโนมัติ
                   </p>
-                  <label className="inline-flex px-4 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg cursor-pointer transition-all items-center gap-2 shadow-xs active:scale-98">
+                  <label className="inline-flex px-4 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-extrabold rounded-lg cursor-pointer transition-all items-center gap-2 shadow-xs active:scale-98">
                     <Upload className="w-4 h-4 text-white" />
                     <span>อัปโหลดลายเซ็นผู้ขาย</span>
                     <input
@@ -596,113 +557,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* Section 3: LINE Notify Integration */}
-          <div className="bg-[#FAFAFA] border border-[#E4E4E7] rounded-xl p-5 space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-2">
-              <Bell className="w-4 h-4 text-[#71717A]" />
-              <span>การตั้งค่าแจ้งเตือน LINE Notify (แจ้งเตือนร้านค้า)</span>
-            </h3>
-
-            <div>
-              <label className="block text-[11px] font-bold text-zinc-600 mb-1">LINE Notify Access Token</label>
-              <div className="flex gap-2">
-                <input
-                  type="password"
-                  value={lineNotifyToken}
-                  onChange={(e) => setLineNotifyToken(e.target.value)}
-                  placeholder="กรอก Token จาก notify-bot.line.me"
-                  className="flex-1 bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 font-mono focus:outline-none focus:border-[#71717A]"
-                />
-                <button
-                  type="button"
-                  onClick={() => onTestLineNotify(lineNotifyToken)}
-                  className="px-3.5 py-2 bg-[#27272A] hover:bg-[#18181B] text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow-xs shrink-0 transition-all active:scale-98"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>ทดสอบส่ง LINE</span>
-                </button>
-              </div>
-              <p className="text-[10px] text-zinc-500 mt-1">
-                ระบบจะส่งการแจ้งเตือนเข้ากลุ่ม/ไลน์ร้านค้าเมื่อมีการออกบิล ยืนยันชำระเงิน หรือสินค้าใกล้หมดสต็อก
-              </p>
-            </div>
-          </div>
-
-          {/* Section 3.5: LINE Official Account (LINE OA) Integration */}
-          <div className="bg-emerald-50/50 border border-emerald-200/80 rounded-xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black uppercase tracking-wider text-emerald-900 flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                <span>การตั้งค่าแจ้งเตือนเข้า LINE ลูกค้า (LINE Official Account / Messaging API)</span>
-              </h3>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-zinc-900">
-                แนะนำสำหรับส่งบิลหาลูกค้า
-              </span>
-            </div>
-
-            <p className="text-[11px] text-emerald-800 leading-relaxed bg-white/80 p-3 rounded-lg border border-emerald-100">
-              <strong>ข้อดีของ LINE OA Messaging API:</strong> สามารถส่งข้อความ <strong>Push Message / Flex Receipt (การ์ดบิลใบเสร็จรับเงิน)</strong> ไปที่ LINE ของลูกค้าโดยตรงเมื่อทำการออกบิลหรือรับชำระเงินเรียบร้อยแล้ว
-            </p>
-
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-1">
-                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
-                    LINE OA Basic ID (@...)
-                  </label>
-                  <input
-                    type="text"
-                    value={lineOaBasicId}
-                    onChange={(e) => setLineOaBasicId(e.target.value)}
-                    placeholder="เช่น @myshop_official"
-                    className="w-full bg-white border border-emerald-200 rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-emerald-500 font-mono"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
-                    Channel Access Token (Messaging API) *
-                  </label>
-                  <input
-                    type="password"
-                    value={lineOaChannelAccessToken}
-                    onChange={(e) => setLineOaChannelAccessToken(e.target.value)}
-                    placeholder="นำมาจาก LINE Developers Console (Messaging API channel)"
-                    className="w-full bg-white border border-emerald-200 rounded-lg px-3 py-2 text-xs text-zinc-800 font-mono focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-              </div>
-
-              {/* Test OA Push Box */}
-              <div className="bg-white p-3.5 rounded-lg border border-emerald-200 space-y-2">
-                <label className="block text-[11px] font-bold text-zinc-700">
-                  ทดสอบส่งข้อความหา LINE User ID ของลูกค้า
-                </label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="text"
-                    value={testLineUserId}
-                    onChange={(e) => setTestLineUserId(e.target.value)}
-                    placeholder="กรอก LINE User ID ลูกค้า (เช่น U1234567890abcdef...)"
-                    className="flex-1 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs font-mono text-zinc-800 focus:outline-none focus:border-emerald-500"
-                  />
-                  <button
-                    type="button"
-                    disabled={isTestingOa}
-                    onClick={handleTestLineOaPush}
-                    className="px-4 py-2 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 shadow-xs transition-all shrink-0 active:scale-98"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>{isTestingOa ? 'กำลังส่ง...' : 'ทดสอบส่ง Push เข้า LINE'}</span>
-                  </button>
-                </div>
-                <p className="text-[10px] text-zinc-500">
-                  * LINE User ID สามารถดูได้จากระบบ CRM หรือเมื่อลูกค้าทักแชท LINE OA
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Section 4: Google Sheets & Cloud Backup */}
           <div className="bg-[#FAFAFA] border border-[#E4E4E7] rounded-xl p-5 space-y-3">
             <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-2">
@@ -792,7 +646,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg shadow-xs transition-all active:scale-98"
+              className="px-6 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-extrabold rounded-lg shadow-xs transition-all active:scale-98"
             >
               บันทึกการตั้งค่า
             </button>

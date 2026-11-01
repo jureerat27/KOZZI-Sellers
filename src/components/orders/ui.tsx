@@ -3,7 +3,7 @@ import { Calendar, X } from 'lucide-react';
 import { Tone, fmtDate } from '../../utils/orders';
 
 export const inputCls =
-  'w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 disabled:bg-zinc-50 disabled:text-zinc-400';
+  'w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#0068F0]/15 focus:border-[#0068F0] disabled:bg-zinc-50 disabled:text-zinc-400';
 
 const toneCls: Record<Tone, string> = {
   neutral: 'bg-zinc-100 text-zinc-700 border-zinc-200',
@@ -116,7 +116,7 @@ export const Modal: React.FC<{
 
 export const btn = {
   primary:
-    'inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-700 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed',
+    'inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#0068F0] hover:bg-[#0052C7] text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed',
   secondary:
     'inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-800 text-sm font-semibold disabled:opacity-40',
   ghost: 'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-zinc-100 text-zinc-700 text-xs font-semibold',

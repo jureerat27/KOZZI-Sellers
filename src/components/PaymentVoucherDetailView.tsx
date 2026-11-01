@@ -171,7 +171,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
 
           <button
             onClick={handlePrint}
-            className="px-3.5 py-1.5 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+            className="px-3.5 py-1.5 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>พิมพ์ (A5)</span>

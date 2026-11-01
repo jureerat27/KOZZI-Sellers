@@ -139,7 +139,7 @@ export const AppNotifier: React.FC = () => {
               <button
                 autoFocus
                 onClick={closeDialog}
-                className="px-5 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-700 text-white text-sm font-semibold"
+                className="px-5 py-2 rounded-lg bg-[#0068F0] hover:bg-[#0052C7] text-white text-sm font-semibold"
               >
                 ตกลง
               </button>

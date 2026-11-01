@@ -24,7 +24,6 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [taxId, setTaxId] = useState('');
-  const [lineUserId, setLineUserId] = useState('');
   const [note, setNote] = useState('');
 
   const handleOpenAddModal = () => {
@@ -34,7 +33,6 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
     setEmail('');
     setAddress('');
     setTaxId('');
-    setLineUserId('');
     setNote('');
     setIsModalOpen(true);
   };
@@ -46,7 +44,6 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
     setEmail(c.email || '');
     setAddress(c.address);
     setTaxId(c.taxId || '');
-    setLineUserId(c.lineUserId || '');
     setNote(c.note || '');
     setIsModalOpen(true);
   };
@@ -65,7 +62,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
       email: email.trim(),
       address: address.trim(),
       taxId: taxId.trim(),
-      lineUserId: lineUserId.trim(),
+      lineUserId: editingCustomer?.lineUserId, // คงค่าเดิมไว้ (เลิกใช้ส่ง LINE แล้ว)
       note: note.trim(),
       createdAt: editingCustomer
         ? editingCustomer.createdAt
@@ -104,7 +101,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
 
         <button
           onClick={handleOpenAddModal}
-          className="px-4 py-2 bg-gradient-to-r from-zinc-900 to-zinc-900 hover:from-zinc-900 hover:to-zinc-900 text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all"
+          className="px-4 py-2 bg-gradient-to-r from-[#0068F0] to-[#0068F0] hover:from-[#0052C7] hover:to-[#0052C7] text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>+ เพิ่มข้อมูลลูกค้า</span>
@@ -200,11 +197,6 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
                     <MapPin className="w-3.5 h-3.5 text-zinc-500 shrink-0 mt-0.5" />
                     <span>{c.address || 'ไม่ระบุที่อยู่'}</span>
                   </p>
-                  {c.lineUserId ? (
-                    <p className="text-[11px] text-emerald-700 pl-5 font-mono font-bold flex items-center gap-1">
-                      <span>LINE User ID: {c.lineUserId}</span>
-                    </p>
-                  ) : null}
                   {c.note ? (
                     <p className="text-[11px] text-zinc-500 pl-5 italic">
                       {c.note}
@@ -312,21 +304,6 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
                 ></textarea>
               </div>
 
-              {/* Field 5: LINE User ID */}
-              <div>
-                <label className="block text-[11px] font-bold text-emerald-800 mb-1 flex items-center justify-between">
-                  <span className="flex items-center gap-1">LINE User ID (สำหรับส่งบิลผ่าน LINE OA)</span>
-                  <span className="text-[10px] font-normal text-zinc-400">ไม่บังคับกรอก</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="เช่น U1234567890abcdef..."
-                  value={lineUserId}
-                  onChange={(e) => setLineUserId(e.target.value)}
-                  className="w-full bg-emerald-50/40 border border-emerald-300 rounded-lg px-3 py-2 text-xs text-zinc-800 font-mono focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-
               {/* Field 6: Note */}
               <div>
                 <label className="block text-[11px] font-bold text-zinc-700 mb-1">หมายเหตุเพิ่มเติม</label>
@@ -349,7 +326,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg shadow-xs transition-all"
+                  className="px-5 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg shadow-xs transition-all"
                 >
                   บันทึกลูกค้า
                 </button>

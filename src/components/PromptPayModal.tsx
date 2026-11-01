@@ -98,7 +98,7 @@ export const PromptPayModal: React.FC<PromptPayModalProps> = ({
         <div className="pt-2 flex items-center justify-center gap-2">
           <button
             onClick={handleDownloadQR}
-            className="w-full py-2.5 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-2 transition-all"
+            className="w-full py-2.5 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-2 transition-all"
           >
             <Download className="w-4 h-4" />
             <span>ดาวน์โหลดรูป QR Code</span>

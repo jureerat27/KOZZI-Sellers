@@ -256,7 +256,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full mt-2 py-2.5 px-4 bg-gradient-to-r from-[#18181B] to-[#27272A] hover:from-[#18181B] hover:to-[#18181B] text-white text-xs font-bold rounded-lg shadow-xs hover:shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer active:scale-98"
+              className="w-full mt-2 py-2.5 px-4 bg-gradient-to-r from-[#0068F0] to-[#0068F0] hover:from-[#0052C7] hover:to-[#0052C7] text-white text-xs font-bold rounded-lg shadow-xs hover:shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer active:scale-98"
             >
               {loading ? (
                 <>

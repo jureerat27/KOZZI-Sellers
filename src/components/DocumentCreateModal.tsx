@@ -1154,7 +1154,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2.5 bg-gradient-to-r from-zinc-900 to-zinc-900 hover:from-zinc-900 hover:to-zinc-900 text-white text-xs font-bold rounded-lg shadow-lg shadow-emerald-500/20 flex items-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 bg-gradient-to-r from-[#0068F0] to-[#0068F0] hover:from-[#0052C7] hover:to-[#0052C7] text-white text-xs font-bold rounded-lg shadow-lg shadow-emerald-500/20 flex items-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>
