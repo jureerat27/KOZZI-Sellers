@@ -11,7 +11,7 @@ import {
   todayISO,
   warrantyYearsFor,
 } from '../../utils/orders';
-import { Field, Modal, Section, Select, btn, inputCls } from './ui';
+import { DateInput, Field, Modal, Section, Select, btn, inputCls } from './ui';
 
 interface Props {
   order?: Order | null;
@@ -30,7 +30,7 @@ function blankOrder(orders: Order[], options: OrderOptions): Order {
   const now = new Date().toISOString();
   return {
     id: `ord-${Date.now()}`,
-    orderNumber: nextOrderNumber(orders, date),
+    orderNumber: nextOrderNumber(orders, date, options),
     orderDate: date,
     channel: options.channels[0] || 'Line',
     customerName: '',
@@ -85,7 +85,7 @@ export const OrderFormModal: React.FC<Props> = ({
     : 0;
 
   const changeDate = (d: string) => {
-    setF((p) => ({ ...p, orderDate: d, orderNumber: isNew && !numberTouched ? nextOrderNumber(orders, d) : p.orderNumber }));
+    setF((p) => ({ ...p, orderDate: d, orderNumber: isNew && !numberTouched ? nextOrderNumber(orders, d, options) : p.orderNumber }));
   };
 
   const changeChannel = (c: string) => {
@@ -219,7 +219,7 @@ export const OrderFormModal: React.FC<Props> = ({
       <Section title="1. ข้อมูลออเดอร์และลูกค้า">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Field label="วันที่สั่งซื้อ" required>
-            <input type="date" className={inputCls} value={f.orderDate} onChange={(e) => changeDate(e.target.value)} />
+            <DateInput value={f.orderDate} onChange={(v) => v && changeDate(v)} />
           </Field>
           <Field label="เลขออเดอร์" required>
             <input
@@ -231,7 +231,7 @@ export const OrderFormModal: React.FC<Props> = ({
               }}
             />
           </Field>
-          <Field label="ช่องทางการขาย" required>
+          <Field label="ช่องทางการขาย" required hint="เพิ่ม/แก้ช่องทางได้ที่ปุ่ม ตั้งค่าตัวเลือก">
             <Select value={f.channel} onChange={changeChannel} options={options.channels} />
           </Field>
           {isShopee && (
@@ -356,7 +356,7 @@ export const OrderFormModal: React.FC<Props> = ({
                   <Select value={depositMethod} onChange={setDepositMethod} options={options.paymentMethods} />
                 </Field>
                 <Field label="วันที่รับเงิน">
-                  <input type="date" className={inputCls} value={depositDate} onChange={(e) => setDepositDate(e.target.value)} />
+                  <DateInput value={depositDate} onChange={(v) => v && setDepositDate(v)} />
                 </Field>
               </div>
             )}
@@ -378,12 +378,7 @@ export const OrderFormModal: React.FC<Props> = ({
             />
           </Field>
           <Field label={f.fulfillment === 'ติดตั้ง' ? 'วันที่นัดติดตั้ง' : 'วันที่จัดส่ง'}>
-            <input
-              type="date"
-              className={inputCls}
-              value={f.scheduledDate || ''}
-              onChange={(e) => set('scheduledDate', e.target.value)}
-            />
+            <DateInput clearable value={f.scheduledDate} onChange={(v) => set('scheduledDate', v || undefined)} />
           </Field>
           <Field label="สถานะคิว">
             <Select value={f.queueStatus} onChange={(v) => set('queueStatus', (v || 'ยังไม่ลงคิว') as QueueStatus)} options={QUEUE} />
@@ -457,12 +452,7 @@ export const OrderFormModal: React.FC<Props> = ({
           </Field>
           {!isNew && (
             <Field label="วันที่ติดตั้ง/จัดส่งเสร็จ" hint="ใช้เริ่มนับวันรับประกัน">
-              <input
-                type="date"
-                className={inputCls}
-                value={f.completedDate || ''}
-                onChange={(e) => set('completedDate', e.target.value || undefined)}
-              />
+              <DateInput clearable value={f.completedDate} onChange={(v) => set('completedDate', v || undefined)} />
             </Field>
           )}
           <Field label="หมายเหตุ" className="sm:col-span-3">

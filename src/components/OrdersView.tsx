@@ -10,11 +10,12 @@ import {
   ShieldCheck,
   Wrench,
 } from 'lucide-react';
-import { Order, OrderOptions, Product } from '../types';
+import { Order, OrderNumberDateFormat, OrderOptions, Product } from '../types';
 import {
   balanceDue,
   fmtDate,
   fmtMoney,
+  nextOrderNumber,
   paidTotal,
   paymentState,
   productTitle,
@@ -710,7 +711,15 @@ const OptionsModal: React.FC<{ options: OrderOptions; onSave: (o: OrderOptions) 
   });
   const [deposit, setDeposit] = useState(options.defaultDeposit);
   const [alertDays, setAlertDays] = useState(options.warrantyAlertDays);
+  const [numPrefix, setNumPrefix] = useState(options.orderNumberPrefix);
+  const [numDate, setNumDate] = useState<OrderNumberDateFormat>(options.orderNumberDate);
+  const [numDigits, setNumDigits] = useState(options.orderNumberDigits);
   const [err, setErr] = useState('');
+  const numberPreview = nextOrderNumber([], todayISO(), {
+    orderNumberPrefix: numPrefix,
+    orderNumberDate: numDate,
+    orderNumberDigits: numDigits,
+  });
 
   const labels: Record<keyof typeof lists, string> = {
     models: 'MODEL',
@@ -747,6 +756,9 @@ const OptionsModal: React.FC<{ options: OrderOptions; onSave: (o: OrderOptions) 
       paymentMethods: toList(lists.paymentMethods),
       defaultDeposit: Number(deposit) || 0,
       warrantyAlertDays: Number(alertDays) || 0,
+      orderNumberPrefix: numPrefix.trim(),
+      orderNumberDate: numDate,
+      orderNumberDigits: Number(numDigits) || 3,
     };
     onSave(out);
     onClose();
@@ -769,6 +781,38 @@ const OptionsModal: React.FC<{ options: OrderOptions; onSave: (o: OrderOptions) 
         </>
       }
     >
+      <div className="rounded-lg border border-zinc-200 bg-white p-3">
+        <div className="text-sm font-bold text-zinc-900 mb-2">รูปแบบเลขออเดอร์</div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Field label="คำนำหน้า" hint="เช่น K, KZ">
+            <input className={inputCls} value={numPrefix} onChange={(e) => setNumPrefix(e.target.value.replace(/\s+/g, ''))} />
+          </Field>
+          <Field label="วันที่ในเลขออเดอร์">
+            <select className={inputCls} value={numDate} onChange={(e) => setNumDate(e.target.value as OrderNumberDateFormat)}>
+              <option value="YYYYMM">ปี ค.ศ. 4 หลัก + เดือน (202611)</option>
+              <option value="YYMM">ปี ค.ศ. 2 หลัก + เดือน (2611)</option>
+              <option value="BBBBMM">ปี พ.ศ. 4 หลัก + เดือน (256911)</option>
+              <option value="BBMM">ปี พ.ศ. 2 หลัก + เดือน (6911)</option>
+              <option value="NONE">ไม่ใส่วันที่ (นับต่อเนื่อง)</option>
+            </select>
+          </Field>
+          <Field label="จำนวนหลักของลำดับ">
+            <select className={inputCls} value={numDigits} onChange={(e) => setNumDigits(Number(e.target.value))}>
+              {[3, 4, 5].map((d) => (
+                <option key={d} value={d}>
+                  {d} หลัก ({'1'.padStart(d, '0')})
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+        <p className="text-xs text-zinc-600 mt-2">
+          ตัวอย่างเลขออเดอร์ถัดไปเดือนนี้: <b className="text-zinc-900">{numberPreview}</b> ·{' '}
+          {numDate === 'NONE' ? 'ลำดับนับต่อเนื่อง' : 'ลำดับเริ่มใหม่ทุกเดือน'} ·
+          ออเดอร์เก่าไม่เปลี่ยนเลข
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field label="รุ่น | ระยะประกัน (ปี)" hint="เช่น รุ่นมือหมุน | 2" className="sm:col-span-2">
           <textarea rows={3} className={inputCls} value={lines} onChange={(e) => setLines(e.target.value)} />

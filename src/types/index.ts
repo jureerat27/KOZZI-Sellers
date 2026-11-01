@@ -197,6 +197,9 @@ export interface ProductLineOption {
   warrantyYears: number; // ระยะประกัน (ปี)
 }
 
+/** ส่วนวันที่ในเลขออเดอร์: YY/YYYY = ค.ศ., BB/BBBB = พ.ศ., NONE = ไม่ใส่วันที่ (นับต่อเนื่อง) */
+export type OrderNumberDateFormat = 'YYMM' | 'YYYYMM' | 'BBMM' | 'BBBBMM' | 'NONE';
+
 export interface OrderOptions {
   productLines: ProductLineOption[];
   models: string[];
@@ -210,6 +213,10 @@ export interface OrderOptions {
   paymentMethods: string[];
   defaultDeposit: number;
   warrantyAlertDays: number;
+  // รูปแบบเลขออเดอร์ เช่น KZ202611-001
+  orderNumberPrefix: string;
+  orderNumberDate: OrderNumberDateFormat;
+  orderNumberDigits: number;
 }
 
 export type FulfillmentType = 'ติดตั้ง' | 'จัดส่ง';

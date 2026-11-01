@@ -13,7 +13,7 @@ import {
   warrantyState,
   warrantyYearsFor,
 } from '../../utils/orders';
-import { Badge, Field, Modal, Section, Select, btn, inputCls, productStatusTone } from './ui';
+import { Badge, DateInput, Field, Modal, Section, Select, btn, inputCls, productStatusTone } from './ui';
 
 interface Props {
   order: Order;
@@ -261,7 +261,7 @@ export const OrderDetailModal: React.FC<Props> = ({
               ) : (
                 <div className="flex flex-wrap items-end gap-2">
                   <Field label={o.fulfillment === 'ติดตั้ง' ? 'วันที่ติดตั้งเสร็จ' : 'วันที่จัดส่งเสร็จ'}>
-                    <input type="date" className={inputCls} value={closeDate} onChange={(e) => setCloseDate(e.target.value)} />
+                    <DateInput value={closeDate} onChange={setCloseDate} />
                   </Field>
                   <button className={btn.primary} onClick={closeJob} disabled={busy || o.cancelled}>
                     <CheckCircle2 className="w-4 h-4" /> ปิดงาน
@@ -361,7 +361,7 @@ export const OrderDetailModal: React.FC<Props> = ({
                     <Select value={payForm.method} onChange={(v) => setPayForm({ ...payForm, method: v })} options={options.paymentMethods} />
                   </Field>
                   <Field label="วันที่">
-                    <input type="date" className={inputCls} value={payForm.date} onChange={(e) => setPayForm({ ...payForm, date: e.target.value })} />
+                    <DateInput value={payForm.date} onChange={(v) => setPayForm({ ...payForm, date: v })} />
                   </Field>
                   <Field label="หมายเหตุ" className="col-span-2">
                     <input className={inputCls} value={payForm.note || ''} onChange={(e) => setPayForm({ ...payForm, note: e.target.value })} />
@@ -458,7 +458,7 @@ export const OrderDetailModal: React.FC<Props> = ({
               <div className="mt-3 rounded-lg border border-zinc-300 p-3 space-y-3 bg-zinc-50">
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="วันที่แจ้ง">
-                    <input type="date" className={inputCls} value={ticket.reportDate} onChange={(e) => setTicket({ ...ticket, reportDate: e.target.value })} />
+                    <DateInput value={ticket.reportDate} onChange={(v) => setTicket({ ...ticket, reportDate: v })} />
                   </Field>
                   <Field label="ช่างที่รับผิดชอบ">
                     <Select value={ticket.technician} onChange={(v) => setTicket({ ...ticket, technician: v })} options={options.technicians} />

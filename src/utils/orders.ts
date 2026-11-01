@@ -1,4 +1,4 @@
-import { Order, OrderOptions, Product, SellerProfile } from '../types';
+import { Order, OrderNumberDateFormat, OrderOptions, Product, SellerProfile } from '../types';
 
 export const DEFAULT_ORDER_OPTIONS: OrderOptions = {
   productLines: [
@@ -24,6 +24,9 @@ export const DEFAULT_ORDER_OPTIONS: OrderOptions = {
   paymentMethods: ['โอนเงิน', 'เงินสด', 'พร้อมเพย์', 'Shopee'],
   defaultDeposit: 1500,
   warrantyAlertDays: 30,
+  orderNumberPrefix: 'K',
+  orderNumberDate: 'YYMM',
+  orderNumberDigits: 3,
 };
 
 export function getOrderOptions(seller?: SellerProfile): OrderOptions {
@@ -38,12 +41,12 @@ export function todayISO(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-/** แสดงวันที่แบบ วว/ดด/ปปปป (ค.ศ.) ให้เหมือนตารางเดิม */
+/** แสดงวันที่แบบ วว/ดด/ปปปป พ.ศ. เช่น 01/11/2569 */
 export function fmtDate(iso?: string): string {
   if (!iso) return '-';
   const [y, m, d] = iso.slice(0, 10).split('-');
   if (!y || !m || !d) return iso;
-  return `${Number(d)}/${Number(m)}/${y}`;
+  return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${Number(y) + 543}`;
 }
 
 export function fmtMoney(n: number): string {
@@ -115,10 +118,34 @@ export function warrantyAlerts(orders: Order[], opts: OrderOptions, today = toda
   });
 }
 
-/** เลขออเดอร์ K + ปี 2 หลัก + เดือน + ลำดับ 3 หลัก เช่น K2611-001 */
-export function nextOrderNumber(orders: Order[], orderDate: string): string {
+function datePart(orderDate: string, fmt: OrderNumberDateFormat): string {
   const [y, m] = orderDate.slice(0, 7).split('-');
-  const prefix = `K${y.slice(2)}${m}-`;
+  const be = String(Number(y) + 543);
+  switch (fmt) {
+    case 'YYYYMM':
+      return `${y}${m}`;
+    case 'BBMM':
+      return `${be.slice(2)}${m}`;
+    case 'BBBBMM':
+      return `${be}${m}`;
+    case 'NONE':
+      return '';
+    default:
+      return `${y.slice(2)}${m}`;
+  }
+}
+
+/**
+ * เลขออเดอร์ตามที่ตั้งค่า: คำนำหน้า + วันที่ + "-" + ลำดับ เช่น KZ202611-001
+ * ลำดับเริ่มใหม่ทุกเดือน (ถ้าไม่ใส่วันที่ จะนับต่อเนื่อง)
+ */
+export function nextOrderNumber(
+  orders: Order[],
+  orderDate: string,
+  opts: Pick<OrderOptions, 'orderNumberPrefix' | 'orderNumberDate' | 'orderNumberDigits'> = DEFAULT_ORDER_OPTIONS
+): string {
+  const digits = Math.min(6, Math.max(1, Number(opts.orderNumberDigits) || 3));
+  const prefix = `${(opts.orderNumberPrefix || '').trim()}${datePart(orderDate, opts.orderNumberDate)}-`;
   let max = 0;
   for (const o of orders) {
     if (o.orderNumber?.startsWith(prefix)) {
@@ -126,7 +153,7 @@ export function nextOrderNumber(orders: Order[], orderDate: string): string {
       if (!isNaN(n) && n > max) max = n;
     }
   }
-  return `${prefix}${String(max + 1).padStart(3, '0')}`;
+  return `${prefix}${String(max + 1).padStart(digits, '0')}`;
 }
 
 const norm = (s?: string) => (s || '').trim().toLowerCase();

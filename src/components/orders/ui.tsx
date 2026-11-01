@@ -1,6 +1,6 @@
 import React from 'react';
-import { X } from 'lucide-react';
-import { Tone } from '../../utils/orders';
+import { Calendar, X } from 'lucide-react';
+import { Tone, fmtDate } from '../../utils/orders';
 
 export const inputCls =
   'w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 disabled:bg-zinc-50 disabled:text-zinc-400';
@@ -125,3 +125,45 @@ export const btn = {
   small:
     'inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-800 text-xs font-semibold',
 };
+
+/** ช่องวันที่ แสดงเป็น วว/ดด/ปปปป (พ.ศ.) ไม่ขึ้นกับภาษาของเบราว์เซอร์ — ค่าที่เก็บยังเป็น YYYY-MM-DD */
+export const DateInput: React.FC<{
+  value?: string;
+  onChange: (v: string) => void;
+  clearable?: boolean;
+  placeholder?: string;
+}> = ({ value, onChange, clearable, placeholder = 'วว/ดด/ปปปป' }) => (
+  <div className={`${inputCls} relative flex items-center justify-between gap-2 cursor-pointer`}>
+    <span className={value ? 'text-zinc-900' : 'text-zinc-400'}>{value ? fmtDate(value) : placeholder}</span>
+    <span className="flex items-center gap-1 relative z-20">
+      {clearable && value && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onChange('');
+          }}
+          className="p-0.5 rounded text-zinc-400 hover:text-zinc-700"
+          aria-label="ล้างวันที่"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      )}
+      <Calendar className="w-4 h-4 text-zinc-500 pointer-events-none" />
+    </span>
+    <input
+      type="date"
+      value={value || ''}
+      onChange={(e) => onChange(e.target.value)}
+      onClick={(e) => {
+        try {
+          (e.currentTarget as HTMLInputElement & { showPicker?: () => void }).showPicker?.();
+        } catch {
+          /* บางเบราว์เซอร์ไม่รองรับ showPicker — ใช้การแตะปกติ */
+        }
+      }}
+      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+    />
+  </div>
+);
