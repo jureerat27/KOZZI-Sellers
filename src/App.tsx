@@ -147,6 +147,17 @@ export default function App() {
     };
   }, [currentUser]);
 
+  // หลังกด "ตกลง" ที่ป๊อปอัพบันทึกเอกสาร: ปิดหน้าเอกสาร แล้วไปหน้ารายการออเดอร์
+  useEffect(() => {
+    const goOrders = () => {
+      setSelectedDoc(null);
+      setIsCreateDocOpen(false);
+      setActiveTab('orders');
+    };
+    window.addEventListener('app:go-orders', goOrders);
+    return () => window.removeEventListener('app:go-orders', goOrders);
+  }, []);
+
   // Track online / offline events
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);

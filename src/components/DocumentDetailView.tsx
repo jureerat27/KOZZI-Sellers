@@ -33,6 +33,7 @@ import { formatCurrency, formatDate } from '../utils/format';
 import { DatePicker } from './DatePicker';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal';
 import { DocumentHeader } from './DocumentHeader';
+import { notify } from './AppNotifier';
 
 interface DocumentDetailViewProps {
   doc: SalesDocument;
@@ -362,7 +363,10 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
     } else {
       onUpdateStatus(doc.id, doc.status, slipUrl);
     }
-    alert('✅ บันทึกข้อมูลการแก้ไขเอกสารเรียบร้อยแล้ว!');
+    // แจ้งผลกลางจอ แล้วพากลับไปหน้ารายการออเดอร์เมื่อกด "ตกลง"
+    notify('บันทึกเอกสารเรียบร้อยแล้ว', {
+      onClose: () => window.dispatchEvent(new Event('app:go-orders')),
+    });
   };
 
   // Open Receive Payment Modal with smart preset defaults

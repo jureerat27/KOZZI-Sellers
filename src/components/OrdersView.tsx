@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   CalendarDays,
@@ -73,6 +73,17 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
   const [detailId, setDetailId] = useState<string | null>(null);
   const [detailTicket, setDetailTicket] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
+
+  // กลับมาที่รายการออเดอร์ (เช่น หลังบันทึกเอกสาร): ปิดหน้ารายละเอียด/ฟอร์มที่เปิดค้างไว้
+  useEffect(() => {
+    const back = () => {
+      setDetailId(null);
+      setFormOrder(undefined);
+      setTab('list');
+    };
+    window.addEventListener('app:go-orders', back);
+    return () => window.removeEventListener('app:go-orders', back);
+  }, []);
 
   // filters
   const [q, setQ] = useState('');
