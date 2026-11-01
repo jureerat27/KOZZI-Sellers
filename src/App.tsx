@@ -13,6 +13,7 @@ import { ReportsView } from './components/ReportsView';
 import { SettingsModal } from './components/SettingsModal';
 import { PromptPayModal } from './components/PromptPayModal';
 import { LoginView } from './components/LoginView';
+import { OrdersView } from './components/OrdersView';
 import {
   Customer,
   DocumentStatus,
@@ -25,6 +26,8 @@ import {
   SalesDocument,
   SellerProfile,
   SyncLog,
+  Order,
+  OrderOptions,
 } from './types';
 import { generateNextVoucherNumber } from './utils/format';
 import {
@@ -38,6 +41,7 @@ import {
   saveSyncLog,
   updateStockForDocument,
   generateDocNumber,
+  getOrders,
 } from './utils/storage';
 import { sendLineNotification } from './utils/line';
 import {
@@ -57,9 +61,13 @@ import {
   subscribeExpenses,
   subscribeProducts,
   subscribeSellerProfile,
+  subscribeOrders,
+  saveOrderCloud,
+  deleteOrderCloud,
 } from './services/firestoreService';
+import { getOrderOptions, warrantyAlerts, productTitle } from './utils/orders';
 import { subscribeAuthState, logOut, User } from './services/authService';
-import { Loader2, ShoppingBag } from 'lucide-react';
+import { Loader2, ShoppingBag, Lock } from 'lucide-react';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -76,6 +84,7 @@ export default function App() {
   const [documents, setDocuments] = useState<SalesDocument[]>(getDocuments());
   const [expenses, setExpenses] = useState<Expense[]>(getExpenses());
   const [syncLog, setSyncLog] = useState<SyncLog>(getSyncLog());
+  const [orders, setOrders] = useState<Order[]>(getOrders());
 
   // Modal States
   const [isCreateDocOpen, setIsCreateDocOpen] = useState(false);
@@ -114,13 +123,19 @@ export default function App() {
     }
   };
 
-  // Subscribe to Firestore real-time database updates across all devices
+  // Subscribe to Firestore real-time database updates when authenticated as owner
   useEffect(() => {
+    const isOwner = currentUser?.email?.toLowerCase().trim() === 'mp.jureerat@gmail.com';
+    if (!currentUser || !isOwner) {
+      return;
+    }
+
     const unsubSeller = subscribeSellerProfile((p) => setSeller(p));
     const unsubProducts = subscribeProducts((p) => setProducts(p));
     const unsubCustomers = subscribeCustomers((c) => setCustomers(c));
     const unsubDocs = subscribeDocuments((d) => setDocuments(d));
     const unsubExpenses = subscribeExpenses((e) => setExpenses(e));
+    const unsubOrders = subscribeOrders((o) => setOrders(o));
 
     return () => {
       unsubSeller();
@@ -128,8 +143,9 @@ export default function App() {
       unsubCustomers();
       unsubDocs();
       unsubExpenses();
+      unsubOrders();
     };
-  }, []);
+  }, [currentUser]);
 
   // Track online / offline events
   useEffect(() => {
@@ -147,6 +163,10 @@ export default function App() {
 
   // Low stock products count
   const lowStockCount = products.filter((p) => p.stock <= p.minStock).length;
+
+  // Warranty alerts (ประกันใกล้หมด / หมดแล้ว ที่ยังไม่กดรับทราบ)
+  const orderOptions = getOrderOptions(seller);
+  const warrantyAlertCount = warrantyAlerts(orders, orderOptions).length;
 
   // Google Sheets Auto / Manual Sync
   const syncToGoogleSheets = async () => {
@@ -637,6 +657,142 @@ export default function App() {
     setSelectedDoc(receiptDoc);
   };
 
+  // ===== Orders (ออเดอร์ & งานติดตั้ง) =====
+  const adjustStock = (productId: string, delta: number, currentProducts: Product[]): Product[] => {
+    const prod = currentProducts.find((p) => p.id === productId);
+    if (!prod) return currentProducts;
+    const updated = { ...prod, stock: Math.max(0, prod.stock + delta), updatedAt: new Date().toISOString() };
+    saveProductCloud(updated);
+    return currentProducts.map((p) => (p.id === productId ? updated : p));
+  };
+
+  /**
+   * Save order and keep stock in sync:
+   * stock is deducted once the order is confirmed (has a payment, or is waiting for Shopee payout),
+   * and returned if the order is cancelled or its product/quantity changes.
+   */
+  const handleSaveOrder = async (incoming: Order): Promise<Order> => {
+    const prev = orders.find((o) => o.id === incoming.id);
+    const confirmed =
+      !incoming.cancelled && ((incoming.payments || []).length > 0 || !!incoming.awaitingShopeePayout);
+    const target = confirmed && incoming.productId ? { id: incoming.productId, qty: incoming.quantity } : null;
+    const before = prev?.stockDeducted && prev.productId ? { id: prev.productId, qty: prev.quantity } : null;
+
+    let nextProducts = products;
+    const same = before && target && before.id === target.id && before.qty === target.qty;
+    if (!same) {
+      if (before) nextProducts = adjustStock(before.id, before.qty, nextProducts);
+      if (target) nextProducts = adjustStock(target.id, -target.qty, nextProducts);
+      if (nextProducts !== products) setProducts(nextProducts);
+    }
+
+    const order: Order = { ...incoming, stockDeducted: !!target, updatedAt: new Date().toISOString() };
+    setOrders((list) => {
+      const i = list.findIndex((o) => o.id === order.id);
+      return i >= 0 ? list.map((o) => (o.id === order.id ? order : o)) : [order, ...list];
+    });
+    try {
+      await saveOrderCloud(order);
+    } catch (err: any) {
+      alert(
+        'บันทึกออเดอร์ขึ้นระบบไม่สำเร็จ' +
+          (String(err?.message || '').includes('exceeds the maximum')
+            ? ' เพราะรูปหน้างานมีขนาดรวมใหญ่เกินไป กรุณาลบรูปออกบางรูปแล้วบันทึกใหม่'
+            : ` (${err?.message || 'ไม่ทราบสาเหตุ'})`)
+      );
+    }
+    return order;
+  };
+
+  const handleDeleteOrder = (order: Order) => {
+    if (order.stockDeducted && order.productId) {
+      setProducts(adjustStock(order.productId, order.quantity, products));
+    }
+    setOrders((list) => list.filter((o) => o.id !== order.id));
+    deleteOrderCloud(order.id);
+  };
+
+  const handleSaveOrderOptions = (opts: OrderOptions) => {
+    handleSaveSeller({ ...seller, orderOptions: opts });
+  };
+
+  const handleCreateStockProduct = (p: Product) => {
+    setProducts((list) => [p, ...list]);
+    saveProductCloud(p);
+  };
+
+  /** ออกใบเสร็จรับเงินในระบบเอกสารขาย จากรายการรับเงินของออเดอร์ */
+  const handleIssueOrderReceipt = async (order: Order, paymentId: string) => {
+    const pay = order.payments.find((p) => p.id === paymentId);
+    if (!pay) return;
+    if (pay.receiptDocId) {
+      const existing = documents.find((d) => d.id === pay.receiptDocId);
+      if (existing) {
+        setSelectedDoc(existing);
+        return;
+      }
+    }
+    const stage: PaymentStage =
+      pay.type === 'มัดจำ' ? 'DEPOSIT' : pay.type === 'ชำระหน้างาน' ? 'BALANCE' : 'FULL';
+    const docNumber = generateDocNumber('RECEIPT', documents);
+    const now = new Date().toISOString();
+    const itemName = `${order.productLine} ${productTitle(order)}`.trim();
+    const receipt: SalesDocument = {
+      id: `doc-${Date.now()}`,
+      docNumber,
+      type: 'RECEIPT',
+      date: pay.date,
+      dueDate: pay.date,
+      customerId: '',
+      customerName: order.customerName,
+      customerPhone: order.customerPhone || '',
+      customerAddress: order.installArea || '',
+      items: [
+        {
+          // ไม่ผูก productId: สต็อกถูกตัดไปแล้วตอนยืนยันออเดอร์ ถ้าผูกไว้ระบบเอกสารจะตัดซ้ำ
+          productName: `${pay.type === 'มัดจำ' ? 'รับชำระเงินมัดจำ' : pay.type === 'ชำระหน้างาน' ? 'รับชำระยอดคงเหลือ' : 'รับชำระค่าสินค้า'} ${itemName}`,
+          sku: order.orderNumber,
+          description: `ออเดอร์ ${order.orderNumber} · ราคาเต็ม ฿${order.price.toLocaleString()}${order.fulfillment === 'ติดตั้ง' ? ' (รวมติดตั้ง)' : ''}`,
+          unit: 'รายการ',
+          price: pay.amount,
+          costPrice: 0,
+          quantity: 1,
+          discount: 0,
+          total: pay.amount,
+        },
+      ],
+      subtotal: pay.amount,
+      discountAmount: 0,
+      shippingFee: 0,
+      vatRate: 0,
+      vatAmount: 0,
+      grandTotal: pay.amount,
+      status: 'PAID',
+      paymentMethod: pay.method,
+      paymentDate: pay.date,
+      paymentStage: stage,
+      depositAmount: stage === 'DEPOSIT' ? pay.amount : undefined,
+      paidAmount: pay.amount,
+      remainingAmount: 0,
+      notes: pay.note || seller.defaultReceiptNotes || `อ้างอิงออเดอร์ ${order.orderNumber}`,
+      createdAt: now,
+      updatedAt: now,
+    };
+    await handleSaveDocument(receipt);
+    await handleSaveOrder({
+      ...order,
+      payments: order.payments.map((p) =>
+        p.id === paymentId ? { ...p, receiptDocId: receipt.id, receiptDocNumber: docNumber } : p
+      ),
+    });
+    setSelectedDoc(receipt);
+  };
+
+  const handleOpenDocById = (docId: string) => {
+    const d = documents.find((x) => x.id === docId);
+    if (d) setSelectedDoc(d);
+  };
+
   const handleDeleteDocument = (docId: string) => {
     deleteDocumentCloud(docId);
     if (selectedDoc?.id === docId) setSelectedDoc(null);
@@ -731,6 +887,7 @@ export default function App() {
       customers,
       documents,
       expenses,
+      orders,
       exportedAt: new Date().toISOString(),
     };
     const jsonStr = JSON.stringify(backupData, null, 2);
@@ -766,32 +923,64 @@ export default function App() {
   // 1. Loading screen while initializing auth state
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A203F] via-[#0D2B52] to-[#08182B] flex flex-col items-center justify-center p-4 text-white">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 border border-white/20 shadow-inner mb-4 animate-pulse">
-          <ShoppingBag className="w-8 h-8 text-sky-300" />
+      <div className="min-h-screen bg-gradient-to-br from-[#18181B] via-[#18181B] to-[#18181B] flex flex-col items-center justify-center p-4 text-white">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-white/10 border border-white/20 shadow-inner mb-4 animate-pulse">
+          <ShoppingBag className="w-8 h-8 text-zinc-300" />
         </div>
-        <div className="flex items-center gap-2.5 text-sm font-bold text-sky-100">
-          <Loader2 className="w-4 h-4 animate-spin text-sky-400" />
+        <div className="flex items-center gap-2.5 text-sm font-bold text-zinc-100">
+          <Loader2 className="w-4 h-4 animate-spin text-zinc-500" />
           <span>กำลังตรวจสอบสถานะการเข้าสู่ระบบ...</span>
         </div>
       </div>
     );
   }
 
-  // 2. Unauthenticated state: Only display the Login/Register Screen
+  // 2. Unauthenticated state: Only display the Login Screen
   if (!currentUser) {
     return <LoginView />;
   }
 
+  // 2.1 Unauthorized user: Logged in with an email other than owner
+  const isOwner = currentUser.email?.toLowerCase().trim() === 'mp.jureerat@gmail.com';
+  if (!isOwner) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#18181B] via-[#18181B] to-[#18181B] flex flex-col items-center justify-center p-4 sm:p-6 text-white text-center">
+        <div className="w-full max-w-md bg-white text-[#18181B] rounded-xl shadow-2xl p-7 border border-zinc-100">
+          <div className="w-14 h-14 bg-zinc-50 text-red-500 rounded-xl flex items-center justify-center mx-auto mb-4 border border-zinc-200">
+            <Lock className="w-7 h-7" />
+          </div>
+          <h2 className="text-xl font-black text-zinc-800 mb-2">ไม่มีสิทธิ์เข้าถึงระบบ</h2>
+          <p className="text-xs text-zinc-600 mb-4 leading-relaxed">
+            ระบบจัดการร้านค้านี้จำกัดสิทธิ์การเข้าถึงเฉพาะบัญชีเจ้าของร้าน (<strong>mp.jureerat@gmail.com</strong>) เท่านั้น
+          </p>
+          <div className="p-3 bg-zinc-50 rounded-lg border border-zinc-200 text-xs text-zinc-600 mb-5 text-left space-y-1">
+            <div className="text-zinc-500">บัญชีที่กำลังล็อกอินอยู่ในปัจจุบัน:</div>
+            <div className="font-bold text-red-600 truncate">{currentUser.email || 'ไม่ระบุอีเมล'}</div>
+            <div className="text-[11px] text-zinc-500 pt-1 border-t border-zinc-200">
+              กรุณากดปุ่มด้านล่างเพื่อออกจากระบบ แล้วเลือกล็อกอินด้วยบัญชี <strong>mp.jureerat@gmail.com</strong>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full py-3 px-4 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-bold rounded-lg shadow-md transition-all cursor-pointer"
+          >
+            ออกจากระบบเพื่อเปลี่ยนบัญชี Google
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // 3. Authenticated App Layout
   return (
-    <div className="min-h-screen bg-[#F5F7FB] text-[#1F2A44] font-sans">
+    <div className="min-h-screen bg-[#F4F4F5] text-[#18181B] font-sans">
       {/* 1. Left Sidebar */}
       <Sidebar
         seller={seller}
         activeTab={activeTab}
         onChangeTab={setActiveTab}
         lowStockCount={lowStockCount}
+        orderAlertCount={warrantyAlertCount}
         onOpenSettings={() => setIsSettingsOpen(true)}
         isOpenMobile={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
@@ -811,6 +1000,7 @@ export default function App() {
           onOpenSettings={() => setIsSettingsOpen(true)}
           onSyncGoogleSheets={syncToGoogleSheets}
           lowStockCount={lowStockCount}
+          orderAlertCount={warrantyAlertCount}
           onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
           currentUser={currentUser}
           onLogout={handleLogout}
@@ -882,6 +1072,20 @@ export default function App() {
           />
         )}
 
+        {activeTab === 'orders' && (
+          <OrdersView
+            orders={orders}
+            products={products}
+            options={orderOptions}
+            onSaveOrder={handleSaveOrder}
+            onDeleteOrder={handleDeleteOrder}
+            onSaveOptions={handleSaveOrderOptions}
+            onCreateStockProduct={handleCreateStockProduct}
+            onIssueReceipt={handleIssueOrderReceipt}
+            onOpenDoc={handleOpenDocById}
+          />
+        )}
+
         {activeTab === 'reports' && (
           <ReportsView
             documents={documents}
@@ -912,7 +1116,7 @@ export default function App() {
 
       {/* Payment Voucher Detail Modal */}
       {selectedExpenseVoucher && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-zinc-900/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="w-full max-w-5xl my-auto">
             <PaymentVoucherDetailView
               expense={selectedExpenseVoucher}

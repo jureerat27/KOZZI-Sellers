@@ -58,100 +58,100 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
   return (
     <div className="space-y-5 pb-20">
       {/* Header & New Document Quick Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/90 border border-rose-100 p-4 rounded-2xl shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/90 border border-zinc-100 p-4 rounded-xl shadow-xs">
         <div>
-          <h1 className="text-base font-bold text-slate-800 flex items-center gap-2">
-            <span className="text-xl">📑</span>
+          <h1 className="text-base font-bold text-zinc-800 flex items-center gap-2">
+            <FileText className="w-5 h-5" />
             <span>ระบบจัดการเอกสารการขาย</span>
           </h1>
-          <p className="text-xs text-slate-500">
-            ออกใบเสนอราคา ใบแจ้งหนี้ และใบเสร็จรับเงินในนามบุคคลมินิมอล 🌸
+          <p className="text-xs text-zinc-500">
+            ออกใบเสนอราคา ใบแจ้งหนี้ และใบเสร็จรับเงินในนามบุคคลมินิมอล
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => onCreateDoc('QUOTATION')}
-            className="px-3.5 py-2 bg-sky-400 hover:bg-sky-500 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
           >
             <FilePlus className="w-4 h-4" />
-            <span>+ ใบเสนอราคา 📄</span>
+            <span>+ ใบเสนอราคา</span>
           </button>
 
           <button
             onClick={() => onCreateDoc('INVOICE')}
-            className="px-3.5 py-2 bg-emerald-400 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
           >
             <Receipt className="w-4 h-4" />
-            <span>+ ใบแจ้งหนี้ 🧾</span>
+            <span>+ ใบแจ้งหนี้</span>
           </button>
 
           <button
             onClick={() => onCreateDoc('RECEIPT')}
-            className="px-3.5 py-2 bg-pink-400 hover:bg-pink-500 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
           >
             <CheckCircle className="w-4 h-4" />
-            <span>+ ใบเสร็จ 💳</span>
+            <span>+ ใบเสร็จ</span>
           </button>
         </div>
       </div>
 
       {/* Filter and Search Section */}
-      <div className="bg-white/90 border border-rose-100 p-4 rounded-2xl space-y-3 shadow-xs">
+      <div className="bg-white/90 border border-zinc-100 p-4 rounded-xl space-y-3 shadow-xs">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Type Filter Pills */}
-          <div className="flex items-center gap-1 bg-pink-50/60 p-1 rounded-xl w-full sm:w-auto overflow-x-auto border border-pink-100">
+          <div className="flex items-center gap-1 bg-zinc-50/60 p-1 rounded-lg w-full sm:w-auto overflow-x-auto border border-zinc-100">
             <button
               onClick={() => setTypeFilter('ALL')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
                 typeFilter === 'ALL'
-                  ? 'bg-white text-pink-700 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white text-zinc-900 shadow-xs'
+                  : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
-              ทั้งหมด ({documents.length}) 🌸
+              ทั้งหมด ({documents.length})
             </button>
             <button
               onClick={() => setTypeFilter('QUOTATION')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
                 typeFilter === 'QUOTATION'
-                  ? 'bg-sky-400 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-zinc-900 text-white shadow-xs'
+                  : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
-              ใบเสนอราคา 📄
+              ใบเสนอราคา
             </button>
             <button
               onClick={() => setTypeFilter('INVOICE')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
                 typeFilter === 'INVOICE'
-                  ? 'bg-emerald-400 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-zinc-900 text-white shadow-xs'
+                  : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
-              ใบแจ้งหนี้ 🧾
+              ใบแจ้งหนี้
             </button>
             <button
               onClick={() => setTypeFilter('RECEIPT')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
                 typeFilter === 'RECEIPT'
-                  ? 'bg-pink-400 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-zinc-900 text-white shadow-xs'
+                  : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
-              ใบเสร็จรับเงิน 💳
+              ใบเสร็จรับเงิน
             </button>
           </div>
 
           {/* Search Input */}
           <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-pink-400" />
+            <Search className="w-4 h-4 absolute left-3 top-2.5 text-zinc-500" />
             <input
               type="text"
               placeholder="ค้นหาเลขที่เอกสาร / ลูกค้า / เลขผู้เสียภาษี..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-pink-50/30 border border-pink-200 text-xs text-slate-800 rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-pink-400"
+              className="w-full bg-zinc-50/30 border border-zinc-200 text-xs text-zinc-800 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-zinc-500"
             />
           </div>
         </div>
@@ -160,54 +160,54 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
       {/* Documents List */}
       <div className="space-y-2.5">
         {filteredDocs.length === 0 ? (
-          <div className="bg-white/90 border border-rose-100 rounded-2xl p-10 text-center text-slate-400 text-xs shadow-xs">
-            🌸 ไม่พบเอกสารตามเงื่อนไขที่ค้นหา
+          <div className="bg-white/90 border border-zinc-100 rounded-xl p-10 text-center text-zinc-400 text-xs shadow-xs">
+            ไม่พบเอกสารตามเงื่อนไขที่ค้นหา
           </div>
         ) : (
           filteredDocs.map((doc) => {
-            let statusBg = 'bg-slate-100 text-slate-600 border-slate-200';
-            let statusText = 'ฉบับร่าง 📝';
+            let statusBg = 'bg-zinc-100 text-zinc-600 border-zinc-200';
+            let statusText = 'ฉบับร่าง';
 
             if (doc.status === 'PAID') {
               statusBg = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-              statusText = 'ชำระแล้ว 🟢';
+              statusText = 'ชำระแล้ว';
             } else if (doc.status === 'DEPOSIT_PAID') {
-              statusBg = 'bg-teal-100 text-teal-800 border-teal-200';
-              statusText = 'ชำระมัดจำแล้ว 🟢';
+              statusBg = 'bg-zinc-100 text-zinc-950 border-zinc-200';
+              statusText = 'ชำระมัดจำแล้ว';
             } else if (doc.status === 'PENDING_DEPOSIT') {
               statusBg = 'bg-amber-100 text-amber-800 border-amber-200';
               statusText = 'รอมัดจำ ⏳';
             } else if (doc.status === 'PARTIALLY_PAID') {
               statusBg = 'bg-yellow-100 text-yellow-800 border-yellow-200';
-              statusText = 'ชำระบางส่วน 🟡';
+              statusText = 'ชำระบางส่วน';
             } else if (doc.status === 'SENT') {
-              statusBg = 'bg-sky-100 text-sky-800 border-sky-200';
-              statusText = 'ส่งแล้ว 🔵';
+              statusBg = 'bg-zinc-100 text-zinc-950 border-zinc-200';
+              statusText = 'ส่งแล้ว';
             } else if (doc.status === 'APPROVED') {
-              statusBg = 'bg-purple-100 text-purple-800 border-purple-200';
-              statusText = 'อนุมัติแล้ว ✨';
+              statusBg = 'bg-zinc-100 text-zinc-950 border-zinc-200';
+              statusText = 'อนุมัติแล้ว';
             }
 
             const typeBadgeColor =
               doc.type === 'QUOTATION'
-                ? 'bg-sky-100 text-sky-800 border-sky-200'
+                ? 'bg-zinc-100 text-zinc-950 border-zinc-200'
                 : doc.type === 'INVOICE'
                 ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                : 'bg-pink-100 text-pink-800 border-pink-200';
+                : 'bg-zinc-100 text-zinc-950 border-zinc-200';
 
             return (
               <div
                 key={doc.id}
-                className="bg-white/90 border border-rose-100 hover:border-pink-200 p-4 rounded-2xl transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
+                className="bg-white/90 border border-zinc-100 hover:border-zinc-200 p-4 rounded-xl transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-pink-50 border border-pink-100 flex items-center justify-center text-pink-500 shrink-0 mt-0.5">
-                    <FileText className="w-5 h-5 text-pink-500" />
+                  <div className="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-800 shrink-0 mt-0.5">
+                    <FileText className="w-5 h-5 text-zinc-800" />
                   </div>
 
                   <div>
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-bold text-sm text-slate-800">{doc.docNumber}</span>
+                      <span className="font-bold text-sm text-zinc-800">{doc.docNumber}</span>
                       <span className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold ${typeBadgeColor}`}>
                         {doc.type}
                       </span>
@@ -217,20 +217,20 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                             doc.paymentStage === 'DEPOSIT'
                               ? 'bg-amber-50 text-amber-700 border-amber-200'
                               : doc.paymentStage === 'BALANCE'
-                              ? 'bg-purple-50 text-purple-700 border-purple-200'
-                              : 'bg-slate-50 text-slate-600 border-slate-200'
+                              ? 'bg-zinc-50 text-zinc-900 border-zinc-200'
+                              : 'bg-zinc-50 text-zinc-600 border-zinc-200'
                           }`}
                         >
                           {doc.paymentStage === 'DEPOSIT'
-                            ? '💰 เงินมัดจำ'
+                            ? 'เงินมัดจำ'
                             : doc.paymentStage === 'BALANCE'
-                            ? '🏷️ ยอดคงเหลือ'
+                            ? 'ยอดคงเหลือ'
                             : 'เต็มจำนวน'}
                         </span>
                       )}
                       {doc.type === 'QUOTATION' && doc.paymentTermType === 'DEPOSIT' && (
                         <span className="text-[10px] px-2 py-0.5 rounded-md border font-bold bg-amber-50 text-amber-700 border-amber-200">
-                          ⭐ มัดจำ {doc.depositPercent ? `${doc.depositPercent}%` : `฿${formatCurrency(doc.depositAmount || 0)}`}
+                          มัดจำ {doc.depositPercent ? `${doc.depositPercent}%` : `฿${formatCurrency(doc.depositAmount || 0)}`}
                         </span>
                       )}
                       <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${statusBg}`}>
@@ -238,19 +238,19 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-700 font-semibold mt-1">
-                      👤 ลูกค้า: {doc.customerName}
+                    <p className="text-xs text-zinc-700 font-semibold mt-1">
+                      ลูกค้า: {doc.customerName}
                       {doc.customerTaxId ? (
-                        <span className="font-normal font-mono text-slate-500 text-[11px] ml-1.5">
+                        <span className="font-normal font-mono text-zinc-500 text-[11px] ml-1.5">
                           (Tax: {doc.customerTaxId})
                         </span>
                       ) : null}
                     </p>
-                    <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
-                      <span>📅 ออกเมื่อ: {formatDate(doc.date)}</span>
-                      <span>• 📦 {doc.items.length} รายการ</span>
+                    <p className="text-[11px] text-zinc-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                      <span>ออกเมื่อ: {formatDate(doc.date)}</span>
+                      <span>• {doc.items.length} รายการ</span>
                       {doc.parentQuotationDocNumber && (
-                        <span className="text-slate-400 font-mono text-[10px] bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
+                        <span className="text-zinc-400 font-mono text-[10px] bg-zinc-50 px-1.5 py-0.5 rounded border border-zinc-200">
                           QT: {doc.parentQuotationDocNumber}
                         </span>
                       )}
@@ -258,10 +258,10 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-rose-50">
+                <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-zinc-50">
                   <div className="text-left sm:text-right">
-                    <span className="text-[10px] text-slate-500 block">ยอดรวมทั้งสิ้น</span>
-                    <span className="font-extrabold text-pink-600 text-base">
+                    <span className="text-[10px] text-zinc-500 block">ยอดรวมทั้งสิ้น</span>
+                    <span className="font-extrabold text-zinc-900 text-base">
                       ฿{formatCurrency(doc.grandTotal)}
                     </span>
                   </div>
@@ -269,16 +269,16 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => onOpenDocDetail(doc)}
-                      className="px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-700 rounded-xl text-xs font-bold border border-pink-200 flex items-center gap-1 transition-all"
+                      className="px-3 py-1.5 bg-zinc-50 hover:bg-zinc-100 text-zinc-900 rounded-lg text-xs font-bold border border-zinc-200 flex items-center gap-1 transition-all"
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      <span>ดู/พิมพ์ 🖨️</span>
+                      <span>ดู/พิมพ์</span>
                     </button>
 
                     {onEditDoc && (
                       <button
                         onClick={() => onEditDoc(doc)}
-                        className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold border border-amber-200 flex items-center gap-1 transition-all"
+                        className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-lg text-xs font-bold border border-amber-200 flex items-center gap-1 transition-all"
                         title="แก้ไขเอกสาร"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -288,7 +288,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
                     <button
                       onClick={() => onShowPromptPayQR(doc.grandTotal, doc.docNumber)}
-                      className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200 transition-all"
+                      className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg border border-emerald-200 transition-all"
                       title="PromptPay QR Code"
                     >
                       <QrCode className="w-4 h-4" />
@@ -296,7 +296,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
                     <button
                       onClick={() => setDeletingDoc(doc)}
-                      className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl border border-rose-200 transition-all"
+                      className="p-2 bg-zinc-50 hover:bg-zinc-100 text-rose-600 rounded-lg border border-zinc-200 transition-all"
                       title="ลบเอกสาร"
                     >
                       <Trash2 className="w-4 h-4" />

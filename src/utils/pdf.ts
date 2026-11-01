@@ -249,7 +249,7 @@ export function printElementIsolated(
       padding: 0 !important;
       background: #ffffff !important;
       background-color: #ffffff !important;
-      color: #0D2B52 !important;
+      color: #18181B !important;
       font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
       width: 100% !important;
       min-height: auto !important;

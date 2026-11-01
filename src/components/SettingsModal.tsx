@@ -14,6 +14,9 @@ import {
   Image,
   Trash2,
   Settings,
+  MessageSquare,
+  NotebookPen,
+  PenLine,
 } from 'lucide-react';
 import { SellerProfile, SyncLog } from '../types';
 import { sendLineOaPushNotification } from '../utils/line';
@@ -169,26 +172,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white border border-[#CBD7E6] text-[#1F2A44] rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 bg-zinc-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white border border-[#D4D4D8] text-[#18181B] rounded-xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between bg-white sticky top-0 z-10">
+        <div className="px-6 py-4 border-b border-[#E4E4E7] flex items-center justify-between bg-white sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#0D2B52] text-white flex items-center justify-center font-bold shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-[#18181B] text-white flex items-center justify-center font-bold shadow-md">
               <Settings className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="font-extrabold text-base text-[#0D2B52]">
+              <h2 className="font-extrabold text-base text-[#18181B]">
                 ตั้งค่าระบบร้านค้า & สำรองข้อมูล
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-zinc-500">
                 จัดการโลโก้ร้านค้า, ข้อมูลผู้ขาย, พร้อมเพย์, LINE Notify และ Google Sheets Sync
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+            className="p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -197,17 +200,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Body */}
         <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Section 1: Merchant Profile & Logo */}
-          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#0D2B52] flex items-center gap-2">
-              <User className="w-4 h-4 text-[#2563EB]" />
+          <div className="bg-[#FAFAFA] border border-[#E4E4E7] rounded-xl p-5 space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-2">
+              <User className="w-4 h-4 text-[#71717A]" />
               <span>ข้อมูลผู้ขาย & โลโก้ร้านค้า (Merchant Profile)</span>
             </h3>
 
             {/* Logo Manager Box */}
-            <div className="bg-white border border-[#CBD7E6] rounded-2xl p-4 space-y-3 shadow-2xs">
+            <div className="bg-white border border-[#D4D4D8] rounded-xl p-4 space-y-3 shadow-2xs">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-extrabold text-[#0D2B52] flex items-center gap-2">
-                  <Image className="w-4 h-4 text-[#2563EB]" />
+                <label className="text-xs font-extrabold text-[#18181B] flex items-center gap-2">
+                  <Image className="w-4 h-4 text-[#71717A]" />
                   <span>โลโก้ร้านค้า (Store Logo)</span>
                 </label>
                 {logoUrl && (
@@ -218,25 +221,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
 
               {logoUrl ? (
-                <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#F8FAFC] p-3.5 rounded-xl border border-slate-200">
+                <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#FAFAFA] p-3.5 rounded-lg border border-zinc-200">
                   <div className="relative group shrink-0">
                     <img
                       src={logoUrl}
                       alt="Store Logo Preview"
-                      className="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-md bg-white p-1"
+                      className="w-20 h-20 rounded-xl object-cover border-2 border-white shadow-md bg-white p-1"
                     />
                   </div>
 
                   <div className="flex-1 space-y-2 text-center sm:text-left">
-                    <div className="text-xs font-bold text-[#0D2B52]">
+                    <div className="text-xs font-bold text-[#18181B]">
                       โลโก้ปัจจุบันของร้านค้า
                     </div>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-zinc-500">
                       โลโก้นี้จะแสดงบนหัวเอกสารขาย (ใบเสนอราคา, ใบแจ้งหนี้, ใบเสร็จ) และบนแถบ Dashboard
                     </p>
 
                     <div className="flex flex-wrap items-center gap-2 pt-1 justify-center sm:justify-start">
-                      <label className="px-3.5 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-extrabold rounded-xl cursor-pointer transition-all flex items-center gap-1.5 shadow-2xs active:scale-98">
+                      <label className="px-3.5 py-1.5 bg-[#71717A] hover:bg-[#27272A] text-white text-xs font-extrabold rounded-lg cursor-pointer transition-all flex items-center gap-1.5 shadow-2xs active:scale-98">
                         <Upload className="w-3.5 h-3.5" />
                         <span>เปลี่ยนรูปโลโก้</span>
                         <input
@@ -250,7 +253,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <button
                         type="button"
                         onClick={handleDeleteLogo}
-                        className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 active:scale-98"
+                        className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 text-rose-600 border border-zinc-200 text-xs font-extrabold rounded-lg transition-all flex items-center gap-1.5 active:scale-98"
                       >
                         <Trash2 className="w-3.5 h-3.5 text-rose-600" />
                         <span>ลบโลโก้</span>
@@ -259,22 +262,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="p-5 border-2 border-dashed border-[#CBD7E6] hover:border-[#2563EB] rounded-2xl bg-[#F8FAFC] hover:bg-blue-50/40 transition-all text-center space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-100 text-[#2563EB] flex items-center justify-center mx-auto shadow-2xs">
-                    <Image className="w-6 h-6 text-[#2563EB]" />
+                <div className="p-5 border-2 border-dashed border-[#D4D4D8] hover:border-[#71717A] rounded-xl bg-[#FAFAFA] hover:bg-zinc-50/40 transition-all text-center space-y-3">
+                  <div className="w-12 h-12 rounded-xl bg-zinc-100 text-[#71717A] flex items-center justify-center mx-auto shadow-2xs">
+                    <Image className="w-6 h-6 text-[#71717A]" />
                   </div>
 
                   <div>
-                    <div className="text-xs font-extrabold text-[#0D2B52]">
+                    <div className="text-xs font-extrabold text-[#18181B]">
                       ยังไม่มีโลโก้ร้านค้า
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
+                    <p className="text-[11px] text-zinc-500 mt-0.5">
                       อัปโหลดรูปภาพโลโก้ (PNG, JPG, WEBP) เพื่อแสดงบนเอกสารขายและเมนูร้าน
                     </p>
                   </div>
 
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-1">
-                    <label className="px-4 py-2 bg-[#0D2B52] hover:bg-[#081E3B] text-white text-xs font-extrabold rounded-xl cursor-pointer transition-all flex items-center gap-2 shadow-xs active:scale-98">
+                    <label className="px-4 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg cursor-pointer transition-all flex items-center gap-2 shadow-xs active:scale-98">
                       <Upload className="w-4 h-4 text-white" />
                       <span>อัปโหลดรูปภาพโลโก้</span>
                       <input
@@ -289,9 +292,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               )}
 
               {/* URL Direct Fallback */}
-              <div className="pt-2 border-t border-slate-100">
-                <details className="text-[11px] text-slate-500 cursor-pointer">
-                  <summary className="font-bold hover:text-[#2563EB] transition-colors">
+              <div className="pt-2 border-t border-zinc-100">
+                <details className="text-[11px] text-zinc-500 cursor-pointer">
+                  <summary className="font-bold hover:text-[#71717A] transition-colors">
                     หรือระบุ URL รูปภาพโลโก้โดยตรง
                   </summary>
                   <div className="mt-2 flex gap-2">
@@ -300,13 +303,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       value={logoUrl}
                       onChange={(e) => setLogoUrl(e.target.value)}
                       placeholder="https://example.com/logo.png"
-                      className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
+                      className="flex-1 bg-white border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A]"
                     />
                     {logoUrl && (
                       <button
                         type="button"
                         onClick={() => setLogoUrl('')}
-                        className="px-3 py-2 text-xs font-bold text-slate-500 hover:text-rose-600 bg-slate-100 rounded-xl transition-colors"
+                        className="px-3 py-2 text-xs font-bold text-zinc-500 hover:text-rose-600 bg-zinc-100 rounded-lg transition-colors"
                       >
                         ล้าง URL
                       </button>
@@ -318,7 +321,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                <label className="block text-[11px] font-bold text-zinc-600 mb-1">
                   ชื่อร้านค้า / แบรนด์ (แสดงข้างโลโก้ในหัวเอกสาร) *
                 </label>
                 <input
@@ -330,12 +333,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     setName(e.target.value);
                   }}
                   placeholder="เช่น KOZZI ราวตากผ้าอัจฉริยะ"
-                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A]"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                <label className="block text-[11px] font-bold text-zinc-600 mb-1">
                   ชื่อ-นามสกุล ผู้ประกอบการ (แสดงในบรรทัดชื่อผู้ประกอบการ) *
                 </label>
                 <input
@@ -344,12 +347,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
                   placeholder="เช่น นางสาวจุรีรัตน์ มั่นคง"
-                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A]"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                <label className="block text-[11px] font-bold text-zinc-600 mb-1">
                   เลขประจำตัวผู้เสียภาษี 13 หลัก / เลขบัตรประชาชน
                 </label>
                 <input
@@ -357,48 +360,48 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   value={taxId}
                   onChange={(e) => setTaxId(e.target.value)}
                   placeholder="เช่น 1100200300401"
-                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 font-mono focus:outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 font-mono focus:outline-none focus:border-[#71717A]"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">เบอร์โทรศัพท์ติดต่อ</label>
+                <label className="block text-[11px] font-bold text-zinc-600 mb-1">เบอร์โทรศัพท์ติดต่อ</label>
                 <input
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="064-651-8822"
-                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A]"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">อีเมลติดต่อ</label>
+                <label className="block text-[11px] font-bold text-zinc-600 mb-1">อีเมลติดต่อ</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="kozzi.th@gmail.com"
-                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A]"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">ที่อยู่ผู้ขาย / ที่ตั้งร้านค้า (จะแสดงในเอกสารทุกประเภท)</label>
+                <label className="block text-[11px] font-bold text-zinc-600 mb-1">ที่อยู่ผู้ขาย / ที่ตั้งร้านค้า (จะแสดงในเอกสารทุกประเภท)</label>
                 <textarea
                   rows={2}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A]"
                 ></textarea>
               </div>
             </div>
 
             {/* Signature Manager Box */}
-            <div className="bg-white border border-[#CBD7E6] rounded-2xl p-4 space-y-3 shadow-2xs mt-4">
+            <div className="bg-white border border-[#D4D4D8] rounded-xl p-4 space-y-3 shadow-2xs mt-4">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-extrabold text-[#0D2B52] flex items-center gap-2">
-                  <span className="text-base">✍️</span>
+                <label className="text-xs font-extrabold text-[#18181B] flex items-center gap-2">
+                  <PenLine className="w-4 h-4" />
                   <span>ลายเซ็นร้านค้า/ผู้ขาย (Embedded Signature for Documents)</span>
                 </label>
                 {signatureUrl && (
@@ -409,8 +412,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
 
               {signatureUrl ? (
-                <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#F8FAFC] p-3.5 rounded-xl border border-slate-200">
-                  <div className="shrink-0 bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#FAFAFA] p-3.5 rounded-lg border border-zinc-200">
+                  <div className="shrink-0 bg-white p-2 rounded-lg border border-zinc-200 shadow-2xs">
                     <img
                       src={signatureUrl}
                       alt="Store Signature Preview"
@@ -419,15 +422,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
 
                   <div className="flex-1 space-y-2 text-center sm:text-left">
-                    <div className="text-xs font-bold text-[#0D2B52]">
+                    <div className="text-xs font-bold text-[#18181B]">
                       ลายเซ็นดิจิทัลที่จะแสดงบนเอกสาร
                     </div>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-zinc-500">
                       ลายเซ็นนี้จะประทับอยู่เหนือชื่อผู้ขายในส่วนท้ายของใบเสนอราคา ใบแจ้งหนี้ และใบเสร็จรับเงิน
                     </p>
 
                     <div className="flex flex-wrap items-center gap-2 pt-1 justify-center sm:justify-start">
-                      <label className="px-3.5 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-extrabold rounded-xl cursor-pointer transition-all flex items-center gap-1.5 shadow-2xs active:scale-98">
+                      <label className="px-3.5 py-1.5 bg-[#71717A] hover:bg-[#27272A] text-white text-xs font-extrabold rounded-lg cursor-pointer transition-all flex items-center gap-1.5 shadow-2xs active:scale-98">
                         <Upload className="w-3.5 h-3.5" />
                         <span>เปลี่ยนรูปหรือไฟล์ลายเซ็น</span>
                         <input
@@ -441,7 +444,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <button
                         type="button"
                         onClick={handleDeleteSignature}
-                        className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 active:scale-98"
+                        className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 text-rose-600 border border-zinc-200 text-xs font-extrabold rounded-lg transition-all flex items-center gap-1.5 active:scale-98"
                       >
                         <Trash2 className="w-3.5 h-3.5 text-rose-600" />
                         <span>ลบลายเซ็น</span>
@@ -450,14 +453,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="p-4 border-2 border-dashed border-[#CBD7E6] hover:border-[#2563EB] rounded-2xl bg-[#F8FAFC] hover:bg-blue-50/40 transition-all text-center space-y-2">
-                  <div className="text-xs font-extrabold text-[#0D2B52]">
+                <div className="p-4 border-2 border-dashed border-[#D4D4D8] hover:border-[#71717A] rounded-xl bg-[#FAFAFA] hover:bg-zinc-50/40 transition-all text-center space-y-2">
+                  <div className="text-xs font-extrabold text-[#18181B]">
                     ยังไม่ได้ใส่ลายเซ็นของร้านค้า
                   </div>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-zinc-500">
                     อัปโหลดรูปภาพลายเซ็น (ไฟล์ PNG พื้นหลังใส หรือรูปถ่ายลายเซ็น) เพื่อให้แสดงบนเอกสารโดยอัตโนมัติ
                   </p>
-                  <label className="inline-flex px-4 py-2 bg-[#0D2B52] hover:bg-[#081E3B] text-white text-xs font-extrabold rounded-xl cursor-pointer transition-all items-center gap-2 shadow-xs active:scale-98">
+                  <label className="inline-flex px-4 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg cursor-pointer transition-all items-center gap-2 shadow-xs active:scale-98">
                     <Upload className="w-4 h-4 text-white" />
                     <span>อัปโหลดลายเซ็นผู้ขาย</span>
                     <input
@@ -472,22 +475,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {/* Default Document Notes Box - Separated per Document Type */}
-            <div className="bg-white border border-[#CBD7E6] rounded-2xl p-4 space-y-4 shadow-2xs mt-4">
+            <div className="bg-white border border-[#D4D4D8] rounded-xl p-4 space-y-4 shadow-2xs mt-4">
               <div>
-                <label className="text-xs font-extrabold text-[#0D2B52] flex items-center gap-2">
-                  <span className="text-base">📝</span>
+                <label className="text-xs font-extrabold text-[#18181B] flex items-center gap-2">
+                  <NotebookPen className="w-4 h-4" />
                   <span>ตั้งค่าข้อความหมายเหตุเอกสารเริ่มต้น (แยกตามประเภทเอกสาร)</span>
                 </label>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                <p className="text-[11px] text-zinc-500 mt-0.5">
                   ข้อความนี้จะนำไปแสดงในหมายเหตุเริ่มต้นเมื่อสร้างหรือเปลี่ยนประเภทเอกสาร
                 </p>
               </div>
 
               {/* 1. Quotation Notes */}
-              <div className="space-y-1.5 bg-[#F8FAFC] p-3 rounded-xl border border-slate-200">
-                <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+              <div className="space-y-1.5 bg-[#FAFAFA] p-3 rounded-lg border border-zinc-200">
+                <label className="text-xs font-bold text-zinc-800 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <span className="w-2 h-2 rounded-full bg-white"></span>
                     <span>1. หมายเหตุสำหรับ "ใบเสนอราคา" (Quotation Notes)</span>
                   </span>
                 </label>
@@ -496,13 +499,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   value={defaultQuotationNotes}
                   onChange={(e) => setDefaultQuotationNotes(e.target.value)}
                   placeholder="เช่น ใบเสนอราคานี้มีผลบังคับใช้ 15 วันนับจากวันที่ออกเอกสาร"
-                  className="w-full bg-white border border-[#CBD7E6] rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB] leading-relaxed font-sans"
+                  className="w-full bg-white border border-[#D4D4D8] rounded-lg p-2.5 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A] leading-relaxed font-sans"
                 />
               </div>
 
               {/* 2. Invoice Notes */}
-              <div className="space-y-1.5 bg-[#F8FAFC] p-3 rounded-xl border border-slate-200">
-                <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+              <div className="space-y-1.5 bg-[#FAFAFA] p-3 rounded-lg border border-zinc-200">
+                <label className="text-xs font-bold text-zinc-800 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                     <span>2. หมายเหตุสำหรับ "ใบแจ้งหนี้" (Invoice Notes)</span>
@@ -513,15 +516,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   value={defaultInvoiceNotes}
                   onChange={(e) => setDefaultInvoiceNotes(e.target.value)}
                   placeholder="เช่น กรุณาชำระเงินตามกำหนดผ่านพร้อมเพย์ หรือโอนผ่านบัญชีธนาคาร"
-                  className="w-full bg-white border border-[#CBD7E6] rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB] leading-relaxed font-sans"
+                  className="w-full bg-white border border-[#D4D4D8] rounded-lg p-2.5 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A] leading-relaxed font-sans"
                 />
               </div>
 
               {/* 3. Receipt Notes */}
-              <div className="space-y-1.5 bg-[#F8FAFC] p-3 rounded-xl border border-slate-200">
-                <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+              <div className="space-y-1.5 bg-[#FAFAFA] p-3 rounded-lg border border-zinc-200">
+                <label className="text-xs font-bold text-zinc-800 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="w-2 h-2 rounded-full bg-white"></span>
                     <span>3. หมายเหตุสำหรับ "ใบเสร็จรับเงิน" (Receipt Notes)</span>
                   </span>
                 </label>
@@ -530,22 +533,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   value={defaultReceiptNotes}
                   onChange={(e) => setDefaultReceiptNotes(e.target.value)}
                   placeholder="เช่น ได้รับเงินเรียบร้อยแล้ว ขอบพระคุณที่ไว้วางใจเลือกใช้บริการร้านค้าของเรา"
-                  className="w-full bg-white border border-[#CBD7E6] rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB] leading-relaxed font-sans"
+                  className="w-full bg-white border border-[#D4D4D8] rounded-lg p-2.5 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A] leading-relaxed font-sans"
                 />
               </div>
             </div>
           </div>
 
           {/* Section 2: PromptPay & Bank Details */}
-          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#0D2B52] flex items-center gap-2">
-              <QrCode className="w-4 h-4 text-[#2563EB]" />
+          <div className="bg-[#FAFAFA] border border-[#E4E4E7] rounded-xl p-5 space-y-3">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-2">
+              <QrCode className="w-4 h-4 text-[#71717A]" />
               <span>ข้อมูลการรับเงิน (PromptPay & Bank Details)</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                <label className="block text-[11px] font-bold text-zinc-600 mb-1">
                   เลขพร้อมเพย์ (เบอร์โทร 10 หลัก หรือ เลขบัตรประชาชน 13 หลัก) *
                 </label>
                 <input
@@ -554,97 +557,97 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   value={promptPayNumber}
                   onChange={(e) => setPromptPayNumber(e.target.value)}
                   placeholder="เช่น 0812345678"
-                  className="w-full bg-white border border-[#CBD7E6] rounded-xl px-3 py-2 text-xs text-[#2563EB] font-extrabold font-mono focus:outline-none focus:border-[#0D2B52]"
+                  className="w-full bg-white border border-[#D4D4D8] rounded-lg px-3 py-2 text-xs text-[#71717A] font-extrabold font-mono focus:outline-none focus:border-[#18181B]"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">ชื่อบัญชีรับเงิน</label>
+                <label className="block text-[11px] font-bold text-zinc-600 mb-1">ชื่อบัญชีรับเงิน</label>
                 <input
                   type="text"
                   value={bankAccountName}
                   onChange={(e) => setBankAccountName(e.target.value)}
                   placeholder="เช่น นายสมชาย ใจดี"
-                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A]"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">ธนาคาร</label>
+                <label className="block text-[11px] font-bold text-zinc-600 mb-1">ธนาคาร</label>
                 <input
                   type="text"
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
                   placeholder="เช่น ธนาคารกสิกรไทย (KBank)"
-                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-[#71717A]"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">เลขที่บัญชีธนาคาร</label>
+                <label className="block text-[11px] font-bold text-zinc-600 mb-1">เลขที่บัญชีธนาคาร</label>
                 <input
                   type="text"
                   value={bankAccountNo}
                   onChange={(e) => setBankAccountNo(e.target.value)}
                   placeholder="เช่น 012-3-45678-9"
-                  className="w-full bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 font-mono focus:outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 font-mono focus:outline-none focus:border-[#71717A]"
                 />
               </div>
             </div>
           </div>
 
           {/* Section 3: LINE Notify Integration */}
-          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#0D2B52] flex items-center gap-2">
-              <Bell className="w-4 h-4 text-[#2563EB]" />
+          <div className="bg-[#FAFAFA] border border-[#E4E4E7] rounded-xl p-5 space-y-3">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-2">
+              <Bell className="w-4 h-4 text-[#71717A]" />
               <span>การตั้งค่าแจ้งเตือน LINE Notify (แจ้งเตือนร้านค้า)</span>
             </h3>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-600 mb-1">LINE Notify Access Token</label>
+              <label className="block text-[11px] font-bold text-zinc-600 mb-1">LINE Notify Access Token</label>
               <div className="flex gap-2">
                 <input
                   type="password"
                   value={lineNotifyToken}
                   onChange={(e) => setLineNotifyToken(e.target.value)}
                   placeholder="กรอก Token จาก notify-bot.line.me"
-                  className="flex-1 bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-xs text-slate-800 font-mono focus:outline-none focus:border-[#2563EB]"
+                  className="flex-1 bg-white border border-[#E4E4E7] rounded-lg px-3 py-2 text-xs text-zinc-800 font-mono focus:outline-none focus:border-[#71717A]"
                 />
                 <button
                   type="button"
                   onClick={() => onTestLineNotify(lineNotifyToken)}
-                  className="px-3.5 py-2 bg-[#16A394] hover:bg-[#0D8A7C] text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs shrink-0 transition-all active:scale-98"
+                  className="px-3.5 py-2 bg-[#27272A] hover:bg-[#18181B] text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow-xs shrink-0 transition-all active:scale-98"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>ทดสอบส่ง LINE</span>
                 </button>
               </div>
-              <p className="text-[10px] text-slate-500 mt-1">
+              <p className="text-[10px] text-zinc-500 mt-1">
                 ระบบจะส่งการแจ้งเตือนเข้ากลุ่ม/ไลน์ร้านค้าเมื่อมีการออกบิล ยืนยันชำระเงิน หรือสินค้าใกล้หมดสต็อก
               </p>
             </div>
           </div>
 
           {/* Section 3.5: LINE Official Account (LINE OA) Integration */}
-          <div className="bg-emerald-50/50 border border-emerald-200/80 rounded-2xl p-5 space-y-4">
+          <div className="bg-emerald-50/50 border border-emerald-200/80 rounded-xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-black uppercase tracking-wider text-emerald-900 flex items-center gap-2">
-                <span className="text-base">💬</span>
+                <MessageSquare className="w-4 h-4" />
                 <span>การตั้งค่าแจ้งเตือนเข้า LINE ลูกค้า (LINE Official Account / Messaging API)</span>
               </h3>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-zinc-900">
                 แนะนำสำหรับส่งบิลหาลูกค้า
               </span>
             </div>
 
-            <p className="text-[11px] text-emerald-800 leading-relaxed bg-white/80 p-3 rounded-xl border border-emerald-100">
-              💡 <strong>ข้อดีของ LINE OA Messaging API:</strong> สามารถส่งข้อความ <strong>Push Message / Flex Receipt (การ์ดบิลใบเสร็จรับเงิน)</strong> ไปที่ LINE ของลูกค้าโดยตรงเมื่อทำการออกบิลหรือรับชำระเงินเรียบร้อยแล้ว
+            <p className="text-[11px] text-emerald-800 leading-relaxed bg-white/80 p-3 rounded-lg border border-emerald-100">
+              <strong>ข้อดีของ LINE OA Messaging API:</strong> สามารถส่งข้อความ <strong>Push Message / Flex Receipt (การ์ดบิลใบเสร็จรับเงิน)</strong> ไปที่ LINE ของลูกค้าโดยตรงเมื่อทำการออกบิลหรือรับชำระเงินเรียบร้อยแล้ว
             </p>
 
             <div className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="sm:col-span-1">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                     LINE OA Basic ID (@...)
                   </label>
                   <input
@@ -652,12 +655,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     value={lineOaBasicId}
                     onChange={(e) => setLineOaBasicId(e.target.value)}
                     placeholder="เช่น @myshop_official"
-                    className="w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full bg-white border border-emerald-200 rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-emerald-500 font-mono"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                     Channel Access Token (Messaging API) *
                   </label>
                   <input
@@ -665,14 +668,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     value={lineOaChannelAccessToken}
                     onChange={(e) => setLineOaChannelAccessToken(e.target.value)}
                     placeholder="นำมาจาก LINE Developers Console (Messaging API channel)"
-                    className="w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-white border border-emerald-200 rounded-lg px-3 py-2 text-xs text-zinc-800 font-mono focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               {/* Test OA Push Box */}
-              <div className="bg-white p-3.5 rounded-xl border border-emerald-200 space-y-2">
-                <label className="block text-[11px] font-bold text-slate-700">
+              <div className="bg-white p-3.5 rounded-lg border border-emerald-200 space-y-2">
+                <label className="block text-[11px] font-bold text-zinc-700">
                   ทดสอบส่งข้อความหา LINE User ID ของลูกค้า
                 </label>
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -681,19 +684,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     value={testLineUserId}
                     onChange={(e) => setTestLineUserId(e.target.value)}
                     placeholder="กรอก LINE User ID ลูกค้า (เช่น U1234567890abcdef...)"
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 focus:outline-none focus:border-emerald-500"
+                    className="flex-1 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs font-mono text-zinc-800 focus:outline-none focus:border-emerald-500"
                   />
                   <button
                     type="button"
                     disabled={isTestingOa}
                     onClick={handleTestLineOaPush}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition-all shrink-0 active:scale-98"
+                    className="px-4 py-2 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 shadow-xs transition-all shrink-0 active:scale-98"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{isTestingOa ? 'กำลังส่ง...' : 'ทดสอบส่ง Push เข้า LINE'}</span>
                   </button>
                 </div>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[10px] text-zinc-500">
                   * LINE User ID สามารถดูได้จากระบบ CRM หรือเมื่อลูกค้าทักแชท LINE OA
                 </p>
               </div>
@@ -701,15 +704,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Section 4: Google Sheets & Cloud Backup */}
-          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#0D2B52] flex items-center gap-2">
-              <FileSpreadsheet className="w-4 h-4 text-[#2563EB]" />
+          <div className="bg-[#FAFAFA] border border-[#E4E4E7] rounded-xl p-5 space-y-3">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-2">
+              <FileSpreadsheet className="w-4 h-4 text-[#71717A]" />
               <span>สำรองข้อมูลขึ้นคลาวด์ Google Sheets</span>
             </h3>
 
-            <div className="p-4 bg-white rounded-xl border border-[#E2E8F0] space-y-2 shadow-2xs">
+            <div className="p-4 bg-white rounded-lg border border-[#E4E4E7] space-y-2 shadow-2xs">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-600 font-medium">สถานะการเชื่อมต่อ Google Sheets:</span>
+                <span className="text-zinc-600 font-medium">สถานะการเชื่อมต่อ Google Sheets:</span>
                 <span className="font-bold text-emerald-600 flex items-center gap-1">
                   <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
                   พร้อมซิงก์เรียบร้อย
@@ -717,7 +720,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
 
               {syncLog.lastSynced && (
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-zinc-500">
                   ซิงก์ล่าสุดเมื่อ: {new Date(syncLog.lastSynced).toLocaleString('th-TH')}
                 </p>
               )}
@@ -727,7 +730,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="button"
                   onClick={onSyncGoogleSheets}
                   disabled={syncLog.status === 'SYNCING'}
-                  className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs transition-all active:scale-98"
+                  className="px-4 py-2 bg-[#71717A] hover:bg-[#27272A] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all active:scale-98"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${syncLog.status === 'SYNCING' ? 'animate-spin' : ''}`} />
                   <span>{syncLog.status === 'SYNCING' ? 'กำลังซิงก์...' : 'ซิงก์ข้อมูลไปที่ Google Sheets เดี๋ยวนี้'}</span>
@@ -738,7 +741,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     href={syncLog.spreadsheetUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-xs font-bold rounded-xl border border-blue-200 flex items-center gap-1 transition-all"
+                    className="px-3.5 py-2 bg-zinc-50 hover:bg-zinc-100 text-[#71717A] text-xs font-bold rounded-lg border border-zinc-200 flex items-center gap-1 transition-all"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     <span>เปิด Google Sheet</span>
@@ -749,9 +752,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Section 5: Offline Local JSON Backup & Restore */}
-          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#0D2B52] flex items-center gap-2">
-              <Download className="w-4 h-4 text-[#2563EB]" />
+          <div className="bg-[#FAFAFA] border border-[#E4E4E7] rounded-xl p-5 space-y-3">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-2">
+              <Download className="w-4 h-4 text-[#71717A]" />
               <span>สำรอง & ฟื้นฟูข้อมูลไฟล์ JSON (Offline Data Backup)</span>
             </h3>
 
@@ -759,14 +762,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <button
                 type="button"
                 onClick={onExportBackupJson}
-                className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl border border-[#CBD7E6] flex items-center justify-center gap-2 transition-all shadow-2xs active:scale-98"
+                className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-bold rounded-lg border border-[#D4D4D8] flex items-center justify-center gap-2 transition-all shadow-2xs active:scale-98"
               >
-                <Download className="w-4 h-4 text-[#2563EB]" />
+                <Download className="w-4 h-4 text-[#71717A]" />
                 <span>ดาวน์โหลดไฟล์สำรองข้อมูล (.json)</span>
               </button>
 
-              <label className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl border border-[#CBD7E6] flex items-center justify-center gap-2 cursor-pointer transition-all shadow-2xs active:scale-98">
-                <Upload className="w-4 h-4 text-[#16A394]" />
+              <label className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-bold rounded-lg border border-[#D4D4D8] flex items-center justify-center gap-2 cursor-pointer transition-all shadow-2xs active:scale-98">
+                <Upload className="w-4 h-4 text-[#27272A]" />
                 <span>นำเข้าไฟล์สำรองข้อมูล (.json)</span>
                 <input
                   type="file"
@@ -779,17 +782,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Action Footer */}
-          <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-end gap-3 sticky bottom-0 bg-white/95 py-3">
+          <div className="pt-4 border-t border-[#E4E4E7] flex items-center justify-end gap-3 sticky bottom-0 bg-white/95 py-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-extrabold rounded-xl transition-colors"
+              className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 text-xs font-extrabold rounded-lg transition-colors"
             >
               ปิดหน้าต่าง
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-[#0D2B52] hover:bg-[#081E3B] text-white text-xs font-extrabold rounded-xl shadow-xs transition-all active:scale-98"
+              className="px-6 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg shadow-xs transition-all active:scale-98"
             >
               บันทึกการตั้งค่า
             </button>

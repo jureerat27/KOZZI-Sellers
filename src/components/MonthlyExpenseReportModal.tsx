@@ -198,25 +198,25 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-zinc-900/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-fadeIn">
       {/* Modal Container */}
-      <div className="bg-white w-full max-w-5xl max-h-[94vh] rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+      <div className="bg-white w-full max-w-5xl max-h-[94vh] rounded-xl sm:rounded-xl shadow-2xl flex flex-col overflow-hidden border border-zinc-200">
         {/* Modal Top Control Bar (Hidden on Print) */}
-        <div className="no-print bg-[#F8FAFC] border-b border-slate-200 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="no-print bg-[#FAFAFA] border-b border-zinc-200 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 text-[#0759A6] flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-200 text-[#18181B] flex items-center justify-center shadow-xs shrink-0">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-extrabold text-[#0D2B52]">
+                <h2 className="text-base font-extrabold text-[#18181B]">
                   รายงานสรุปค่าใช้จ่ายประจำเดือน
                 </h2>
-                <span className="bg-sky-100 text-[#0759A6] px-2 py-0.5 rounded-md text-[11px] font-bold">
+                <span className="bg-zinc-100 text-[#18181B] px-2 py-0.5 rounded-md text-[11px] font-bold">
                   {thaiMonthName} {thaiYearBE}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
+              <p className="text-xs text-zinc-500 font-medium mt-0.5">
                 เลือกเดือนและปีเพื่อดู Preview รายงาน และพิมพ์หรือดาวน์โหลดเอกสาร PDF ขนาด A4
               </p>
             </div>
@@ -225,16 +225,16 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
           <div className="flex items-center gap-2.5 self-end md:self-auto">
             <button
               onClick={handlePrint}
-              className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-bold rounded-xl shadow-2xs flex items-center gap-1.5 transition-all active:scale-98 cursor-pointer"
+              className="px-3.5 py-2 bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-700 text-xs font-bold rounded-lg shadow-2xs flex items-center gap-1.5 transition-all active:scale-98 cursor-pointer"
             >
-              <Printer className="w-4 h-4 text-[#0759A6]" />
+              <Printer className="w-4 h-4 text-[#18181B]" />
               <span>พิมพ์รายงาน</span>
             </button>
 
             <button
               onClick={handleDownloadPdf}
               disabled={isExportingPdf}
-              className="px-4 py-2 bg-[#0759A6] hover:bg-[#064B8B] text-white text-xs font-extrabold rounded-xl shadow-xs flex items-center gap-2 transition-all active:scale-98 cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg shadow-xs flex items-center gap-2 transition-all active:scale-98 cursor-pointer disabled:opacity-50"
             >
               <Download className="w-4 h-4" />
               <span>{isExportingPdf ? 'กำลังสร้าง PDF...' : 'ดาวน์โหลด PDF'}</span>
@@ -242,7 +242,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
 
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all ml-1 cursor-pointer"
+              className="p-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-lg transition-all ml-1 cursor-pointer"
               title="ปิดหน้าต่าง"
             >
               <X className="w-5 h-5" />
@@ -251,18 +251,18 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
         </div>
 
         {/* Filter Controls Bar: Month, Year, Quick Period Jump (Hidden on Print) */}
-        <div className="no-print bg-white border-b border-slate-200 p-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+        <div className="no-print bg-white border-b border-zinc-200 p-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Month selector */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-extrabold text-[#0D2B52] flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-[#0759A6]" />
+              <span className="text-xs font-extrabold text-[#18181B] flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5 text-[#18181B]" />
                 <span>เลือกเดือน:</span>
               </span>
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))}
-                className="bg-slate-50 border border-slate-200 text-xs font-bold text-[#0D2B52] px-3 py-1.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 shadow-2xs"
+                className="bg-zinc-50 border border-zinc-200 text-xs font-bold text-[#18181B] px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-300 shadow-2xs"
               >
                 {THAI_MONTH_NAMES.map((name, idx) => (
                   <option key={name} value={idx}>
@@ -274,11 +274,11 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
 
             {/* Year selector */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-extrabold text-[#0D2B52]">เลือกปี (พ.ศ.):</span>
+              <span className="text-xs font-extrabold text-[#18181B]">เลือกปี (พ.ศ.):</span>
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(parseInt(e.target.value, 10))}
-                className="bg-slate-50 border border-slate-200 text-xs font-bold text-[#0D2B52] px-3 py-1.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 shadow-2xs"
+                className="bg-zinc-50 border border-zinc-200 text-xs font-bold text-[#18181B] px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-300 shadow-2xs"
               >
                 {yearOptions.map((y) => (
                   <option key={y} value={y}>
@@ -290,8 +290,8 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
 
             {/* Quick Period Selector Jump */}
             {availablePeriods.length > 0 && (
-              <div className="hidden lg:flex items-center gap-1.5 pl-2 border-l border-slate-200">
-                <span className="text-[11px] font-bold text-slate-500">เดือนที่มีข้อมูล:</span>
+              <div className="hidden lg:flex items-center gap-1.5 pl-2 border-l border-zinc-200">
+                <span className="text-[11px] font-bold text-zinc-500">เดือนที่มีข้อมูล:</span>
                 <select
                   value={`${selectedYear}-${selectedMonth}`}
                   onChange={(e) => {
@@ -299,7 +299,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                     setSelectedYear(parseInt(y, 10));
                     setSelectedMonth(parseInt(m, 10));
                   }}
-                  className="bg-sky-50/60 border border-sky-200 text-[11px] font-bold text-[#0759A6] px-2.5 py-1.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 shadow-2xs"
+                  className="bg-zinc-50/60 border border-zinc-200 text-[11px] font-bold text-[#18181B] px-2.5 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-300 shadow-2xs"
                 >
                   {availablePeriods.map((p) => {
                     const mName = THAI_MONTH_NAMES[p.month];
@@ -319,23 +319,23 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
           <button
             type="button"
             onClick={() => setIncludeCancelled(!includeCancelled)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all border ${
               includeCancelled
                 ? 'bg-amber-50 text-amber-800 border-amber-300 shadow-2xs'
-                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                : 'bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-100'
             }`}
           >
             {includeCancelled ? (
               <CheckSquare className="w-3.5 h-3.5 text-amber-600" />
             ) : (
-              <Square className="w-3.5 h-3.5 text-slate-400" />
+              <Square className="w-3.5 h-3.5 text-zinc-400" />
             )}
             <span>รวมรายการที่ยกเลิก</span>
           </button>
         </div>
 
         {/* Modal Scrollable Body - Document Preview Screen */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-slate-100/70 flex justify-center">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-zinc-100/70 flex justify-center">
           {/* =========================================================================
               Dedicated Print & PDF Container: #monthly-expense-print
               A4 Portrait Summary Layout (Simple, elegant, clean 5-column table)
@@ -343,34 +343,34 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
           <div
             id="monthly-expense-print"
             ref={documentRef}
-            className="w-full max-w-[210mm] bg-white rounded-xl sm:rounded-2xl shadow-md border border-slate-200 p-6 sm:p-10 space-y-6 text-slate-800"
+            className="w-full max-w-[210mm] bg-white rounded-lg sm:rounded-xl shadow-md border border-zinc-200 p-6 sm:p-10 space-y-6 text-zinc-800"
             style={{
               boxSizing: 'border-box',
               backgroundColor: '#ffffff',
             }}
           >
             {/* Header Section: Business Info on Top Left, Report Title on Top Right */}
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-4 border-b border-sky-200 pb-5">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-4 border-b border-zinc-200 pb-5">
               {/* Left Column: Business & Entrepreneur Information */}
               <div className="space-y-1">
-                <h1 className="text-lg sm:text-xl font-bold text-[#0D2B52] leading-tight">
+                <h1 className="text-lg sm:text-xl font-bold text-[#18181B] leading-tight">
                   {storeName}
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-700 font-medium pt-1">
-                  ชื่อผู้ประกอบการ : <span className="font-bold text-[#0D2B52]">{entrepreneurName}</span>
+                <p className="text-xs sm:text-sm text-zinc-700 font-medium pt-1">
+                  ชื่อผู้ประกอบการ : <span className="font-bold text-[#18181B]">{entrepreneurName}</span>
                 </p>
-                <p className="text-xs sm:text-sm text-slate-700 font-medium">
-                  เลขประจำตัวผู้เสียภาษีอากร : <span className="font-mono font-bold text-slate-800">{taxIdNumber}</span>
+                <p className="text-xs sm:text-sm text-zinc-700 font-medium">
+                  เลขประจำตัวผู้เสียภาษีอากร : <span className="font-mono font-bold text-zinc-800">{taxIdNumber}</span>
                 </p>
               </div>
 
               {/* Right Column: Report Title and Period */}
               <div className="sm:text-right flex flex-col sm:items-end justify-start shrink-0">
-                <div className="report-badge-box bg-[#f0f7ff] border border-sky-200 rounded-xl px-5 py-3 text-center sm:text-right space-y-0.5">
-                  <h2 className="text-base sm:text-lg font-black text-[#0D2B52] tracking-tight">
+                <div className="report-badge-box bg-[#F4F4F5] border border-zinc-200 rounded-lg px-5 py-3 text-center sm:text-right space-y-0.5">
+                  <h2 className="text-base sm:text-lg font-black text-[#18181B] tracking-tight">
                     รายงานสรุปค่าใช้จ่ายประจำเดือน
                   </h2>
-                  <p className="text-xs sm:text-sm font-bold text-[#0759A6]">
+                  <p className="text-xs sm:text-sm font-bold text-[#18181B]">
                     {reportPeriodThai}
                   </p>
                 </div>
@@ -380,29 +380,29 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
             {/* Table: 5 Columns Only */}
             {/* Proportions: ลำดับ 7%, วันที่ 15%, รายการ 43%, หมวดหมู่ 20%, จำนวนเงิน 15% */}
             <div className="w-full">
-              <table className="w-full text-left text-xs sm:text-sm border-collapse border border-slate-300 table-fixed">
+              <table className="w-full text-left text-xs sm:text-sm border-collapse border border-zinc-300 table-fixed">
                 <thead>
-                  <tr className="bg-[#f0f7ff] border-b border-slate-300 text-[#0D2B52] font-bold">
+                  <tr className="bg-[#F4F4F5] border-b border-zinc-300 text-[#18181B] font-bold">
                     <th
-                      className="py-3 px-1 text-center align-middle border-r border-slate-300 whitespace-nowrap"
+                      className="py-3 px-1 text-center align-middle border-r border-zinc-300 whitespace-nowrap"
                       style={{ width: '7%' }}
                     >
                       ลำดับ
                     </th>
                     <th
-                      className="py-3 px-2 text-center align-middle border-r border-slate-300 whitespace-nowrap"
+                      className="py-3 px-2 text-center align-middle border-r border-zinc-300 whitespace-nowrap"
                       style={{ width: '15%' }}
                     >
                       วันที่
                     </th>
                     <th
-                      className="py-3 px-3 text-center align-middle border-r border-slate-300"
+                      className="py-3 px-3 text-center align-middle border-r border-zinc-300"
                       style={{ width: '43%' }}
                     >
                       รายการ
                     </th>
                     <th
-                      className="py-3 px-3 text-center align-middle border-r border-slate-300"
+                      className="py-3 px-3 text-center align-middle border-r border-zinc-300"
                       style={{ width: '20%' }}
                     >
                       หมวดหมู่
@@ -413,22 +413,22 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                     >
                       <div className="leading-tight">
                         <span>จำนวนเงิน</span>
-                        <span className="block text-[11px] font-semibold text-[#0759A6]">(บาท)</span>
+                        <span className="block text-[11px] font-semibold text-[#18181B]">(บาท)</span>
                       </div>
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 text-slate-800 font-medium">
+                <tbody className="divide-y divide-zinc-200 text-zinc-800 font-medium">
                   {monthlyExpenses.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="text-center py-12 text-slate-400 space-y-2 border-b border-slate-200">
-                        <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 mx-auto flex items-center justify-center">
+                      <td colSpan={5} className="text-center py-12 text-zinc-400 space-y-2 border-b border-zinc-200">
+                        <div className="w-12 h-12 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-400 mx-auto flex items-center justify-center">
                           <FileSpreadsheet className="w-6 h-6" />
                         </div>
-                        <p className="text-xs sm:text-sm font-bold text-slate-500">
+                        <p className="text-xs sm:text-sm font-bold text-zinc-500">
                           ไม่พบรายการค่าใช้จ่ายในเดือนที่เลือก
                         </p>
-                        <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
+                        <p className="text-[11px] sm:text-xs text-zinc-400 font-medium">
                           ({thaiMonthName} {thaiYearBE} - 0 รายการ)
                         </p>
                       </td>
@@ -444,33 +444,33 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                       return (
                         <tr
                           key={exp.id || idx}
-                          className={`hover:bg-sky-50/30 transition-colors border-b border-slate-200 ${
-                            isCancelled ? 'bg-rose-50/40 text-slate-400' : 'bg-white'
+                          className={`hover:bg-zinc-50/30 transition-colors border-b border-zinc-200 ${
+                            isCancelled ? 'bg-zinc-50/40 text-zinc-400' : 'bg-white'
                           }`}
                           style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
                         >
-                          <td className="py-2.5 px-1 text-center align-middle font-bold text-slate-600 border-r border-slate-200 whitespace-nowrap">
+                          <td className="py-2.5 px-1 text-center align-middle font-bold text-zinc-600 border-r border-zinc-200 whitespace-nowrap">
                             {idx + 1}
                           </td>
-                          <td className="py-2.5 px-1.5 text-center align-middle font-mono text-slate-700 whitespace-nowrap border-r border-slate-200">
+                          <td className="py-2.5 px-1.5 text-center align-middle font-mono text-zinc-700 whitespace-nowrap border-r border-zinc-200">
                             {formatDate(exp.date)}
                           </td>
-                          <td className="py-2.5 px-2.5 text-left align-middle font-medium text-slate-800 border-r border-slate-200 leading-relaxed break-words">
+                          <td className="py-2.5 px-2.5 text-left align-middle font-medium text-zinc-800 border-r border-zinc-200 leading-relaxed break-words">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span>{exp.description}</span>
                               {isCancelled && (
-                                <span className="px-1.5 py-0.2 text-[10px] font-black bg-rose-100 text-rose-700 border border-rose-200 rounded">
+                                <span className="px-1.5 py-0.2 text-[10px] font-black bg-zinc-100 text-rose-700 border border-zinc-200 rounded">
                                   ยกเลิก
                                 </span>
                               )}
                             </div>
                           </td>
-                          <td className="py-2.5 px-2.5 text-left align-middle text-slate-700 border-r border-slate-200 break-words">
+                          <td className="py-2.5 px-2.5 text-left align-middle text-zinc-700 border-r border-zinc-200 break-words">
                             {catName}
                           </td>
                           <td
                             className={`py-2.5 px-2 text-right align-middle font-mono font-bold whitespace-nowrap ${
-                              isCancelled ? 'line-through text-slate-400' : 'text-[#0D2B52]'
+                              isCancelled ? 'line-through text-zinc-400' : 'text-[#18181B]'
                             }`}
                           >
                             {formatCurrency(exp.amount)}
@@ -483,16 +483,16 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                 {/* Table Footer: Summary Row */}
                 <tfoot>
                   <tr
-                    className="bg-[#f8fafc] border-t-2 border-slate-300 font-bold text-slate-800"
+                    className="bg-[#FAFAFA] border-t-2 border-zinc-300 font-bold text-zinc-800"
                     style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
                   >
                     <td
                       colSpan={4}
-                      className="py-3 px-4 text-right font-extrabold text-[#0D2B52] border-r border-slate-300"
+                      className="py-3 px-4 text-right font-extrabold text-[#18181B] border-r border-zinc-300"
                     >
                       รวมค่าใช้จ่ายประจำเดือน {thaiMonthName} {thaiYearBE}
                     </td>
-                    <td className="py-3 px-2 text-right font-mono font-black text-sm sm:text-base text-[#0759A6] whitespace-nowrap">
+                    <td className="py-3 px-2 text-right font-mono font-black text-sm sm:text-base text-[#18181B] whitespace-nowrap">
                       {formatCurrency(grandTotalAmount)}
                     </td>
                   </tr>

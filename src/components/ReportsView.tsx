@@ -45,7 +45,7 @@ interface ReportsViewProps {
   seller?: SellerProfile;
 }
 
-const CATEGORY_COLORS = ['#16A394', '#2374D8', '#F59E0B', '#6D4DE8', '#0759A6', '#EC4899', '#8B5CF6'];
+const CATEGORY_COLORS = ['#18181B', '#A1A1AA', '#52525B', '#D4D4D8', '#3F3F46', '#71717A', '#E4E4E7'];
 
 export const ReportsView: React.FC<ReportsViewProps> = ({
   documents,
@@ -211,34 +211,34 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   return (
     <div className="space-y-6 pb-20">
       {/* 1. Header & Date Range Filter Section */}
-      <div className="bg-white border border-[#E2E8F0] p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-2xs space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-4">
+      <div className="bg-white border border-[#E4E4E7] p-5 sm:p-6 rounded-xl sm:rounded-xl shadow-2xs space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E4E4E7] pb-4">
           <div>
-            <h1 className="text-base sm:text-lg font-extrabold text-[#172B4D] flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-[#123B6D]" />
+            <h1 className="text-base sm:text-lg font-extrabold text-[#18181B] flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-[#18181B]" />
               <span>รายงานสรุปผลการดำเนินงาน & พิมพ์ PDF</span>
             </h1>
-            <p className="text-xs text-[#6B7A90] mt-1 font-medium">
+            <p className="text-xs text-[#27272A] mt-1 font-medium">
               เลือกระยะเวลาเพื่อดูวิเคราะห์ พิมพ์ใบเสร็จรับเงิน หรือส่งออกรายงานค่าใช้จ่ายเป็น PDF
             </p>
           </div>
 
           <button
             onClick={handleExportCsv}
-            className="px-4 py-2.5 bg-[#F6F8FB] hover:bg-[#E2E8F0] border border-[#E2E8F0] text-[#172B4D] text-xs font-extrabold rounded-xl shadow-2xs flex items-center gap-2 transition-all self-start md:self-auto active:scale-98"
+            className="px-4 py-2.5 bg-[#F4F4F5] hover:bg-[#E4E4E7] border border-[#E4E4E7] text-[#18181B] text-xs font-extrabold rounded-lg shadow-2xs flex items-center gap-2 transition-all self-start md:self-auto active:scale-98"
           >
-            <Download className="w-4 h-4 text-[#0759A6]" />
+            <Download className="w-4 h-4 text-[#18181B]" />
             <span>ส่งออกข้อมูล CSV</span>
           </button>
         </div>
 
         {/* Date Filter Bar & Presets */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#F6F8FB] border border-[#E2E8F0] p-4 rounded-2xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#F4F4F5] border border-[#E4E4E7] p-4 rounded-xl">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs font-extrabold text-[#172B4D] flex items-center gap-1.5 shrink-0">
-              <Calendar className="w-4 h-4 text-[#123B6D]" />
+            <span className="text-xs font-extrabold text-[#18181B] flex items-center gap-1.5 shrink-0">
+              <Calendar className="w-4 h-4 text-[#18181B]" />
               <span>เลือกระยะวันที่ (วัน-เดือน-ปี):</span>
-              <span className="bg-[#E2EEFF] text-[#0759A6] px-2 py-0.5 rounded-md font-black text-xs">
+              <span className="bg-[#E4E4E7] text-[#18181B] px-2 py-0.5 rounded-md font-black text-xs">
                 {formatDate(startDate)} ถึง {formatDate(endDate)}
               </span>
             </span>
@@ -247,21 +247,21 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               <DatePicker
                 value={inputStartDate}
                 onChange={(val) => setInputStartDate(val)}
-                className="bg-white border border-[#E2E8F0] text-xs font-bold text-[#172B4D] px-3 py-2 rounded-xl focus:outline-none focus:border-[#0759A6] shadow-2xs min-w-[135px]"
+                className="bg-white border border-[#E4E4E7] text-xs font-bold text-[#18181B] px-3 py-2 rounded-lg focus:outline-none focus:border-[#18181B] shadow-2xs min-w-[135px]"
               />
 
-              <span className="text-xs text-[#6B7A90] font-bold">ถึง</span>
+              <span className="text-xs text-[#27272A] font-bold">ถึง</span>
 
               <DatePicker
                 value={inputEndDate}
                 onChange={(val) => setInputEndDate(val)}
-                className="bg-white border border-[#E2E8F0] text-xs font-bold text-[#172B4D] px-3 py-2 rounded-xl focus:outline-none focus:border-[#0759A6] shadow-2xs min-w-[135px]"
+                className="bg-white border border-[#E4E4E7] text-xs font-bold text-[#18181B] px-3 py-2 rounded-lg focus:outline-none focus:border-[#18181B] shadow-2xs min-w-[135px]"
               />
 
               <button
                 type="button"
                 onClick={handleApplySearch}
-                className="px-4 py-2 bg-[#0759A6] hover:bg-[#064B8B] text-white text-xs font-extrabold rounded-xl flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer ml-1"
+                className="px-4 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer ml-1"
               >
                 <Search className="w-4 h-4" />
                 <span>ค้นหา</span>
@@ -273,25 +273,25 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="flex flex-wrap items-center gap-1.5">
             <button
               onClick={() => handleSetPreset('THIS_MONTH')}
-              className="px-3 py-1.5 bg-white hover:bg-[#E2EEFF] border border-[#E2E8F0] hover:border-[#B8D5FC] text-[#172B4D] hover:text-[#0759A6] text-xs font-bold rounded-xl transition-all shadow-2xs active:scale-98"
+              className="px-3 py-1.5 bg-white hover:bg-[#E4E4E7] border border-[#E4E4E7] hover:border-[#D4D4D8] text-[#18181B] hover:text-[#18181B] text-xs font-bold rounded-lg transition-all shadow-2xs active:scale-98"
             >
               เดือนนี้
             </button>
             <button
               onClick={() => handleSetPreset('LAST_MONTH')}
-              className="px-3 py-1.5 bg-white hover:bg-[#E2EEFF] border border-[#E2E8F0] hover:border-[#B8D5FC] text-[#172B4D] hover:text-[#0759A6] text-xs font-bold rounded-xl transition-all shadow-2xs active:scale-98"
+              className="px-3 py-1.5 bg-white hover:bg-[#E4E4E7] border border-[#E4E4E7] hover:border-[#D4D4D8] text-[#18181B] hover:text-[#18181B] text-xs font-bold rounded-lg transition-all shadow-2xs active:scale-98"
             >
               เดือนที่แล้ว
             </button>
             <button
               onClick={() => handleSetPreset('LAST_30')}
-              className="px-3 py-1.5 bg-white hover:bg-[#E2EEFF] border border-[#E2E8F0] hover:border-[#B8D5FC] text-[#172B4D] hover:text-[#0759A6] text-xs font-bold rounded-xl transition-all shadow-2xs active:scale-98"
+              className="px-3 py-1.5 bg-white hover:bg-[#E4E4E7] border border-[#E4E4E7] hover:border-[#D4D4D8] text-[#18181B] hover:text-[#18181B] text-xs font-bold rounded-lg transition-all shadow-2xs active:scale-98"
             >
               30 วันล่าสุด
             </button>
             <button
               onClick={() => handleSetPreset('THIS_YEAR')}
-              className="px-3 py-1.5 bg-white hover:bg-[#E2EEFF] border border-[#E2E8F0] hover:border-[#B8D5FC] text-[#172B4D] hover:text-[#0759A6] text-xs font-bold rounded-xl transition-all shadow-2xs active:scale-98"
+              className="px-3 py-1.5 bg-white hover:bg-[#E4E4E7] border border-[#E4E4E7] hover:border-[#D4D4D8] text-[#18181B] hover:text-[#18181B] text-xs font-bold rounded-lg transition-all shadow-2xs active:scale-98"
             >
               ปีนี้
             </button>
@@ -302,22 +302,22 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       {/* 2. PDF Download & Print Cards Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Card 1: พิมพ์ PDF ใบเสร็จรับเงินทั้งหมด */}
-        <div className="bg-white border border-[#E2E8F0] p-5 rounded-2xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
+        <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
           <div>
-            <div className="w-10 h-10 rounded-xl bg-[#16A394] text-white flex items-center justify-center shadow-2xs mb-3">
+            <div className="w-10 h-10 rounded-lg bg-[#27272A] text-white flex items-center justify-center shadow-2xs mb-3">
               <Receipt className="w-5 h-5 text-white" />
             </div>
-            <h3 className="text-sm font-extrabold text-[#172B4D]">
+            <h3 className="text-sm font-extrabold text-[#18181B]">
               พิมพ์ PDF ใบเสร็จรับเงิน
             </h3>
-            <p className="text-xs text-[#6B7A90] mt-1 font-medium">
+            <p className="text-xs text-[#27272A] mt-1 font-medium">
               พิมพ์รายงานสรุปใบเสร็จรับเงินทั้งหมด {filteredReceipts.length} รายการ (รวม ฿{formatCurrency(totalSales)})
             </p>
           </div>
 
           <button
             onClick={() => setPrintModalType('RECEIPTS')}
-            className="w-full py-2.5 bg-[#16A394] hover:bg-[#0E7A6E] text-white text-xs font-bold rounded-xl shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-98"
+            className="w-full py-2.5 bg-[#27272A] hover:bg-[#18181B] text-white text-xs font-bold rounded-lg shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-98"
           >
             <Printer className="w-4 h-4 text-white" />
             <span>พิมพ์ / ดาวน์โหลด PDF ใบเสร็จ</span>
@@ -325,22 +325,22 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         </div>
 
         {/* Card 2: พิมพ์ PDF ค่าใช้จ่ายทั้งหมด */}
-        <div className="bg-white border border-[#E2E8F0] p-5 rounded-2xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
+        <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
           <div>
-            <div className="w-10 h-10 rounded-xl bg-[#2374D8] text-white flex items-center justify-center shadow-2xs mb-3">
+            <div className="w-10 h-10 rounded-lg bg-[#27272A] text-white flex items-center justify-center shadow-2xs mb-3">
               <Wallet className="w-5 h-5 text-white" />
             </div>
-            <h3 className="text-sm font-extrabold text-[#172B4D]">
+            <h3 className="text-sm font-extrabold text-[#18181B]">
               พิมพ์ PDF ค่าใช้จ่ายทั้งหมด (รายเดือน)
             </h3>
-            <p className="text-xs text-[#6B7A90] mt-1 font-medium">
+            <p className="text-xs text-[#27272A] mt-1 font-medium">
               เลือกเดือน/ปี ดู Preview และพิมพ์รายงานค่าใช้จ่ายประจำเดือนเป็นเอกสาร PDF
             </p>
           </div>
 
           <button
             onClick={() => setIsMonthlyExpenseReportOpen(true)}
-            className="w-full py-2.5 bg-[#2374D8] hover:bg-[#1A5BB0] text-white text-xs font-bold rounded-xl shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer"
+            className="w-full py-2.5 bg-[#27272A] hover:bg-[#27272A] text-white text-xs font-bold rounded-lg shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer"
           >
             <Printer className="w-4 h-4 text-white" />
             <span>พิมพ์ / ดาวน์โหลด PDF รายจ่าย</span>
@@ -348,22 +348,22 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         </div>
 
         {/* Card 3: พิมพ์ PDF สรุปผลการดำเนินงานรวม */}
-        <div className="bg-white border border-[#E2E8F0] p-5 rounded-2xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
+        <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
           <div>
-            <div className="w-10 h-10 rounded-xl bg-[#0A3060] text-white flex items-center justify-center shadow-2xs mb-3">
+            <div className="w-10 h-10 rounded-lg bg-[#18181B] text-white flex items-center justify-center shadow-2xs mb-3">
               <FileText className="w-5 h-5 text-white" />
             </div>
-            <h3 className="text-sm font-extrabold text-[#172B4D]">
+            <h3 className="text-sm font-extrabold text-[#18181B]">
               พิมพ์ PDF สรุปภาพรวมกำไรขาดทุน
             </h3>
-            <p className="text-xs text-[#6B7A90] mt-1 font-medium">
+            <p className="text-xs text-[#27272A] mt-1 font-medium">
               พิมพ์งบสรุปยอดขาย รายจ่าย และกำไรสุทธิประจำช่วงเวลา
             </p>
           </div>
 
           <button
             onClick={() => setPrintModalType('SUMMARY')}
-            className="w-full py-2.5 bg-[#0A3060] hover:bg-[#123B6D] text-white text-xs font-bold rounded-xl shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-98"
+            className="w-full py-2.5 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-bold rounded-lg shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-98"
           >
             <Printer className="w-4 h-4 text-white" />
             <span>พิมพ์ / ดาวน์โหลด PDF รายงานสรุป</span>
@@ -373,40 +373,40 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
       {/* 3. KPI Summary Numbers for Date Range */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-white border border-[#E2E8F0] p-4 rounded-2xl shadow-2xs">
-          <span className="text-xs font-bold text-[#6B7A90]">1. ยอดขายรวม (Sales) 💰</span>
-          <p className="text-xl sm:text-2xl font-black text-[#16A394] mt-1">
+        <div className="bg-white border border-[#E4E4E7] p-4 rounded-xl shadow-2xs">
+          <span className="text-xs font-bold text-[#27272A]">1. ยอดขายรวม (Sales)</span>
+          <p className="text-xl sm:text-2xl font-black text-[#27272A] mt-1">
             ฿{formatCurrency(totalSales)}
           </p>
-          <span className="text-[11px] font-bold text-[#6B7A90]">{filteredReceipts.length} ใบเสร็จ</span>
+          <span className="text-[11px] font-bold text-[#27272A]">{filteredReceipts.length} ใบเสร็จ</span>
         </div>
 
-        <div className="bg-white border border-[#E2E8F0] p-4 rounded-2xl shadow-2xs">
-          <span className="text-xs font-bold text-[#6B7A90]">2. ต้นทุนสินค้า (COGS) 📦</span>
-          <p className="text-xl sm:text-2xl font-black text-[#2374D8] mt-1">
+        <div className="bg-white border border-[#E4E4E7] p-4 rounded-xl shadow-2xs">
+          <span className="text-xs font-bold text-[#27272A]">2. ต้นทุนสินค้า (COGS)</span>
+          <p className="text-xl sm:text-2xl font-black text-[#27272A] mt-1">
             ฿{formatCurrency(totalCogs)}
           </p>
-          <span className="text-[11px] font-bold text-[#6B7A90]">กำไรขั้นต้น: ฿{formatCurrency(grossProfit)}</span>
+          <span className="text-[11px] font-bold text-[#27272A]">กำไรขั้นต้น: ฿{formatCurrency(grossProfit)}</span>
         </div>
 
-        <div className="bg-white border border-[#E2E8F0] p-4 rounded-2xl shadow-2xs">
-          <span className="text-xs font-bold text-[#6B7A90]">3. รายจ่ายรวม (Expenses) 💸</span>
+        <div className="bg-white border border-[#E4E4E7] p-4 rounded-xl shadow-2xs">
+          <span className="text-xs font-bold text-[#27272A]">3. รายจ่ายรวม (Expenses)</span>
           <p className="text-xl sm:text-2xl font-black text-[#F59E0B] mt-1">
             ฿{formatCurrency(totalExpenses)}
           </p>
-          <span className="text-[11px] font-bold text-[#6B7A90]">{filteredExpenses.length} รายการจ่าย</span>
+          <span className="text-[11px] font-bold text-[#27272A]">{filteredExpenses.length} รายการจ่าย</span>
         </div>
 
-        <div className="bg-white border border-[#E2E8F0] p-4 rounded-2xl shadow-2xs">
-          <span className="text-xs font-bold text-[#6B7A90]">4. กำไรสุทธิ (Net Profit) ✨</span>
+        <div className="bg-white border border-[#E4E4E7] p-4 rounded-xl shadow-2xs">
+          <span className="text-xs font-bold text-[#27272A]">4. กำไรสุทธิ (Net Profit)</span>
           <p
             className={`text-xl sm:text-2xl font-black mt-1 ${
-              netProfit >= 0 ? 'text-[#16A394]' : 'text-[#F59E0B]'
+              netProfit >= 0 ? 'text-[#27272A]' : 'text-[#F59E0B]'
             }`}
           >
             ฿{formatCurrency(netProfit)}
           </p>
-          <span className="text-[11px] font-bold text-[#6B7A90]">
+          <span className="text-[11px] font-bold text-[#27272A]">
             {totalSales > 0 ? `อัตรากำไร: ${((netProfit / totalSales) * 100).toFixed(1)}%` : 'ไม่มีการขาย'}
           </span>
         </div>
@@ -415,16 +415,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       {/* 4. Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Expense Category Breakdown Pie Chart */}
-        <div className="bg-white border border-[#E2E8F0] p-5 rounded-2xl sm:rounded-3xl space-y-3 shadow-2xs">
-          <div className="flex items-center gap-2 border-b border-[#E2E8F0] pb-3">
-            <PieIcon className="w-5 h-5 text-[#2374D8]" />
-            <h3 className="font-extrabold text-sm text-[#172B4D]">
+        <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl sm:rounded-xl space-y-3 shadow-2xs">
+          <div className="flex items-center gap-2 border-b border-[#E4E4E7] pb-3">
+            <PieIcon className="w-5 h-5 text-[#27272A]" />
+            <h3 className="font-extrabold text-sm text-[#18181B]">
               สัดส่วนรายจ่ายตามหมวดหมู่ช่วงวันที่เลือก
             </h3>
           </div>
 
           {expensePieData.length === 0 ? (
-            <div className="h-48 flex items-center justify-center text-xs text-[#6B7A90] font-bold">
+            <div className="h-48 flex items-center justify-center text-xs text-[#27272A] font-bold">
               ไม่พบข้อมูลรายจ่ายในระยะเวลาที่เลือก
             </div>
           ) : (
@@ -447,9 +447,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   <Tooltip
                     contentStyle={{
                       backgroundColor: '#fff',
-                      borderColor: '#E2E8F0',
+                      borderColor: '#E4E4E7',
                       borderRadius: '16px',
-                      color: '#172B4D',
+                      color: '#18181B',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                       fontSize: '12px',
                       fontWeight: '700',
@@ -463,16 +463,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         </div>
 
         {/* Top Best Selling Products */}
-        <div className="bg-white border border-[#E2E8F0] p-5 rounded-2xl sm:rounded-3xl space-y-3 shadow-2xs">
-          <div className="flex items-center gap-2 border-b border-[#E2E8F0] pb-3">
+        <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl sm:rounded-xl space-y-3 shadow-2xs">
+          <div className="flex items-center gap-2 border-b border-[#E4E4E7] pb-3">
             <Award className="w-5 h-5 text-[#F59E0B]" />
-            <h3 className="font-extrabold text-sm text-[#172B4D]">
+            <h3 className="font-extrabold text-sm text-[#18181B]">
               สินค้าขายดี 5 อันดับแรก (ช่วงวันที่เลือก)
             </h3>
           </div>
 
           {topProducts.length === 0 ? (
-            <div className="h-48 flex items-center justify-center text-xs text-[#6B7A90] font-bold">
+            <div className="h-48 flex items-center justify-center text-xs text-[#27272A] font-bold">
               ไม่พบข้อมูลการขายในระยะเวลาที่เลือก
             </div>
           ) : (
@@ -480,19 +480,19 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               {topProducts.map((p, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-3 bg-[#F6F8FB] border border-[#E2E8F0] rounded-xl text-xs"
+                  className="flex items-center justify-between p-3 bg-[#F4F4F5] border border-[#E4E4E7] rounded-lg text-xs"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-7 h-7 rounded-lg bg-[#0759A6] text-white font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
+                    <span className="w-7 h-7 rounded-lg bg-[#18181B] text-white font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
                       #{idx + 1}
                     </span>
                     <div>
-                      <p className="font-extrabold text-[#172B4D]">{p.name}</p>
-                      <span className="text-[11px] font-medium text-[#6B7A90]">ขายได้: {p.qty} ชิ้น</span>
+                      <p className="font-extrabold text-[#18181B]">{p.name}</p>
+                      <span className="text-[11px] font-medium text-[#27272A]">ขายได้: {p.qty} ชิ้น</span>
                     </div>
                   </div>
 
-                  <span className="font-black text-[#16A394] text-sm">
+                  <span className="font-black text-[#27272A] text-sm">
                     ฿{formatCurrency(p.revenue)}
                   </span>
                 </div>
@@ -529,20 +529,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             }
           `}</style>
 
-          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-[#E2E8F0] overflow-hidden animate-in fade-in zoom-in-95">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-[#E4E4E7] overflow-hidden animate-in fade-in zoom-in-95">
             {/* Modal Header Controls (Hidden on native Print) */}
-            <div className="no-print p-4 sm:p-5 border-b border-[#E2E8F0] bg-[#F6F8FB] flex items-center justify-between gap-3">
+            <div className="no-print p-4 sm:p-5 border-b border-[#E4E4E7] bg-[#F4F4F5] flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#123B6D] text-white flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-lg bg-[#18181B] text-white flex items-center justify-center font-bold">
                   <Printer className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#172B4D]">
+                  <h3 className="text-sm font-extrabold text-[#18181B]">
                     {printModalType === 'RECEIPTS' && 'ตัวอย่าง PDF รายงานใบเสร็จรับเงิน'}
                     {printModalType === 'EXPENSES' && 'ตัวอย่าง PDF รายงานค่าใช้จ่ายทั้งหมด'}
                     {printModalType === 'SUMMARY' && 'ตัวอย่าง PDF รายงานสรุปผลการดำเนินงาน'}
                   </h3>
-                  <p className="text-[11px] text-[#6B7A90] font-medium">
+                  <p className="text-[11px] text-[#27272A] font-medium">
                     ช่วงวันที่: {startDate} ถึง {endDate}
                   </p>
                 </div>
@@ -551,7 +551,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleTriggerPrint}
-                  className="px-4 py-2 bg-[#0759A6] hover:bg-[#123B6D] text-white text-xs font-extrabold rounded-xl shadow-2xs flex items-center gap-2 transition-all active:scale-98"
+                  className="px-4 py-2 bg-[#18181B] hover:bg-[#18181B] text-white text-xs font-extrabold rounded-lg shadow-2xs flex items-center gap-2 transition-all active:scale-98"
                 >
                   <Printer className="w-4 h-4 text-white" />
                   <span>พิมพ์ / บันทึกเป็น PDF</span>
@@ -559,7 +559,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
                 <button
                   onClick={() => setPrintModalType(null)}
-                  className="p-2 text-[#6B7A90] hover:bg-slate-200 rounded-xl transition-colors"
+                  className="p-2 text-[#27272A] hover:bg-zinc-200 rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -569,32 +569,32 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             {/* Printable Document Body Area */}
             <div className="p-6 sm:p-8 overflow-y-auto space-y-6 bg-white" id="pdf-printable-area">
               {/* Document Letterhead */}
-              <div className="flex items-start justify-between border-b-2 border-[#123B6D] pb-5">
+              <div className="flex items-start justify-between border-b-2 border-[#18181B] pb-5">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <Store className="w-6 h-6 text-[#123B6D]" />
-                    <h2 className="text-lg font-black text-[#123B6D]">
+                    <Store className="w-6 h-6 text-[#18181B]" />
+                    <h2 className="text-lg font-black text-[#18181B]">
                       {seller?.name || 'สมชาย ใจดี (ร้านค้าสมชายออนไลน์)'}
                     </h2>
                   </div>
-                  <p className="text-xs text-slate-600 font-medium">
+                  <p className="text-xs text-zinc-600 font-medium">
                     {seller?.address || '123/45 ถนนสุขุมวิท เขตวัฒนา กรุงเทพมหานคร 10110'}
                   </p>
-                  <p className="text-xs text-slate-600 font-medium">
+                  <p className="text-xs text-zinc-600 font-medium">
                     เลขประจำตัวผู้เสียภาษี: {seller?.taxId || '1100200300401'} | เบอร์โทร: {seller?.phone || '081-234-5678'}
                   </p>
                 </div>
 
                 <div className="text-right space-y-1">
-                  <span className="inline-block px-3 py-1 bg-[#123B6D] text-white font-extrabold text-xs rounded-md">
+                  <span className="inline-block px-3 py-1 bg-[#18181B] text-white font-extrabold text-xs rounded-md">
                     {printModalType === 'RECEIPTS' && 'รายงานใบเสร็จรับเงิน'}
                     {printModalType === 'EXPENSES' && 'รายงานค่าใช้จ่ายทั้งหมด'}
                     {printModalType === 'SUMMARY' && 'รายงานสรุปผลการดำเนินงาน'}
                   </span>
-                  <p className="text-xs font-bold text-slate-700 mt-1">
+                  <p className="text-xs font-bold text-zinc-700 mt-1">
                     ระยะเวลา: {startDate} ถึง {endDate}
                   </p>
-                  <p className="text-[10px] text-slate-500">
+                  <p className="text-[10px] text-zinc-500">
                     พิมพ์เมื่อ: {new Date().toLocaleString('th-TH')}
                   </p>
                 </div>
@@ -603,13 +603,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               {/* CONTENTS TYPE 1: RECEIPTS REPORT */}
               {printModalType === 'RECEIPTS' && (
                 <div className="space-y-4">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 border-l-4 border-[#16A394] pl-2">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-zinc-700 border-l-4 border-[#27272A] pl-2">
                     รายการใบเสร็จรับเงินทั้งหมด ({filteredReceipts.length} รายการ)
                   </h3>
 
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="bg-slate-100 border-y border-slate-300 text-slate-800 font-bold">
+                      <tr className="bg-zinc-100 border-y border-zinc-300 text-zinc-800 font-bold">
                         <th className="p-2.5">ลำดับ</th>
                         <th className="p-2.5">เลขที่ใบเสร็จ</th>
                         <th className="p-2.5">วันที่</th>
@@ -618,10 +618,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                         <th className="p-2.5 text-right">จำนวนเงิน (บาท)</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 text-slate-700 font-medium">
+                    <tbody className="divide-y divide-zinc-200 text-zinc-700 font-medium">
                       {filteredReceipts.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="text-center py-8 text-slate-400">
+                          <td colSpan={6} className="text-center py-8 text-zinc-400">
                             ไม่พบรายการใบเสร็จรับเงินในช่วงเวลานี้
                           </td>
                         </tr>
@@ -629,11 +629,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                         filteredReceipts.map((r, i) => (
                           <tr key={r.id}>
                             <td className="p-2.5">{i + 1}</td>
-                            <td className="p-2.5 font-bold text-slate-900">{r.docNumber}</td>
+                            <td className="p-2.5 font-bold text-zinc-900">{r.docNumber}</td>
                             <td className="p-2.5">{formatDate(r.date)}</td>
                             <td className="p-2.5">{r.customerName}</td>
                             <td className="p-2.5">{r.paymentMethod || 'เงินโอน / PromptPay'}</td>
-                            <td className="p-2.5 text-right font-bold text-[#16A394]">
+                            <td className="p-2.5 text-right font-bold text-[#27272A]">
                               ฿{formatCurrency(r.grandTotal)}
                             </td>
                           </tr>
@@ -641,11 +641,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       )}
                     </tbody>
                     <tfoot>
-                      <tr className="bg-slate-50 font-black border-t-2 border-slate-400 text-slate-900">
+                      <tr className="bg-zinc-50 font-black border-t-2 border-zinc-400 text-zinc-900">
                         <td colSpan={5} className="p-3 text-right">
                           ยอดรวมใบเสร็จทั้งหมด ({filteredReceipts.length} รายการ):
                         </td>
-                        <td className="p-3 text-right text-sm text-[#16A394]">
+                        <td className="p-3 text-right text-sm text-[#27272A]">
                           ฿{formatCurrency(totalSales)}
                         </td>
                       </tr>
@@ -657,13 +657,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               {/* CONTENTS TYPE 2: EXPENSES REPORT */}
               {printModalType === 'EXPENSES' && (
                 <div className="space-y-4">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 border-l-4 border-[#2374D8] pl-2">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-zinc-700 border-l-4 border-[#27272A] pl-2">
                     รายการค่าใช้จ่ายทั้งหมด ({filteredExpenses.length} รายการ)
                   </h3>
 
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="bg-slate-100 border-y border-slate-300 text-slate-800 font-bold">
+                      <tr className="bg-zinc-100 border-y border-zinc-300 text-zinc-800 font-bold">
                         <th className="p-2.5">ลำดับ</th>
                         <th className="p-2.5">วันที่</th>
                         <th className="p-2.5">หมวดหมู่</th>
@@ -672,10 +672,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                         <th className="p-2.5 text-right">จำนวนเงิน (บาท)</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 text-slate-700 font-medium">
+                    <tbody className="divide-y divide-zinc-200 text-zinc-700 font-medium">
                       {filteredExpenses.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="text-center py-8 text-slate-400">
+                          <td colSpan={6} className="text-center py-8 text-zinc-400">
                             ไม่พบรายการค่าใช้จ่ายในช่วงเวลานี้
                           </td>
                         </tr>
@@ -684,12 +684,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                           <tr key={e.id}>
                             <td className="p-2.5">{i + 1}</td>
                             <td className="p-2.5">{formatDate(e.date)}</td>
-                            <td className="p-2.5 font-bold text-slate-800">
+                            <td className="p-2.5 font-bold text-zinc-800">
                               {categoryTranslation[e.category] || e.category}
                             </td>
                             <td className="p-2.5">{e.description}</td>
                             <td className="p-2.5">{e.recipient || '-'}</td>
-                            <td className="p-2.5 text-right font-bold text-[#2374D8]">
+                            <td className="p-2.5 text-right font-bold text-[#27272A]">
                               ฿{formatCurrency(e.amount)}
                             </td>
                           </tr>
@@ -697,11 +697,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       )}
                     </tbody>
                     <tfoot>
-                      <tr className="bg-slate-50 font-black border-t-2 border-slate-400 text-slate-900">
+                      <tr className="bg-zinc-50 font-black border-t-2 border-zinc-400 text-zinc-900">
                         <td colSpan={5} className="p-3 text-right">
                           ยอดรวมค่าใช้จ่ายทั้งหมด ({filteredExpenses.length} รายการ):
                         </td>
-                        <td className="p-3 text-right text-sm text-[#2374D8]">
+                        <td className="p-3 text-right text-sm text-[#27272A]">
                           ฿{formatCurrency(totalExpenses)}
                         </td>
                       </tr>
@@ -715,36 +715,36 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 <div className="space-y-6">
                   {/* Financial Statement Grid */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 border border-slate-300 rounded-xl bg-slate-50 space-y-2">
-                      <span className="text-xs font-bold text-slate-600 block">สรุปยอดรับเงิน (Sales)</span>
-                      <p className="text-xl font-black text-[#16A394]">฿{formatCurrency(totalSales)}</p>
-                      <p className="text-[11px] text-slate-500">
+                    <div className="p-4 border border-zinc-300 rounded-lg bg-zinc-50 space-y-2">
+                      <span className="text-xs font-bold text-zinc-600 block">สรุปยอดรับเงิน (Sales)</span>
+                      <p className="text-xl font-black text-[#27272A]">฿{formatCurrency(totalSales)}</p>
+                      <p className="text-[11px] text-zinc-500">
                         จาก {filteredReceipts.length} ใบเสร็จรับเงิน
                       </p>
                     </div>
 
-                    <div className="p-4 border border-slate-300 rounded-xl bg-slate-50 space-y-2">
-                      <span className="text-xs font-bold text-slate-600 block">สรุปค่าใช้จ่าย (Expenses)</span>
-                      <p className="text-xl font-black text-[#2374D8]">฿{formatCurrency(totalExpenses)}</p>
-                      <p className="text-[11px] text-slate-500">
+                    <div className="p-4 border border-zinc-300 rounded-lg bg-zinc-50 space-y-2">
+                      <span className="text-xs font-bold text-zinc-600 block">สรุปค่าใช้จ่าย (Expenses)</span>
+                      <p className="text-xl font-black text-[#27272A]">฿{formatCurrency(totalExpenses)}</p>
+                      <p className="text-[11px] text-zinc-500">
                         จาก {filteredExpenses.length} รายการจ่าย
                       </p>
                     </div>
                   </div>
 
                   {/* Net Profit Statement Box */}
-                  <div className="p-4 border-2 border-[#123B6D] bg-slate-50 rounded-xl flex items-center justify-between">
+                  <div className="p-4 border-2 border-[#18181B] bg-zinc-50 rounded-lg flex items-center justify-between">
                     <div>
-                      <span className="text-xs font-extrabold text-[#123B6D] uppercase">
+                      <span className="text-xs font-extrabold text-[#18181B] uppercase">
                         สรุปกำไรสุทธิประจำช่วงเวลา (Net Profit)
                       </span>
-                      <p className="text-[11px] text-slate-600 mt-0.5">
+                      <p className="text-[11px] text-zinc-600 mt-0.5">
                         {startDate} ถึง {endDate}
                       </p>
                     </div>
                     <span
                       className={`text-2xl font-black ${
-                        netProfit >= 0 ? 'text-[#16A394]' : 'text-[#F59E0B]'
+                        netProfit >= 0 ? 'text-[#27272A]' : 'text-[#F59E0B]'
                       }`}
                     >
                       ฿{formatCurrency(netProfit)}
@@ -753,25 +753,25 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
                   {/* Expense Breakdown Table */}
                   <div className="space-y-2">
-                    <h4 className="text-xs font-bold text-slate-800">
+                    <h4 className="text-xs font-bold text-zinc-800">
                       สรุปสัดส่วนรายจ่ายแยกตามหมวดหมู่
                     </h4>
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="bg-slate-100 border-y border-slate-300 font-bold text-slate-800">
+                        <tr className="bg-zinc-100 border-y border-zinc-300 font-bold text-zinc-800">
                           <th className="p-2">หมวดหมู่</th>
                           <th className="p-2 text-right">จำนวนเงิน (บาท)</th>
                           <th className="p-2 text-right">สัดส่วน (%)</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-200">
+                      <tbody className="divide-y divide-zinc-200">
                         {expensePieData.map((cat, idx) => (
                           <tr key={idx}>
                             <td className="p-2 font-medium">{cat.name}</td>
-                            <td className="p-2 text-right font-bold text-slate-800">
+                            <td className="p-2 text-right font-bold text-zinc-800">
                               ฿{formatCurrency(cat.value)}
                             </td>
-                            <td className="p-2 text-right text-slate-600">
+                            <td className="p-2 text-right text-zinc-600">
                               {totalExpenses > 0 ? ((cat.value / totalExpenses) * 100).toFixed(1) : 0}%
                             </td>
                           </tr>
@@ -783,20 +783,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               )}
 
               {/* Document Signatures Footer */}
-              <div className="pt-12 grid grid-cols-2 gap-8 text-center text-xs text-slate-700">
+              <div className="pt-12 grid grid-cols-2 gap-8 text-center text-xs text-zinc-700">
                 <div className="space-y-12">
-                  <div className="border-b border-dashed border-slate-400 w-48 mx-auto"></div>
+                  <div className="border-b border-dashed border-zinc-400 w-48 mx-auto"></div>
                   <p className="font-bold">
                     ลงชื่อ ({seller?.name || 'ผู้รับเงิน / ผู้ลงนาม'})<br />
-                    <span className="font-normal text-[10px] text-slate-500">ผู้จัดทำรายงาน</span>
+                    <span className="font-normal text-[10px] text-zinc-500">ผู้จัดทำรายงาน</span>
                   </p>
                 </div>
 
                 <div className="space-y-12">
-                  <div className="border-b border-dashed border-slate-400 w-48 mx-auto"></div>
+                  <div className="border-b border-dashed border-zinc-400 w-48 mx-auto"></div>
                   <p className="font-bold">
                     ลงชื่อ..............................................................<br />
-                    <span className="font-normal text-[10px] text-slate-500">ผู้อนุมัติรายงาน</span>
+                    <span className="font-normal text-[10px] text-zinc-500">ผู้อนุมัติรายงาน</span>
                   </p>
                 </div>
               </div>

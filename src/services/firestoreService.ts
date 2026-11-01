@@ -7,10 +7,11 @@ import {
   onSnapshot,
   getDocs,
 } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db, auth } from '../lib/firebase';
 import {
   Customer,
   Expense,
+  Order,
   Product,
   SalesDocument,
   SellerProfile,
@@ -19,6 +20,8 @@ import {
   getCustomers as getLocalCustomers,
   getDocuments as getLocalDocuments,
   getExpenses as getLocalExpenses,
+  getOrders as getLocalOrders,
+  saveOrders as saveLocalOrders,
   getProducts as getLocalProducts,
   getSellerProfile as getLocalSeller,
   saveCustomers as saveLocalCustomers,
@@ -28,12 +31,60 @@ import {
   saveSellerProfile as saveLocalSeller,
 } from '../utils/storage';
 
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  };
+}
+
+export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+      providerInfo: auth.currentUser?.providerData?.map((provider) => ({
+        providerId: provider.providerId,
+        email: provider.email,
+      })) || [],
+    },
+    operationType,
+    path,
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  return errInfo;
+}
+
 const COLLECTIONS = {
   SELLER: 'seller_profile',
   PRODUCTS: 'products',
   CUSTOMERS: 'customers',
   DOCUMENTS: 'documents',
   EXPENSES: 'expenses',
+  ORDERS: 'orders',
   METADATA: 'app_metadata',
 };
 
@@ -108,6 +159,7 @@ export function subscribeSellerProfile(callback: (seller: SellerProfile) => void
     },
     (error) => {
       console.warn('Firestore seller profile error, fallback to local:', error);
+      handleFirestoreError(error, OperationType.GET, COLLECTIONS.SELLER);
       callback(getLocalSeller());
     }
   );
@@ -122,6 +174,7 @@ export async function saveSellerProfileCloud(profile: SellerProfile): Promise<Se
     await setDoc(docRef, payload, { merge: true });
     return profile;
   } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, COLLECTIONS.SELLER);
     console.error('Error saving seller profile to Firestore:', err);
     return profile;
   }
@@ -159,6 +212,7 @@ export function subscribeProducts(callback: (products: Product[]) => void) {
     },
     (error) => {
       console.warn('Firestore products error, fallback to local:', error);
+      handleFirestoreError(error, OperationType.GET, COLLECTIONS.PRODUCTS);
       callback(getLocalProducts());
     }
   );
@@ -180,6 +234,7 @@ export async function saveProductCloud(product: Product): Promise<Product> {
     await setDoc(docRef, payload, { merge: true });
     return product;
   } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, COLLECTIONS.PRODUCTS);
     console.error('Error saving product to Firestore:', err);
     return product;
   }
@@ -243,6 +298,7 @@ export function subscribeCustomers(callback: (customers: Customer[]) => void) {
     },
     (error) => {
       console.warn('Firestore customers error, fallback to local:', error);
+      handleFirestoreError(error, OperationType.GET, COLLECTIONS.CUSTOMERS);
       callback(getLocalCustomers());
     }
   );
@@ -264,6 +320,7 @@ export async function saveCustomerCloud(customer: Customer): Promise<Customer> {
     await setDoc(docRef, payload, { merge: true });
     return customer;
   } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, COLLECTIONS.CUSTOMERS);
     console.error('Error saving customer to Firestore:', err);
     return customer;
   }
@@ -314,6 +371,7 @@ export function subscribeDocuments(callback: (docs: SalesDocument[]) => void) {
     },
     (error) => {
       console.warn('Firestore documents error, fallback to local:', error);
+      handleFirestoreError(error, OperationType.GET, COLLECTIONS.DOCUMENTS);
       callback(getLocalDocuments());
     }
   );
@@ -340,6 +398,7 @@ export async function saveDocumentCloud(salesDoc: SalesDocument): Promise<SalesD
     await setDoc(docRef, payload, { merge: true });
     return salesDoc;
   } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, COLLECTIONS.DOCUMENTS);
     console.error('Error saving document to Firestore:', err);
     // Return salesDoc even if network/offline since local is already updated
     return salesDoc;
@@ -389,6 +448,7 @@ export function subscribeExpenses(callback: (expenses: Expense[]) => void) {
     },
     (error) => {
       console.warn('Firestore expenses error, fallback to local:', error);
+      handleFirestoreError(error, OperationType.GET, COLLECTIONS.EXPENSES);
       callback(getLocalExpenses());
     }
   );
@@ -410,6 +470,7 @@ export async function saveExpenseCloud(expense: Expense): Promise<Expense> {
     await setDoc(docRef, payload, { merge: true });
     return expense;
   } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, COLLECTIONS.EXPENSES);
     console.error('Error saving expense to Firestore:', err);
     return expense;
   }
@@ -427,6 +488,48 @@ export async function deleteExpenseCloud(expenseId: string): Promise<void> {
   }
 }
 
+// 6. ORDERS (ออเดอร์ & งานติดตั้ง)
+export function subscribeOrders(callback: (orders: Order[]) => void) {
+  const colRef = collection(db, COLLECTIONS.ORDERS);
+  return onSnapshot(
+    colRef,
+    (snapshot) => {
+      const list: Order[] = snapshot.docs.map((d) => ({ ...(d.data() as Order), id: d.id }));
+      list.sort((a, b) => (b.orderDate + b.createdAt).localeCompare(a.orderDate + a.createdAt));
+      saveLocalOrders(list);
+      callback(list);
+    },
+    (error) => {
+      console.warn('Firestore orders error, fallback to local:', error);
+      handleFirestoreError(error, OperationType.GET, COLLECTIONS.ORDERS);
+      callback(getLocalOrders());
+    }
+  );
+}
+
+export async function saveOrderCloud(order: Order): Promise<Order> {
+  const current = getLocalOrders();
+  const idx = current.findIndex((o) => o.id === order.id);
+  saveLocalOrders(idx >= 0 ? current.map((o, i) => (i === idx ? order : o)) : [order, ...current]);
+  try {
+    await setDoc(doc(db, COLLECTIONS.ORDERS, order.id), cleanForFirestore(order));
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, COLLECTIONS.ORDERS);
+    console.error('Error saving order to Firestore:', err);
+    throw err;
+  }
+  return order;
+}
+
+export async function deleteOrderCloud(orderId: string): Promise<void> {
+  saveLocalOrders(getLocalOrders().filter((o) => o.id !== orderId));
+  try {
+    await deleteDoc(doc(db, COLLECTIONS.ORDERS, orderId));
+  } catch (err) {
+    console.error('Error deleting order from Firestore:', err);
+  }
+}
+
 // Full import backup to cloud
 export async function importBackupToCloud(data: {
   seller?: SellerProfile;
@@ -434,6 +537,7 @@ export async function importBackupToCloud(data: {
   customers?: Customer[];
   documents?: SalesDocument[];
   expenses?: Expense[];
+  orders?: Order[];
 }) {
   if (data.seller) await saveSellerProfileCloud(data.seller);
   if (data.products) {
@@ -447,5 +551,8 @@ export async function importBackupToCloud(data: {
   }
   if (data.expenses) {
     for (const e of data.expenses) await saveExpenseCloud(e);
+  }
+  if (data.orders) {
+    for (const o of data.orders) await saveOrderCloud(o);
   }
 }

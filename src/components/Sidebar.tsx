@@ -12,6 +12,7 @@ import {
   ChevronRight,
   ShoppingBag,
   X,
+  ClipboardList,
 } from 'lucide-react';
 import { SellerProfile } from '../types';
 import { ActiveTab } from './Navbar';
@@ -22,6 +23,7 @@ interface SidebarProps {
   activeTab: ActiveTab;
   onChangeTab: (tab: ActiveTab) => void;
   lowStockCount: number;
+  orderAlertCount?: number;
   onOpenSettings: () => void;
   isOpenMobile: boolean;
   onCloseMobile: () => void;
@@ -34,6 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   onChangeTab,
   lowStockCount,
+  orderAlertCount = 0,
   onOpenSettings,
   isOpenMobile,
   onCloseMobile,
@@ -43,6 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navTabs: { id: ActiveTab; label: string; icon: React.ElementType; badge?: number }[] = [
     { id: 'dashboard', label: 'ภาพรวม', icon: LayoutDashboard },
     { id: 'documents', label: 'เอกสารขาย', icon: FileText },
+    { id: 'orders', label: 'ออเดอร์ & งานติดตั้ง', icon: ClipboardList, badge: orderAlertCount },
     { id: 'products', label: 'คลังสินค้า', icon: Package, badge: lowStockCount },
     { id: 'expenses', label: 'รายจ่าย', icon: Wallet },
     { id: 'customers', label: 'ลูกค้า', icon: Users },
@@ -66,19 +70,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
     : 'AD';
 
   const sidebarContent = (
-    <div className="h-full flex flex-col justify-between bg-gradient-to-b from-[#0A203F] via-[#0D2B52] to-[#0A1D38] text-white p-4 w-64 select-none">
+    <div className="h-full flex flex-col justify-between bg-gradient-to-b from-[#18181B] via-[#18181B] to-[#18181B] text-white p-4 w-64 select-none">
       {/* Top Logo Section */}
       <div>
         <div className="flex items-center justify-between pb-6 pt-2 border-b border-white/10 px-2">
           <div className="flex items-center gap-3">
             {seller?.logoUrl ? (
-              <img
-                src={seller.logoUrl}
-                alt={seller.name || 'Store Logo'}
-                className="max-h-10 w-auto max-w-[100px] object-contain shrink-0"
-              />
+              <div className="h-10 min-w-10 px-1.5 py-1 bg-white rounded-lg shadow-xs border border-white/20 flex items-center justify-center shrink-0">
+                <img
+                  src={seller.logoUrl}
+                  alt={seller.name || 'Store Logo'}
+                  className="max-h-8 w-auto max-w-[80px] object-contain"
+                />
+              </div>
             ) : (
-              <div className="w-10 h-10 rounded-xl bg-[#1D63B8] border border-blue-400/30 text-white flex items-center justify-center font-black shadow-md shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-[#27272A] border border-zinc-500/30 text-white flex items-center justify-center font-black shadow-md shrink-0">
                 <ShoppingBag className="w-5 h-5 text-white" />
               </div>
             )}
@@ -86,14 +92,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="font-extrabold text-lg tracking-tight text-white leading-tight">
                 SellersApp
               </div>
-              <div className="text-[11px] text-slate-300/80 font-medium tracking-wide">
+              <div className="text-[11px] text-zinc-300/80 font-medium tracking-wide">
                 ระบบขายสินค้าและใบเสร็จ
               </div>
             </div>
           </div>
           <button
             onClick={onCloseMobile}
-            className="lg:hidden p-1.5 text-slate-300 hover:text-white rounded-lg hover:bg-white/10"
+            className="lg:hidden p-1.5 text-zinc-300 hover:text-white rounded-lg hover:bg-white/10"
           >
             <X className="w-5 h-5" />
           </button>
@@ -109,23 +115,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={tab.id}
                 onClick={() => handleSelect(tab.id)}
-                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-bold transition-all duration-150 ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-lg text-sm font-bold transition-all duration-150 ${
                   isActive
-                    ? 'bg-[#18539B] text-white shadow-md border border-blue-400/20'
-                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                    ? 'bg-[#27272A] text-white shadow-md border border-zinc-500/20'
+                    : 'text-zinc-300 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <Icon
                     className={`w-5 h-5 shrink-0 ${
-                      isActive ? 'text-white stroke-[2.5]' : 'text-slate-300 stroke-2'
+                      isActive ? 'text-white stroke-[2.5]' : 'text-zinc-300 stroke-2'
                     }`}
                   />
                   <span>{tab.label}</span>
                 </div>
 
                 {tab.badge && tab.badge > 0 ? (
-                  <span className="w-5 h-5 rounded-full bg-[#18539B] border border-blue-300 text-white text-[11px] font-black flex items-center justify-center shadow-xs">
+                  <span className="w-5 h-5 rounded-full bg-[#27272A] border border-zinc-300 text-white text-[11px] font-black flex items-center justify-center shadow-xs">
                     {tab.badge}
                   </span>
                 ) : null}
@@ -143,7 +149,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onOpenSettings();
             onCloseMobile();
           }}
-          className="flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
+          className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
         >
           <div className="flex items-center gap-2.5 min-w-0">
             {currentUser?.photoURL ? (
@@ -153,7 +159,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="w-8 h-8 rounded-full object-cover border border-white/20 shrink-0"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-[#18539B] text-white font-extrabold text-xs flex items-center justify-center border border-white/20 shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#27272A] text-white font-extrabold text-xs flex items-center justify-center border border-white/20 shrink-0">
                 {initials}
               </div>
             )}
@@ -161,12 +167,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="text-xs font-bold text-white leading-tight truncate">
                 {currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Admin'}
               </div>
-              <div className="text-[10px] text-slate-400 font-medium truncate">
+              <div className="text-[10px] text-zinc-400 font-medium truncate">
                 {currentUser?.email || 'เจ้าของร้าน'}
               </div>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+          <ChevronRight className="w-4 h-4 text-zinc-400 shrink-0" />
         </div>
 
         {/* Settings & Logout Actions */}
@@ -176,9 +182,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onOpenSettings();
               onCloseMobile();
             }}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-zinc-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
           >
-            <Settings className="w-4 h-4 text-slate-400" />
+            <Settings className="w-4 h-4 text-zinc-400" />
             <span>ตั้งค่า</span>
           </button>
           {onLogout && (
@@ -187,7 +193,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onCloseMobile();
                 onLogout();
               }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-red-300 hover:text-red-200 hover:bg-red-500/20 rounded-lg transition-colors cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-red-300 hover:text-zinc-200 hover:bg-red-500/20 rounded-lg transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4 text-red-400" />
               <span>ออกจากระบบ</span>

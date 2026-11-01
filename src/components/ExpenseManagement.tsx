@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   FileSpreadsheet,
   Printer,
+  Wallet,
 } from 'lucide-react';
 import { Expense, ExpenseCategory, ExpenseStatus, SellerProfile } from '../types';
 import { formatCurrency, formatDate, generateNextVoucherNumber, formatMonthThai } from '../utils/format';
@@ -62,9 +63,9 @@ const STATUS_LABELS: Record<
   },
   CANCELLED: {
     label: 'ยกเลิก',
-    bg: 'bg-rose-50',
+    bg: 'bg-zinc-50',
     text: 'text-rose-700',
-    border: 'border-rose-200',
+    border: 'border-zinc-200',
     icon: XCircle,
   },
 };
@@ -276,62 +277,62 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
   return (
     <div className="space-y-5 pb-20 animate-fadeIn">
       {/* Header Bar & Summary Card */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/95 border border-rose-100 p-4 rounded-2xl shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/95 border border-zinc-100 p-4 rounded-xl shadow-xs">
         <div>
-          <h1 className="text-base font-bold text-slate-800 flex items-center gap-2">
-            <span className="text-xl">💸</span>
+          <h1 className="text-base font-bold text-zinc-800 flex items-center gap-2">
+            <Wallet className="w-5 h-5" />
             <span>หมวดรายจ่าย & ใบสำคัญจ่าย (Payment Voucher)</span>
           </h1>
-          <p className="text-xs text-slate-500">
-            บันทึกรายจ่ายและสร้างใบสำคัญจ่ายอัตโนมัติ พร้อมพิมพ์และดาวน์โหลด PDF ได้ทันที 🌸
+          <p className="text-xs text-zinc-500">
+            บันทึกรายจ่ายและสร้างใบสำคัญจ่ายอัตโนมัติ พร้อมพิมพ์และดาวน์โหลด PDF ได้ทันที
           </p>
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={() => setIsMonthlyReportOpen(true)}
-            className="px-4 py-2.5 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-[#0759A6] text-xs font-extrabold rounded-xl shadow-2xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+            className="px-4 py-2.5 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-[#18181B] text-xs font-extrabold rounded-lg shadow-2xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
           >
-            <FileSpreadsheet className="w-4 h-4 text-[#0759A6]" />
-            <span>รายงานค่าใช้จ่ายทั้งหมด 📊</span>
+            <FileSpreadsheet className="w-4 h-4 text-[#18181B]" />
+            <span>รายงานค่าใช้จ่ายทั้งหมด</span>
           </button>
 
           <button
             onClick={openAddModal}
-            className="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+            className="px-4 py-2.5 bg-gradient-to-r from-zinc-900 to-zinc-900 hover:from-zinc-900 hover:to-zinc-900 text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
           >
             <Plus className="w-4 h-4" />
-            <span>+ บันทึกรายจ่ายใหม่ 📝</span>
+            <span>+ บันทึกรายจ่ายใหม่</span>
           </button>
         </div>
       </div>
 
       {/* Monthly Expense Badge with Month Selector */}
-      <div className="bg-white/95 border border-rose-100 p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+      <div className="bg-white/95 border border-zinc-100 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-slate-500 font-medium">
+            <span className="text-xs text-zinc-500 font-medium">
               {selectedMonth === 'ALL'
                 ? 'รวมรายจ่ายทุกเดือนทั้งหมด'
                 : `รวมรายจ่ายประจำเดือน ${formatMonthThai(selectedMonth)} (${selectedMonth})`}{' '}
-              [ไม่รวมรายการยกเลิก] 🗓️
+              [ไม่รวมรายการยกเลิก]
             </span>
             {selectedMonth !== currentMonthStr && selectedMonth !== 'ALL' && (
               <button
                 onClick={() => setSelectedMonth(currentMonthStr)}
-                className="text-[11px] px-2 py-0.5 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold border border-rose-200 transition-all cursor-pointer"
+                className="text-[11px] px-2 py-0.5 rounded-md bg-zinc-50 hover:bg-zinc-100 text-zinc-700 font-bold border border-zinc-200 transition-all cursor-pointer"
               >
                 กลับไปเดือนปัจจุบัน
               </button>
             )}
           </div>
-          <p className="text-2xl font-extrabold text-rose-500 font-mono">
+          <p className="text-2xl font-extrabold text-zinc-900 font-mono">
             ฿{formatCurrency(totalMonthlyExpense)}
           </p>
           <div className="flex items-center gap-3 pt-0.5">
             <button
               onClick={() => setIsMonthlyReportOpen(true)}
-              className="text-xs text-[#0759A6] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs text-[#18181B] font-bold hover:underline flex items-center gap-1 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>ดูและพิมพ์รายงานค่าใช้จ่ายประจำเดือน</span>
@@ -340,23 +341,23 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
         </div>
 
         {/* Quick Month Navigator */}
-        <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 p-1.5 rounded-xl self-start md:self-center shadow-2xs">
+        <div className="flex items-center gap-1.5 bg-zinc-50 border border-zinc-200/80 p-1.5 rounded-lg self-start md:self-center shadow-2xs">
           <button
             onClick={() => shiftMonth(-1)}
-            className="p-1.5 rounded-lg hover:bg-white text-slate-600 hover:text-slate-900 transition-all cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-white text-zinc-600 hover:text-zinc-900 transition-all cursor-pointer"
             title="เดือนก่อนหน้า"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <div className="flex items-center gap-1 px-1">
-            <Calendar className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-            <span className="text-xs font-bold text-slate-800 whitespace-nowrap min-w-[110px] text-center">
+            <Calendar className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+            <span className="text-xs font-bold text-zinc-800 whitespace-nowrap min-w-[110px] text-center">
               {selectedMonth === 'ALL' ? 'ทุกช่วงเวลา' : formatMonthThai(selectedMonth)}
             </span>
           </div>
           <button
             onClick={() => shiftMonth(1)}
-            className="p-1.5 rounded-lg hover:bg-white text-slate-600 hover:text-slate-900 transition-all cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-white text-zinc-600 hover:text-zinc-900 transition-all cursor-pointer"
             title="เดือนถัดไป"
           >
             <ChevronRight className="w-4 h-4" />
@@ -365,19 +366,19 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
       </div>
 
       {/* Filters and Search Bar */}
-      <div className="bg-white/95 border border-rose-100 p-4 rounded-2xl space-y-3 shadow-xs">
+      <div className="bg-white/95 border border-zinc-100 p-4 rounded-xl space-y-3 shadow-xs">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Month / Year Selector */}
           <div className="relative">
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300 cursor-pointer"
+              className="w-full bg-zinc-50 border border-zinc-200 text-xs text-zinc-800 font-bold rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-300 cursor-pointer"
             >
-              <option value="ALL">📅 ทุกเดือน (All Time)</option>
+              <option value="ALL">ทุกเดือน (All Time)</option>
               {availableMonths.map((m) => (
                 <option key={m} value={m}>
-                  🗓️ {formatMonthThai(m)} ({m})
+                  {formatMonthThai(m)} ({m})
                 </option>
               ))}
             </select>
@@ -387,9 +388,9 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300 cursor-pointer"
+            className="w-full bg-zinc-50 border border-zinc-200 text-xs text-zinc-700 font-bold rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-300 cursor-pointer"
           >
-            <option value="ALL">🏷️ ทุกหมวดหมู่รายจ่าย</option>
+            <option value="ALL">ทุกหมวดหมู่รายจ่าย</option>
             {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
               <option key={key} value={key}>
                 {label}
@@ -401,23 +402,23 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-700 font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300 cursor-pointer"
+            className="w-full bg-zinc-50 border border-zinc-200 text-xs text-zinc-700 font-bold rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-300 cursor-pointer"
           >
-            <option value="ALL">📑 ทุกสถานะเอกสาร</option>
-            <option value="PAID">✅ ชำระแล้ว</option>
+            <option value="ALL">ทุกสถานะเอกสาร</option>
+            <option value="PAID">ชำระแล้ว</option>
             <option value="DRAFT">⏳ ร่าง</option>
-            <option value="CANCELLED">❌ ยกเลิก</option>
+            <option value="CANCELLED">ยกเลิก</option>
           </select>
 
           {/* Search Box */}
           <div className="relative w-full">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3 top-2.5 text-zinc-400" />
             <input
               type="text"
               placeholder="ค้นหาเลขที่ PV / ผู้รับเงิน / รายการ..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300"
+              className="w-full bg-zinc-50 border border-zinc-200 text-xs text-zinc-800 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-300"
             />
           </div>
         </div>
@@ -426,29 +427,29 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
       {/* Expense List */}
       <div className="space-y-2.5">
         {filteredExpenses.length === 0 ? (
-          <div className="bg-white/95 border border-rose-100 rounded-2xl p-10 text-center space-y-3 shadow-xs">
-            <p className="text-sm font-bold text-slate-700">
-              🌸 ไม่พบรายการรายจ่ายประจำเดือน{' '}
+          <div className="bg-white/95 border border-zinc-100 rounded-xl p-10 text-center space-y-3 shadow-xs">
+            <p className="text-sm font-bold text-zinc-700">
+              ไม่พบรายการรายจ่ายประจำเดือน{' '}
               <span className="text-rose-600">
                 {selectedMonth === 'ALL' ? 'ทุกช่วงเวลา' : formatMonthThai(selectedMonth)}
               </span>{' '}
               หรือตามเงื่อนไขการค้นหา
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-zinc-500">
               ลองเลือกเดือนอื่น หรือกดปุ่มบันทึกรายจ่ายใหม่ด้านล่าง
             </p>
             <div className="flex items-center justify-center gap-2 pt-1">
               {selectedMonth !== 'ALL' && (
                 <button
                   onClick={() => setSelectedMonth('ALL')}
-                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer"
+                  className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-lg transition-all cursor-pointer"
                 >
                   แสดงรายจ่ายทุกเดือน
                 </button>
               )}
               <button
                 onClick={openAddModal}
-                className="px-3.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer"
+                className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg transition-all shadow-xs cursor-pointer"
               >
                 + บันทึกรายจ่ายใหม่
               </button>
@@ -464,16 +465,16 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
               <div
                 key={exp.id}
                 onClick={() => onViewVoucher(exp)}
-                className="bg-white/95 border border-rose-100 hover:border-pink-300 p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3.5 transition-all shadow-xs cursor-pointer hover:shadow-md"
+                className="bg-white/95 border border-zinc-100 hover:border-zinc-300 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3.5 transition-all shadow-xs cursor-pointer hover:shadow-md"
               >
                 {/* Left Side: Icon, Voucher No, Description & Meta */}
                 <div className="flex items-start gap-3.5 min-w-0">
-                  <div className="w-11 h-11 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 shrink-0 shadow-2xs mt-0.5">
-                    <Receipt className="w-5 h-5 text-rose-500" />
+                  <div className="w-11 h-11 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-700 shrink-0 shadow-2xs mt-0.5">
+                    <Receipt className="w-5 h-5 text-zinc-700" />
                   </div>
                   <div className="space-y-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono font-black text-xs text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                      <span className="font-mono font-black text-xs text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-md border border-zinc-200">
                         {exp.voucherNumber || 'PV-AUTO'}
                       </span>
                       <span
@@ -482,29 +483,29 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                         <StatusIcon className="w-3 h-3" />
                         {statusCfg.label}
                       </span>
-                      <span className="px-2 py-0.5 bg-rose-50 border border-rose-200 rounded-md text-rose-700 font-bold text-[11px]">
+                      <span className="px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-700 font-bold text-[11px]">
                         {CATEGORY_LABELS[exp.category] || exp.category}
                       </span>
                     </div>
 
-                    <h4 className="font-bold text-sm text-slate-900 truncate">
+                    <h4 className="font-bold text-sm text-zinc-900 truncate">
                       {exp.description}
                     </h4>
 
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-500">
-                      <span>📅 {formatDate(exp.date)}</span>
-                      {exp.recipient && <span>👤 ผู้รับ: {exp.recipient}</span>}
-                      {exp.paymentMethod && <span>💳 {exp.paymentMethod}</span>}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-zinc-500">
+                      <span>{formatDate(exp.date)}</span>
+                      {exp.recipient && <span>ผู้รับ: {exp.recipient}</span>}
+                      {exp.paymentMethod && <span>{exp.paymentMethod}</span>}
                     </div>
                   </div>
                 </div>
 
                 {/* Right Side: Amount and Actions */}
                 <div
-                  className="flex items-center justify-between md:justify-end gap-3 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100"
+                  className="flex items-center justify-between md:justify-end gap-3 pt-2 md:pt-0 border-t md:border-t-0 border-zinc-100"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <span className={`font-mono font-extrabold text-base ${statusKey === 'CANCELLED' ? 'text-slate-400 line-through' : 'text-rose-600'}`}>
+                  <span className={`font-mono font-extrabold text-base ${statusKey === 'CANCELLED' ? 'text-zinc-400 line-through' : 'text-zinc-900'}`}>
                     -฿{formatCurrency(exp.amount)}
                   </span>
 
@@ -512,7 +513,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                     {/* View Payment Voucher Button */}
                     <button
                       onClick={() => onViewVoucher(exp)}
-                      className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-xl border border-blue-200 flex items-center gap-1 transition-all"
+                      className="px-2.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 text-zinc-900 text-xs font-bold rounded-lg border border-zinc-200 flex items-center gap-1 transition-all"
                       title="ดูใบสำคัญจ่าย"
                     >
                       <FileText className="w-3.5 h-3.5" />
@@ -522,7 +523,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                     {/* Edit Expense */}
                     <button
                       onClick={() => openEditModal(exp)}
-                      className="p-1.5 sm:px-2.5 sm:py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 flex items-center gap-1 transition-all"
+                      className="p-1.5 sm:px-2.5 sm:py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-lg border border-zinc-200 flex items-center gap-1 transition-all"
                       title="แก้ไขรายจ่าย"
                     >
                       <Edit className="w-3.5 h-3.5" />
@@ -535,7 +536,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                         setDeletingExpense(exp);
                         setDeleteConfirmInput('');
                       }}
-                      className="p-1.5 sm:p-2 text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl border border-rose-200 transition-all"
+                      className="p-1.5 sm:p-2 text-rose-600 hover:text-rose-700 bg-zinc-50 hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-all"
                       title="ลบรายจ่าย"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -550,15 +551,15 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
 
       {/* Add / Edit Expense Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
-          <div className="bg-white border border-slate-200 text-slate-800 rounded-2xl w-full max-w-lg p-5 sm:p-6 shadow-2xl space-y-4 my-8">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 bg-zinc-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+          <div className="bg-white border border-zinc-200 text-zinc-800 rounded-xl w-full max-w-lg p-5 sm:p-6 shadow-2xl space-y-4 my-8">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div>
-                <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-                  <span className="text-xl">💸</span>
+                <h3 className="font-bold text-base text-zinc-900 flex items-center gap-2">
+                  <Wallet className="w-5 h-5" />
                   <span>{editingExpense ? 'แก้ไขรายการรายจ่าย' : 'บันทึกรายจ่ายใหม่'}</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-zinc-500 mt-0.5">
                   {editingExpense
                     ? `เลขที่ใบสำคัญจ่าย: ${editingExpense.voucherNumber || 'PV-AUTO'}`
                     : 'ระบบจะสร้างใบสำคัญจ่าย (Payment Voucher) ให้อัตโนมัติ'}
@@ -569,7 +570,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                   setIsModalOpen(false);
                   setEditingExpense(null);
                 }}
-                className="p-1.5 text-slate-400 hover:text-slate-700 bg-slate-100 rounded-xl"
+                className="p-1.5 text-zinc-400 hover:text-zinc-700 bg-zinc-100 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -578,42 +579,42 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
             <form onSubmit={handleFormSubmit} className="space-y-3.5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                     วันที่จ่าย / วันที่ทำรายการ *
                   </label>
                   <DatePicker
                     value={date}
                     onChange={(val) => setDate(val)}
                     required
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-bold"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-800 font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                     สถานะเอกสาร
                   </label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as ExpenseStatus)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-bold"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-800 font-bold"
                   >
-                    <option value="PAID">✅ ชำระแล้ว (PAID)</option>
+                    <option value="PAID">ชำระแล้ว (PAID)</option>
                     <option value="DRAFT">⏳ ร่าง (DRAFT)</option>
-                    <option value="CANCELLED">❌ ยกเลิก (CANCELLED)</option>
+                    <option value="CANCELLED">ยกเลิก (CANCELLED)</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                     หมวดหมู่รายจ่าย *
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-bold"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-800 font-bold"
                   >
                     {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                       <option key={key} value={key}>
@@ -624,7 +625,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                     จำนวนเงิน (บาท) *
                   </label>
                   <input
@@ -635,13 +636,13 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                     placeholder="0.00"
                     value={amount || ''}
                     onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-rose-600 font-extrabold font-mono focus:outline-none focus:ring-2 focus:ring-pink-300"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 font-extrabold font-mono focus:outline-none focus:ring-2 focus:ring-zinc-300"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                   รายการ / รายละเอียดค่าใช้จ่าย *
                 </label>
                 <input
@@ -650,13 +651,13 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                   placeholder="เช่น ค่ากล่องไปรษณีย์ 100 ใบ หรือ สั่งซื้อสินค้าล็อตใหม่"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                     ผู้รับเงิน / ร้านค้าซัพพลายเออร์
                   </label>
                   <input
@@ -664,18 +665,18 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                     placeholder="เช่น Flash Express / ร้านกล่องไปรษณีย์"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-800"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                     ช่องทางการชำระเงิน
                   </label>
                   <select
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-800 font-semibold"
                   >
                     {PAYMENT_METHODS.map((m) => (
                       <option key={m} value={m}>
@@ -688,7 +689,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                     เลขที่อ้างอิงการชำระเงิน (ถ้ามี)
                   </label>
                   <input
@@ -696,12 +697,12 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                     placeholder="เช่น TRF-12345 / เลขสลิป"
                     value={paymentRef}
                     onChange={(e) => setPaymentRef(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-800 font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                     ผู้บันทึกรายการ
                   </label>
                   <input
@@ -709,13 +710,13 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                     placeholder="เช่น ผู้ดูแลระบบ / สมชาย"
                     value={recordedBy}
                     onChange={(e) => setRecordedBy(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-800"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                <label className="block text-[11px] font-bold text-zinc-700 mb-1">
                   หมายเหตุเพิ่มเติม
                 </label>
                 <textarea
@@ -723,26 +724,26 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                   placeholder="ระบุข้อความหรือหมายเหตุสำหรับใบสำคัญจ่าย..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 resize-none"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-800 resize-none"
                 />
               </div>
 
-              <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+              <div className="pt-3 flex items-center justify-end gap-2 border-t border-zinc-100">
                 <button
                   type="button"
                   onClick={() => {
                     setIsModalOpen(false);
                     setEditingExpense(null);
                   }}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl"
+                  className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-semibold rounded-lg"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer"
+                  className="px-5 py-2 bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer"
                 >
-                  {editingExpense ? 'บันทึกการแก้ไข 💾' : 'บันทึกรายจ่าย & สร้าง PV 🌸'}
+                  {editingExpense ? 'บันทึกการแก้ไข' : 'บันทึกรายจ่าย & สร้าง PV'}
                 </button>
               </div>
             </form>
@@ -752,43 +753,43 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
 
       {/* Delete Confirmation Modal */}
       {deletingExpense && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-rose-100 overflow-hidden">
-            <div className="bg-rose-50 border-b border-rose-100 p-4 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 bg-zinc-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-zinc-100 overflow-hidden">
+            <div className="bg-zinc-50 border-b border-zinc-100 p-4 flex items-center justify-between">
               <div className="flex items-center gap-2.5 text-rose-700">
-                <div className="p-2 bg-rose-100 rounded-xl">
+                <div className="p-2 bg-zinc-100 rounded-lg">
                   <AlertTriangle className="w-5 h-5 text-rose-600" />
                 </div>
                 <h3 className="font-bold text-base text-rose-900">ยืนยันการลบรายจ่าย</h3>
               </div>
               <button
                 onClick={() => setDeletingExpense(null)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-xl"
+                className="p-1.5 text-zinc-400 hover:text-zinc-600 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-1.5 text-xs text-slate-700">
+              <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-3.5 space-y-1.5 text-xs text-zinc-700">
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">ใบสำคัญจ่าย:</span>
-                  <span className="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
+                  <span className="text-zinc-500">ใบสำคัญจ่าย:</span>
+                  <span className="font-mono font-bold text-zinc-900 bg-white px-2 py-0.5 rounded border border-zinc-200">
                     {deletingExpense.voucherNumber || 'PV-AUTO'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">รายการ:</span>
-                  <span className="font-semibold text-slate-800">{deletingExpense.description}</span>
+                  <span className="text-zinc-500">รายการ:</span>
+                  <span className="font-semibold text-zinc-800">{deletingExpense.description}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">จำนวนเงิน:</span>
+                  <span className="text-zinc-500">จำนวนเงิน:</span>
                   <span className="font-bold text-rose-600">฿{formatCurrency(deletingExpense.amount)}</span>
                 </div>
               </div>
 
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
-                <p className="font-bold text-amber-900">⚠️ คำเตือน:</p>
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 space-y-1">
+                <p className="font-bold text-amber-900">คำเตือน:</p>
                 <p>
                   หากต้องการคงเลขที่ใบสำคัญจ่ายไว้ แนะนำให้เลือกสถานะเป็น <b>"ยกเลิก (CANCELLED)"</b> แทนการลบ
                   หากลบ รายการและใบสำคัญจ่ายนี้จะถูกลบถาวร
@@ -796,7 +797,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
               </div>
 
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700">
+                <label className="block text-xs font-bold text-zinc-700">
                   พิมพ์คำว่า <span className="text-rose-600 font-extrabold underline">Confirm</span> เพื่อยืนยันการลบ:
                 </label>
                 <input
@@ -807,17 +808,17 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                     if (e.key === 'Enter' && isDeleteConfirmed) handleConfirmDelete();
                   }}
                   placeholder="พิมพ์ Confirm ที่นี่..."
-                  className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500 font-mono"
+                  className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-rose-500 font-mono"
                   autoFocus
                 />
               </div>
             </div>
 
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
+            <div className="p-4 bg-zinc-50 border-t border-zinc-100 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setDeletingExpense(null)}
-                className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200"
+                className="px-4 py-2 bg-white hover:bg-zinc-100 text-zinc-700 text-xs font-bold rounded-lg border border-zinc-200"
               >
                 ยกเลิก
               </button>
@@ -825,10 +826,10 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
                 type="button"
                 onClick={handleConfirmDelete}
                 disabled={!isDeleteConfirmed}
-                className={`px-4 py-2 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-xs ${
+                className={`px-4 py-2 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all shadow-xs ${
                   isDeleteConfirmed
                     ? 'bg-rose-600 hover:bg-rose-700 text-white cursor-pointer active:scale-95'
-                    : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
+                    : 'bg-zinc-200 text-zinc-400 cursor-not-allowed border border-zinc-300'
                 }`}
               >
                 <Trash2 className="w-3.5 h-3.5" />

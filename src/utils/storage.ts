@@ -1,6 +1,7 @@
 import {
   Customer,
   Expense,
+  Order,
   Product,
   SalesDocument,
   SellerProfile,
@@ -14,6 +15,7 @@ const STORAGE_KEYS = {
   DOCUMENTS: 'sellersapp_documents',
   EXPENSES: 'sellersapp_expenses',
   SYNC_LOG: 'sellersapp_sync_log',
+  ORDERS: 'sellersapp_orders',
 };
 
 // Initial default seller profile
@@ -498,4 +500,22 @@ export function updateStockForDocument(doc: SalesDocument, isCancellation = fals
     return p;
   });
   saveProducts(updatedProducts);
+}
+
+export function getOrders(): Order[] {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.ORDERS);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveOrders(orders: Order[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+  } catch (err) {
+    // รูปหน้างานอาจทำให้เกินพื้นที่ localStorage — ข้อมูลหลักยังอยู่ใน Firestore
+    console.warn('Local orders cache not saved:', err);
+  }
 }

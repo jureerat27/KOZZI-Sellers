@@ -8,8 +8,8 @@
   
   body {
     font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-    background-color: #FAF7F2;
-    color: #334155;
+    background-color: #FAFAFA;
+    color: #18181B;
   }
 }
 
@@ -36,7 +36,7 @@
   html, body, #root, #root > div {
     background-color: #ffffff !important;
     background: #ffffff !important;
-    color: #0D2B52 !important;
+    color: #18181B !important;
     font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -103,7 +103,7 @@
     padding: 0 !important;
     background-color: #ffffff !important;
     background: #ffffff !important;
-    color: #0D2B52 !important;
+    color: #18181B !important;
     box-shadow: none !important;
     border: none !important;
     overflow: visible !important;
@@ -137,21 +137,21 @@
 
   /* Monthly expense custom badge & table colors */
   #monthly-expense-print .report-badge-box {
-    background-color: #f0f7ff !important;
-    border: 1px solid #bae6fd !important;
+    background-color: #F4F4F5 !important;
+    border: 1px solid #D4D4D8 !important;
   }
 
   #monthly-expense-print thead tr {
-    background-color: #f0f7ff !important;
+    background-color: #F4F4F5 !important;
   }
 
   #monthly-expense-print tfoot tr {
-    background-color: #f8fafc !important;
+    background-color: #FAFAFA !important;
   }
 
   #monthly-expense-print .report-summary-box {
-    background-color: #f0f7ff !important;
-    border: 1px solid #bae6fd !important;
+    background-color: #F4F4F5 !important;
+    border: 1px solid #D4D4D8 !important;
   }
 
   /* Printable Payment Voucher (A5 Format: 148 x 210 mm) */
@@ -200,7 +200,7 @@
     border-radius: 0 !important;
     background-color: #ffffff !important;
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #18181B !important;
     transform: none !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
@@ -216,8 +216,8 @@
 
   /* Preserve background colors and badge fills in print output */
   #printable-document-container .doc-title-box,
-  #printable-document-container .bg-slate-900 {
-    background-color: #0f172a !important;
+  #printable-document-container .bg-zinc-900 {
+    background-color: #18181B !important;
     color: #ffffff !important;
     border-radius: 18px !important;
     padding-top: 14px !important;
@@ -229,19 +229,19 @@
     print-color-adjust: exact !important;
   }
 
-  #printable-document-container .bg-\[\#0D2B52\] {
-    background-color: #0d2b52 !important;
+  #printable-document-container .bg-\[\#18181B\] {
+    background-color: #18181B !important;
     color: #ffffff !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  #printable-document-container .bg-slate-100 {
-    background-color: #f1f5f9 !important;
+  #printable-document-container .bg-zinc-100 {
+    background-color: #F4F4F5 !important;
   }
 
-  #printable-document-container .bg-slate-50 {
-    background-color: #f8fafc !important;
+  #printable-document-container .bg-zinc-50 {
+    background-color: #FAFAFA !important;
   }
 
   #printable-document-container .bg-amber-50 {
@@ -260,10 +260,10 @@
     border-color: #a7f3d0 !important;
   }
 
-  #printable-document-container .bg-blue-100 {
-    background-color: #dbeafe !important;
-    border-color: #93c5fd !important;
-    color: #1e40af !important;
+  #printable-document-container .bg-zinc-100 {
+    background-color: #E4E4E7 !important;
+    border-color: #A1A1AA !important;
+    color: #27272A !important;
   }
 
   #printable-document-container .text-emerald-700 {

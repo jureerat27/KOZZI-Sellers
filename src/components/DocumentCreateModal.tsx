@@ -372,19 +372,19 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto">
         {/* Modal Header */}
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90 sticky top-0 z-10">
+        <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/90 sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-800/80 text-emerald-400 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-emerald-950 border border-emerald-800/80 text-emerald-400 flex items-center justify-center">
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-bold text-base text-slate-100">
+              <h2 className="font-bold text-base text-zinc-100">
                 {editingDoc ? `แก้ไขเอกสาร (${editingDoc.docNumber})` : 'สร้างเอกสารการขายใหม่ (ในนามบุคคล)'}
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-zinc-400">
                 ผู้ออกเอกสาร: {seller.name}
               </p>
             </div>
@@ -392,7 +392,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
           <button
             onClick={onClose}
             disabled={isSaving}
-            className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors disabled:opacity-50"
+            className="p-2 text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors disabled:opacity-50"
           >
             <X className="w-5 h-5" />
           </button>
@@ -402,14 +402,14 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
         <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-5 space-y-6">
           {/* Status / Error / Success Messages */}
           {saveError && (
-            <div className="p-3.5 bg-rose-950/80 border border-rose-800 text-rose-200 text-xs rounded-xl flex items-center gap-2.5 shadow-sm">
+            <div className="p-3.5 bg-rose-950/80 border border-rose-800 text-zinc-200 text-xs rounded-lg flex items-center gap-2.5 shadow-sm">
               <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
               <span className="font-medium">{saveError}</span>
             </div>
           )}
 
           {saveSuccess && (
-            <div className="p-3.5 bg-emerald-950/80 border border-emerald-800 text-emerald-200 text-xs rounded-xl flex items-center gap-2.5 shadow-sm">
+            <div className="p-3.5 bg-emerald-950/80 border border-emerald-800 text-emerald-200 text-xs rounded-lg flex items-center gap-2.5 shadow-sm">
               <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
               <span className="font-medium">{saveSuccess}</span>
             </div>
@@ -417,7 +417,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
           {/* Document Type Selector */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
               ประเภทเอกสาร
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -429,13 +429,13 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   setStatus('SENT');
                   setNotes(getDefaultNoteForType('QUOTATION'));
                 }}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
+                className={`py-2.5 px-3 rounded-lg text-xs font-bold border transition-all ${
                   docType === 'QUOTATION'
-                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20'
-                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-white border-zinc-800 text-zinc-900 shadow-lg shadow-zinc-800/20'
+                    : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'
                 }`}
               >
-                📋 ใบเสนอราคา (QT)
+                ใบเสนอราคา (QT)
               </button>
 
               <button
@@ -446,13 +446,13 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   setStatus('SENT');
                   setNotes(getDefaultNoteForType('INVOICE'));
                 }}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
+                className={`py-2.5 px-3 rounded-lg text-xs font-bold border transition-all ${
                   docType === 'INVOICE'
-                    ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-white border-emerald-500 text-zinc-900 shadow-lg shadow-emerald-500/20'
+                    : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'
                 }`}
               >
-                📄 ใบแจ้งหนี้ (INV)
+                ใบแจ้งหนี้ (INV)
               </button>
 
               <button
@@ -463,21 +463,21 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   setStatus('PAID');
                   setNotes(getDefaultNoteForType('RECEIPT'));
                 }}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
+                className={`py-2.5 px-3 rounded-lg text-xs font-bold border transition-all ${
                   docType === 'RECEIPT'
-                    ? 'bg-teal-600 border-teal-500 text-white shadow-lg shadow-teal-500/20'
-                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-white border-zinc-800 text-zinc-900 shadow-lg shadow-zinc-800/20'
+                    : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'
                 }`}
               >
-                🧾 ใบเสร็จรับเงิน (REC)
+                ใบเสร็จรับเงิน (REC)
               </button>
             </div>
           </div>
 
           {/* Customer Selection */}
-          <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-3">
+          <div className="bg-zinc-800/60 border border-zinc-700/60 rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
                 <User className="w-4 h-4 text-emerald-400" />
                 <span>ข้อมูลลูกค้า</span>
               </label>
@@ -487,7 +487,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   value={selectedCustomerId}
                   onChange={(e) => handleSelectCustomer(e.target.value)}
                   disabled={isSaving}
-                  className="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-emerald-500"
+                  className="bg-zinc-900 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-emerald-500"
                 >
                   <option value="">-- เลือกลูกค้าจากคลัง --</option>
                   {customers.map((c) => (
@@ -501,7 +501,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   type="button"
                   disabled={isSaving}
                   onClick={() => setShowQuickCustomer(true)}
-                  className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  className="px-2.5 py-1.5 bg-white hover:bg-zinc-200 text-zinc-900 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer disabled:opacity-50"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>เพิ่มลูกค้าใหม่</span>
@@ -511,7 +511,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                <label className="block text-[11px] font-bold text-zinc-300 mb-1">
                   ชื่อ-นามสกุล / บริษัท <span className="text-rose-400">*</span>
                 </label>
                 <input
@@ -521,14 +521,14 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="เช่น คุณวิภาวรรณ สุขเกษม หรือ บริษัท ABC จำกัด"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-300 mb-1 flex items-center justify-between">
+                <label className="block text-[11px] font-bold text-zinc-300 mb-1 flex items-center justify-between">
                   <span>เลขประจำตัวผู้เสียภาษีอากร (Tax ID)</span>
-                  <span className="text-[10px] text-slate-500">ไม่บังคับ</span>
+                  <span className="text-[10px] text-zinc-500">ไม่บังคับ</span>
                 </label>
                 <input
                   type="text"
@@ -536,31 +536,31 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   value={customerTaxId}
                   onChange={(e) => setCustomerTaxId(e.target.value)}
                   placeholder="เช่น 1490700030250 (13 หลัก)"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 font-mono focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-300 mb-1">เบอร์โทรศัพท์</label>
+                <label className="block text-[11px] font-bold text-zinc-300 mb-1">เบอร์โทรศัพท์</label>
                 <input
                   type="text"
                   disabled={isSaving}
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   placeholder="เช่น 0898765432"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-300 mb-1">ที่อยู่จัดส่ง / ออกเอกสาร</label>
+                <label className="block text-[11px] font-bold text-zinc-300 mb-1">ที่อยู่จัดส่ง / ออกเอกสาร</label>
                 <input
                   type="text"
                   disabled={isSaving}
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
                   placeholder="เช่น 88/9 หมู่บ้านปัญญา บางนา กม.7 สมุทรปราการ"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-emerald-500"
                 />
               </div>
             </div>
@@ -568,7 +568,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
           {/* Quick Add Customer Modal */}
           {showQuickCustomer && (
-            <div className="p-4 bg-slate-800 border border-emerald-500/50 rounded-xl space-y-3">
+            <div className="p-4 bg-zinc-800 border border-emerald-500/50 rounded-lg space-y-3">
               <h4 className="text-xs font-bold text-emerald-400">เพิ่มลูกค้าใหม่ด่วน</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input
@@ -576,42 +576,42 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   placeholder="ชื่อลูกค้า *"
                   value={newCustName}
                   onChange={(e) => setNewCustName(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100"
+                  className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-100"
                 />
                 <input
                   type="text"
                   placeholder="เลขประจำตัวผู้เสียภาษี (Tax ID)"
                   value={newCustTaxId}
                   onChange={(e) => setNewCustTaxId(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 font-mono"
+                  className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-100 font-mono"
                 />
                 <input
                   type="text"
                   placeholder="เบอร์โทร"
                   value={newCustPhone}
                   onChange={(e) => setNewCustPhone(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100"
+                  className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-100"
                 />
                 <input
                   type="text"
                   placeholder="ที่อยู่จัดส่ง / ออกเอกสาร"
                   value={newCustAddress}
                   onChange={(e) => setNewCustAddress(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100"
+                  className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-100"
                 />
               </div>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowQuickCustomer(false)}
-                  className="px-3 py-1 bg-slate-700 text-xs rounded-lg text-slate-300 cursor-pointer"
+                  className="px-3 py-1 bg-zinc-700 text-xs rounded-lg text-zinc-300 cursor-pointer"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="button"
                   onClick={handleQuickAddCustomer}
-                  className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold rounded-lg text-white cursor-pointer"
+                  className="px-3 py-1 bg-white hover:bg-zinc-200 text-xs font-semibold rounded-lg text-zinc-900 cursor-pointer"
                 >
                   บันทึกลูกค้า
                 </button>
@@ -620,9 +620,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
           )}
 
           {/* Items Section */}
-          <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-3.5">
+          <div className="bg-zinc-800/60 border border-zinc-700/60 rounded-lg p-4 space-y-3.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
                 <Package className="w-4 h-4 text-emerald-400" />
                 <span>รายการสินค้าและบริการ {items.length > 0 ? `(${items.length} รายการ)` : ''}</span>
               </label>
@@ -632,7 +632,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 type="button"
                 disabled={isSaving}
                 onClick={handleAddNewItem}
-                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+                className="px-3 py-1.5 bg-white hover:bg-zinc-200 text-zinc-900 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer disabled:opacity-50"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>+ เพิ่มรายการ</span>
@@ -656,13 +656,13 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
             {/* Empty State */}
             {items.length === 0 ? (
-              <div className="p-8 text-center border-2 border-dashed border-slate-700/80 rounded-2xl bg-slate-900/40 text-slate-400 space-y-3">
-                <div className="w-12 h-12 mx-auto rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+              <div className="p-8 text-center border-2 border-dashed border-zinc-700/80 rounded-xl bg-zinc-900/40 text-zinc-400 space-y-3">
+                <div className="w-12 h-12 mx-auto rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400">
                   <Package className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className="font-bold text-sm text-slate-200">ยังไม่มีรายการสินค้าและบริการ</p>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="font-bold text-sm text-zinc-200">ยังไม่มีรายการสินค้าและบริการ</p>
+                  <p className="text-xs text-zinc-400 mt-1">
                     กดปุ่มด้านล่างเพื่อเพิ่มรายการสินค้า สินค้าสั่งทำ (Made to Order) หรือบริการ
                   </p>
                 </div>
@@ -670,7 +670,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   type="button"
                   disabled={isSaving}
                   onClick={handleAddNewItem}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition-colors cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-zinc-200 text-zinc-900 font-bold text-xs rounded-lg shadow-lg shadow-emerald-600/20 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ เพิ่มรายการ</span>
@@ -681,21 +681,21 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 {items.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-3.5 bg-slate-900 border border-slate-700/80 rounded-xl space-y-2.5 text-xs relative group hover:border-slate-600 transition-colors"
+                    className="p-3.5 bg-zinc-900 border border-zinc-700/80 rounded-lg space-y-2.5 text-xs relative group hover:border-zinc-600 transition-colors"
                   >
                     {/* Top Row: Index Badge, Product Name (Free text with datalist auto-suggest), and Delete button */}
                     <div className="flex items-start gap-2.5">
-                      <span className="w-6 h-6 rounded-lg bg-slate-800 text-emerald-400 font-bold flex items-center justify-center text-xs shrink-0 mt-1 border border-slate-700">
+                      <span className="w-6 h-6 rounded-lg bg-zinc-800 text-emerald-400 font-bold flex items-center justify-center text-xs shrink-0 mt-1 border border-zinc-700">
                         {idx + 1}
                       </span>
 
                       <div className="flex-1 space-y-1">
                         <div className="flex items-center justify-between">
-                          <label className="text-[11px] font-semibold text-slate-300">
+                          <label className="text-[11px] font-semibold text-zinc-300">
                             ชื่อสินค้า / รายการ <span className="text-rose-400">*</span>
                           </label>
                           {item.sku && (
-                            <span className="text-[10px] text-slate-400 font-mono">
+                            <span className="text-[10px] text-zinc-400 font-mono">
                               SKU: {item.sku}
                             </span>
                           )}
@@ -708,7 +708,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                           placeholder="พิมพ์ชื่อสินค้า เช่น ราวตากผ้า Xiaomi Mijia Pro, ราวตากผ้า V8-QM, ค่าติดตั้ง..."
                           value={item.productName}
                           onChange={(e) => handleProductNameChange(idx, e.target.value)}
-                          className="w-full bg-slate-800/90 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-500 font-medium focus:outline-none focus:border-emerald-500"
+                          className="w-full bg-zinc-800/90 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 font-medium focus:outline-none focus:border-emerald-500"
                         />
                         <datalist id={`product-suggestions-${idx}`}>
                           {products.map((p) => (
@@ -724,7 +724,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                         disabled={isSaving}
                         onClick={() => handleRemoveItem(idx)}
                         title="ลบรายการนี้"
-                        className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors shrink-0 mt-5 cursor-pointer disabled:opacity-50"
+                        className="p-2 text-zinc-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors shrink-0 mt-5 cursor-pointer disabled:opacity-50"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -738,15 +738,15 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                         placeholder="รายละเอียด / รุ่น / ตัวเลือกสินค้า เช่น สีขาว / พร้อมติดตั้ง (ถ้ามี)"
                         value={item.description || ''}
                         onChange={(e) => handleUpdateItem(idx, 'description', e.target.value)}
-                        className="w-full bg-slate-800/60 border border-slate-700/60 rounded-lg px-3 py-1.5 text-[11px] text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                        className="w-full bg-zinc-800/60 border border-zinc-700/60 rounded-lg px-3 py-1.5 text-[11px] text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
 
                     {/* Third Row: Quantity, Unit, Price per Unit, Discount, and Total */}
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 border-t border-slate-800/60">
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 border-t border-zinc-800/60">
                       {/* Quantity */}
                       <div>
-                        <label className="block text-[10px] text-slate-400 mb-0.5">จำนวน</label>
+                        <label className="block text-[10px] text-zinc-400 mb-0.5">จำนวน</label>
                         <input
                           type="number"
                           min="0.01"
@@ -756,13 +756,13 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                           onChange={(e) =>
                             handleUpdateItem(idx, 'quantity', parseFloat(e.target.value) || 0)
                           }
-                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-center text-xs text-slate-100 font-bold focus:outline-none focus:border-emerald-500"
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-center text-xs text-zinc-100 font-bold focus:outline-none focus:border-emerald-500"
                         />
                       </div>
 
                       {/* Unit */}
                       <div>
-                        <label className="block text-[10px] text-slate-400 mb-0.5">หน่วย</label>
+                        <label className="block text-[10px] text-zinc-400 mb-0.5">หน่วย</label>
                         <input
                           type="text"
                           disabled={isSaving}
@@ -770,13 +770,13 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                           placeholder="ชิ้น / ชุด"
                           value={item.unit || ''}
                           onChange={(e) => handleUpdateItem(idx, 'unit', e.target.value)}
-                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-center text-xs text-slate-100 font-medium focus:outline-none focus:border-emerald-500"
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-center text-xs text-zinc-100 font-medium focus:outline-none focus:border-emerald-500"
                         />
                       </div>
 
                       {/* Price per unit */}
                       <div>
-                        <label className="block text-[10px] text-slate-400 mb-0.5">ราคา/หน่วย (฿)</label>
+                        <label className="block text-[10px] text-zinc-400 mb-0.5">ราคา/หน่วย (฿)</label>
                         <input
                           type="number"
                           min="0"
@@ -787,13 +787,13 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                             handleUpdateItem(idx, 'price', parseFloat(e.target.value) || 0)
                           }
                           placeholder="0.00"
-                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-right text-xs text-slate-100 font-bold focus:outline-none focus:border-emerald-500"
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-right text-xs text-zinc-100 font-bold focus:outline-none focus:border-emerald-500"
                         />
                       </div>
 
                       {/* Item discount */}
                       <div>
-                        <label className="block text-[10px] text-slate-400 mb-0.5">ส่วนลด (฿)</label>
+                        <label className="block text-[10px] text-zinc-400 mb-0.5">ส่วนลด (฿)</label>
                         <input
                           type="number"
                           min="0"
@@ -804,13 +804,13 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                             handleUpdateItem(idx, 'discount', parseFloat(e.target.value) || 0)
                           }
                           placeholder="0.00"
-                          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-right text-xs text-slate-100 font-medium focus:outline-none focus:border-emerald-500"
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-right text-xs text-zinc-100 font-medium focus:outline-none focus:border-emerald-500"
                         />
                       </div>
 
                       {/* Item Total */}
-                      <div className="col-span-2 sm:col-span-1 bg-slate-800/80 border border-slate-700/60 rounded-lg p-1.5 flex flex-col justify-center text-right">
-                        <span className="text-[10px] text-slate-400">จำนวนเงินรวม</span>
+                      <div className="col-span-2 sm:col-span-1 bg-zinc-800/80 border border-zinc-700/60 rounded-lg p-1.5 flex flex-col justify-center text-right">
+                        <span className="text-[10px] text-zinc-400">จำนวนเงินรวม</span>
                         <span className="font-extrabold text-emerald-400 text-xs sm:text-sm font-mono truncate">
                           ฿{formatCurrency(item.total)}
                         </span>
@@ -824,7 +824,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                   type="button"
                   disabled={isSaving}
                   onClick={handleAddNewItem}
-                  className="w-full py-2.5 border-2 border-dashed border-slate-700 hover:border-emerald-500/70 bg-slate-800/40 hover:bg-slate-800/80 text-emerald-400 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  className="w-full py-2.5 border-2 border-dashed border-zinc-700 hover:border-emerald-500/70 bg-zinc-800/40 hover:bg-zinc-800/80 text-emerald-400 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ เพิ่มรายการ</span>
@@ -834,44 +834,44 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
           </div>
 
           {/* Pricing Summary Breakdown */}
-          <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+          <div className="bg-zinc-800/60 border border-zinc-700/60 rounded-lg p-4 space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
               <Calculator className="w-4 h-4 text-emerald-400" />
               <span>ส่วนลด ค่าจัดส่ง และภาษี</span>
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">ส่วนลดพิเศษ (บาท)</label>
+                <label className="block text-[11px] text-zinc-400 mb-1">ส่วนลดพิเศษ (บาท)</label>
                 <input
                   type="number"
                   min="0"
                   disabled={isSaving}
                   value={discountAmount}
                   onChange={(e) => setDiscountAmount(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">ค่าจัดส่ง (บาท)</label>
+                <label className="block text-[11px] text-zinc-400 mb-1">ค่าจัดส่ง (บาท)</label>
                 <input
                   type="number"
                   min="0"
                   disabled={isSaving}
                   value={shippingFee}
                   onChange={(e) => setShippingFee(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">ภาษีมูลค่าเพิ่ม VAT</label>
+                <label className="block text-[11px] text-zinc-400 mb-1">ภาษีมูลค่าเพิ่ม VAT</label>
                 <select
                   value={vatRate}
                   disabled={isSaving}
                   onChange={(e) => setVatRate(parseInt(e.target.value) || 0)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100"
                 >
                   <option value={0}>ไม่มี VAT (0%) - บุคคลธรรมดา</option>
                   <option value={7}>VAT 7%</option>
@@ -879,14 +879,14 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-700/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div className="text-xs text-slate-400 space-y-1">
+            <div className="pt-3 border-t border-zinc-700/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <div className="text-xs text-zinc-400 space-y-1">
                 <p>รวมราคาตั้งต้น: {formatCurrency(subtotal)}</p>
                 {vatAmount > 0 && <p>ภาษี VAT 7%: {formatCurrency(vatAmount)}</p>}
               </div>
 
               <div className="text-right">
-                <span className="text-xs text-slate-400 block">ยอดรวมสุทธิทั้งสิ้น (100%)</span>
+                <span className="text-xs text-zinc-400 block">ยอดรวมสุทธิทั้งสิ้น (100%)</span>
                 <span className="text-2xl font-black text-emerald-400">
                   {formatCurrency(grandTotal)}
                 </span>
@@ -895,9 +895,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
           </div>
 
           {/* Payment Terms & Deposit Section */}
-          <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-3.5">
+          <div className="bg-zinc-800/60 border border-zinc-700/60 rounded-lg p-4 space-y-3.5">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
                 <Coins className="w-4 h-4 text-amber-400" />
                 <span>เงื่อนไขการชำระเงิน (Payment Terms)</span>
               </h4>
@@ -918,10 +918,10 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                     setStatus('SENT');
                   }
                 }}
-                className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                className={`py-2 px-3 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
                   paymentTermType === 'FULL'
-                    ? 'bg-slate-700 text-white border-slate-500 shadow-sm'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                    ? 'bg-zinc-700 text-white border-zinc-500 shadow-sm'
+                    : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 <span>ชำระเต็มจำนวน (100%)</span>
@@ -939,19 +939,19 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                     setNotes(getDefaultNoteForType(docType, true));
                   }
                 }}
-                className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                className={`py-2 px-3 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
                   paymentTermType === 'DEPOSIT'
                     ? 'bg-amber-500/20 text-amber-300 border-amber-500 shadow-sm'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                    : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                <span>⭐ กำหนดเงินมัดจำ (Deposit)</span>
+                <span>กำหนดเงินมัดจำ (Deposit)</span>
               </button>
             </div>
 
             {paymentTermType === 'DEPOSIT' && (
-              <div className="p-3.5 bg-slate-900 border border-amber-500/30 rounded-xl space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+              <div className="p-3.5 bg-zinc-900 border border-amber-500/30 rounded-lg space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800 pb-2.5">
                   <label className="text-[11px] font-bold text-amber-300">
                     วิธีคำนวณเงินมัดจำ:
                   </label>
@@ -961,8 +961,8 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                       onClick={() => setDepositType('PERCENT')}
                       className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
                         depositType === 'PERCENT'
-                          ? 'bg-amber-500 text-slate-950 border-amber-400'
-                          : 'bg-slate-800 text-slate-300 border-slate-700'
+                          ? 'bg-amber-500 text-zinc-950 border-amber-400'
+                          : 'bg-zinc-800 text-zinc-300 border-zinc-700'
                       }`}
                     >
                       ร้อยละ (%)
@@ -972,8 +972,8 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                       onClick={() => setDepositType('FIXED')}
                       className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
                         depositType === 'FIXED'
-                          ? 'bg-amber-500 text-slate-950 border-amber-400'
-                          : 'bg-slate-800 text-slate-300 border-slate-700'
+                          ? 'bg-amber-500 text-zinc-950 border-amber-400'
+                          : 'bg-zinc-800 text-zinc-300 border-zinc-700'
                       }`}
                     >
                       จำนวนเงินคงที่ (บาท)
@@ -984,7 +984,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 {depositType === 'PERCENT' ? (
                   <div className="space-y-2.5">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[11px] text-slate-400">เลือกเปอร์เซ็นต์ด่วน:</span>
+                      <span className="text-[11px] text-zinc-400">เลือกเปอร์เซ็นต์ด่วน:</span>
                       {[20, 30, 40, 50, 60, 70].map((pct) => (
                         <button
                           key={pct}
@@ -993,7 +993,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                           className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all ${
                             depositPercent === pct
                               ? 'bg-amber-500/30 text-amber-300 border-amber-400'
-                              : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                              : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:bg-zinc-700'
                           }`}
                         >
                           {pct}%
@@ -1003,7 +1003,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
                     <div className="flex items-center gap-3">
                       <div className="w-40">
-                        <label className="block text-[10px] text-slate-400 mb-0.5">ระบุเปอร์เซ็นต์ (%)</label>
+                        <label className="block text-[10px] text-zinc-400 mb-0.5">ระบุเปอร์เซ็นต์ (%)</label>
                         <div className="relative">
                           <input
                             type="number"
@@ -1013,14 +1013,14 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                             onChange={(e) =>
                               setDepositPercent(Math.max(1, Math.min(99, parseFloat(e.target.value) || 0)))
                             }
-                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 font-bold focus:outline-none focus:border-amber-400 pr-7"
+                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-zinc-100 font-bold focus:outline-none focus:border-amber-400 pr-7"
                           />
-                          <span className="absolute right-2.5 top-1.5 text-xs text-slate-400 font-bold">%</span>
+                          <span className="absolute right-2.5 top-1.5 text-xs text-zinc-400 font-bold">%</span>
                         </div>
                       </div>
 
                       <div className="flex-1 text-right">
-                        <span className="text-[10px] text-slate-400 block">จำนวนเงินมัดจำคำนวณได้</span>
+                        <span className="text-[10px] text-zinc-400 block">จำนวนเงินมัดจำคำนวณได้</span>
                         <span className="text-sm font-extrabold text-amber-400">
                           ฿{formatCurrency(Math.round((grandTotal * depositPercent) / 100))}
                         </span>
@@ -1030,7 +1030,7 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 ) : (
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <label className="block text-[10px] text-slate-400 mb-0.5">ระบุจำนวนเงินมัดจำ (บาท)</label>
+                      <label className="block text-[10px] text-zinc-400 mb-0.5">ระบุจำนวนเงินมัดจำ (บาท)</label>
                       <input
                         type="number"
                         min="0"
@@ -1040,11 +1040,11 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                           setDepositCustomFixed(Math.max(0, parseFloat(e.target.value) || 0))
                         }
                         placeholder="เช่น 3000"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 font-bold focus:outline-none focus:border-amber-400"
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-zinc-100 font-bold focus:outline-none focus:border-amber-400"
                       />
                     </div>
                     <div className="w-40 text-right">
-                      <span className="text-[10px] text-slate-400 block">คิดเป็นร้อยละ</span>
+                      <span className="text-[10px] text-zinc-400 block">คิดเป็นร้อยละ</span>
                       <span className="text-xs font-bold text-amber-400">
                         {grandTotal > 0 ? ((depositCustomFixed / grandTotal) * 100).toFixed(1) : '0'}%
                       </span>
@@ -1053,10 +1053,10 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                 )}
 
                 {/* Real-time Deposit Breakdown Card */}
-                <div className="p-2.5 bg-slate-950/80 rounded-lg border border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="p-2 bg-slate-900 rounded-lg border border-slate-800">
-                    <span className="text-[10px] text-slate-400 block">ยอดรวมทั้งสิ้น (100%)</span>
-                    <span className="font-bold text-slate-200 text-xs">฿{formatCurrency(grandTotal)}</span>
+                <div className="p-2.5 bg-zinc-950/80 rounded-lg border border-zinc-800 grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="p-2 bg-zinc-900 rounded-lg border border-zinc-800">
+                    <span className="text-[10px] text-zinc-400 block">ยอดรวมทั้งสิ้น (100%)</span>
+                    <span className="font-bold text-zinc-200 text-xs">฿{formatCurrency(grandTotal)}</span>
                   </div>
                   <div className="p-2 bg-amber-950/40 rounded-lg border border-amber-800/60">
                     <span className="text-[10px] text-amber-300 block">ยอดเงินมัดจำ</span>
@@ -1068,9 +1068,9 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
                       )}
                     </span>
                   </div>
-                  <div className="p-2 bg-sky-950/40 rounded-lg border border-sky-800/60">
-                    <span className="text-[10px] text-sky-300 block">ยอดยกไปคงเหลือ</span>
-                    <span className="font-extrabold text-sky-400 text-xs">
+                  <div className="p-2 bg-white/40 rounded-lg border border-zinc-950/60">
+                    <span className="text-[10px] text-zinc-300 block">ยอดยกไปคงเหลือ</span>
+                    <span className="font-extrabold text-zinc-500 text-xs">
                       ฿{formatCurrency(
                         Math.max(
                           0,
@@ -1090,34 +1090,34 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
           {/* Payment Status & Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1 font-medium">
+              <label className="block text-[11px] text-zinc-400 mb-1 font-medium">
                 วันที่ออกเอกสาร (วัน-เดือน-ปี)
               </label>
               <DatePicker
                 value={docDate}
                 onChange={(val) => setDocDate(val)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-bold hover:border-emerald-500 transition-colors"
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 font-bold hover:border-emerald-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1 font-medium">
+              <label className="block text-[11px] text-zinc-400 mb-1 font-medium">
                 วันครบกำหนดชำระ (วัน-เดือน-ปี)
               </label>
               <DatePicker
                 value={dueDate}
                 onChange={(val) => setDueDate(val)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-bold hover:border-emerald-500 transition-colors"
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 font-bold hover:border-emerald-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">สถานะเอกสาร</label>
+              <label className="block text-[11px] text-zinc-400 mb-1">สถานะเอกสาร</label>
               <select
                 value={status}
                 disabled={isSaving}
                 onChange={(e) => setStatus(e.target.value as DocumentStatus)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-bold"
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 font-bold"
               >
                 <option value="SENT">ส่งแล้ว / รอชำระ</option>
                 <option value="PENDING_DEPOSIT">รอมัดจำ (รอชำระเงินมัดจำ)</option>
@@ -1131,30 +1131,30 @@ export const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
 
           {/* Notes */}
           <div>
-            <label className="block text-[11px] text-slate-400 mb-1">หมายเหตุท้ายเอกสาร</label>
+            <label className="block text-[11px] text-zinc-400 mb-1">หมายเหตุท้ายเอกสาร</label>
             <textarea
               rows={2}
               disabled={isSaving}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
+              className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-emerald-500"
             ></textarea>
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3 sticky bottom-0 bg-slate-900/90 py-3">
+          <div className="pt-4 border-t border-zinc-800 flex items-center justify-end gap-3 sticky bottom-0 bg-zinc-900/90 py-3">
             <button
               type="button"
               disabled={isSaving}
               onClick={onClose}
-              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+              className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold rounded-lg cursor-pointer disabled:opacity-50"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 bg-gradient-to-r from-zinc-900 to-zinc-900 hover:from-zinc-900 hover:to-zinc-900 text-white text-xs font-bold rounded-lg shadow-lg shadow-emerald-500/20 flex items-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

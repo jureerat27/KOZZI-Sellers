@@ -52,6 +52,7 @@ export interface SellerProfile {
   defaultReceiptNotes?: string;
   googleSheetId?: string;
   autoSync: boolean;
+  orderOptions?: OrderOptions; // ตัวเลือก dropdown ของหน้าออเดอร์
 }
 
 export interface Product {
@@ -65,6 +66,11 @@ export interface Product {
   minStock: number;
   unit: string;
   imageUrl?: string;
+  // ข้อมูลรุ่น ใช้จับคู่กับออเดอร์เพื่อตัดสต็อก (MODEL + สี + ขนาด)
+  productLine?: string;
+  model?: string;
+  color?: string;
+  size?: string;
   description?: string;
   updatedAt: string;
 }
@@ -183,4 +189,98 @@ export interface SyncLog {
   status: 'SUCCESS' | 'ERROR' | 'IDLE' | 'SYNCING';
   message: string;
   spreadsheetUrl?: string;
+}
+
+// ===== ออเดอร์ & งานติดตั้ง =====
+export interface ProductLineOption {
+  name: string;          // เช่น รุ่นมือหมุน
+  warrantyYears: number; // ระยะประกัน (ปี)
+}
+
+export interface OrderOptions {
+  productLines: ProductLineOption[];
+  models: string[];
+  colors: string[];
+  sizes: string[];
+  channels: string[];
+  ceilingTypes: string[];
+  technicians: string[];
+  productStatuses: string[];
+  costPaidBy: string[];
+  paymentMethods: string[];
+  defaultDeposit: number;
+  warrantyAlertDays: number;
+}
+
+export type FulfillmentType = 'ติดตั้ง' | 'จัดส่ง';
+export type QueueStatus = 'ยังไม่ลงคิว' | 'ลงคิวแล้ว' | 'เสร็จแล้ว';
+export type OrderPaymentType = 'มัดจำ' | 'ชำระหน้างาน' | 'ชำระเต็มจำนวน' | 'ได้รับเงินจาก Shopee';
+
+export interface OrderPayment {
+  id: string;
+  date: string;
+  amount: number;
+  type: OrderPaymentType;
+  method: string;
+  note?: string;
+  receiptDocId?: string;
+  receiptDocNumber?: string;
+}
+
+export type ServiceTicketStatus = 'รอดำเนินการ' | 'กำลังดำเนินการ' | 'เสร็จแล้ว';
+
+export interface ServiceTicket {
+  id: string;
+  reportDate: string;
+  issue: string;
+  technician: string;
+  action: string;
+  cost: number;
+  chargeTo: 'ในประกัน' | 'เก็บเงินลูกค้า';
+  status: ServiceTicketStatus;
+  completedDate?: string;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;        // เลขออเดอร์ระบบ เช่น K2611-001
+  channelOrderId?: string;    // เลขคำสั่งซื้อจาก Shopee
+  orderDate: string;
+  channel: string;
+  customerName: string;
+  customerPhone?: string;
+
+  productLine: string;
+  model: string;
+  color: string;
+  size: string;
+  quantity: number;
+  productId?: string;         // สินค้าในคลังที่ตัดสต็อก
+  stockDeducted: boolean;
+
+  fulfillment: FulfillmentType;
+  ceilingType?: string;
+  technician?: string;
+  installArea?: string;
+  scheduledDate?: string;     // วันที่นัดติดตั้ง/จัดส่ง
+  queueStatus: QueueStatus;
+  sitePhotos?: string[];      // รูปหน้างาน (บีบอัดแล้ว)
+
+  price: number;
+  costPrice: number;
+  costPaidBy?: string;
+  payments: OrderPayment[];
+  awaitingShopeePayout?: boolean;
+
+  productStatus: string;
+  trackingNo?: string;
+  completedDate?: string;     // วันที่ติดตั้ง/จัดส่งเสร็จ (เริ่มนับประกัน)
+  warrantyEndDate?: string;
+  warrantyAlertAcknowledged?: boolean; // กดรับทราบการแจ้งเตือนประกันแล้ว
+
+  serviceTickets: ServiceTicket[];
+  note?: string;
+  cancelled?: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
