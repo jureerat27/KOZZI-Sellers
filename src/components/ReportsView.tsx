@@ -595,7 +595,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     ระยะเวลา: {startDate} ถึง {endDate}
                   </p>
                   <p className="text-[10px] text-zinc-500">
-                    พิมพ์เมื่อ: {new Date().toLocaleString('th-TH')}
+                    พิมพ์เมื่อ: {new Date().toLocaleString('th-TH-u-ca-gregory')}
                   </p>
                 </div>
               </div>

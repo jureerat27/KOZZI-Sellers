@@ -126,7 +126,7 @@ export const btn = {
     'inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-800 text-xs font-semibold',
 };
 
-/** ช่องวันที่ แสดงเป็น วว/ดด/ปปปป (พ.ศ.) ไม่ขึ้นกับภาษาของเบราว์เซอร์ — ค่าที่เก็บยังเป็น YYYY-MM-DD */
+/** ช่องวันที่ แสดงเป็น วว/ดด/ปปปป (ค.ศ.) ไม่ขึ้นกับภาษาของเบราว์เซอร์ — ค่าที่เก็บยังเป็น YYYY-MM-DD */
 export const DateInput: React.FC<{
   value?: string;
   onChange: (v: string) => void;

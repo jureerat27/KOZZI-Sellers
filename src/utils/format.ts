@@ -140,7 +140,7 @@ export function formatMonthThai(yearMonthStr: string | undefined | null): string
         'ธันวาคม',
       ];
       const monthName = thaiMonths[month - 1] || parts[1];
-      const thaiYear = year + 543;
+      const thaiYear = year;
       return `${monthName} ${thaiYear}`;
     }
     return yearMonthStr;

@@ -47,7 +47,7 @@ type SubTab = 'list' | 'queue' | 'aftersales';
 const THAI_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const monthLabel = (ym: string) => {
   const [y, m] = ym.split('-').map(Number);
-  return `${THAI_MONTHS[m - 1]} ${y + 543}`;
+  return `${THAI_MONTHS[m - 1]} ${y}`;
 };
 
 const Th: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (

@@ -575,7 +575,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               {syncLog.lastSynced && (
                 <p className="text-[11px] text-zinc-500">
-                  ซิงก์ล่าสุดเมื่อ: {new Date(syncLog.lastSynced).toLocaleString('th-TH')}
+                  ซิงก์ล่าสุดเมื่อ: {new Date(syncLog.lastSynced).toLocaleString('th-TH-u-ca-gregory')}
                 </p>
               )}
 

@@ -162,7 +162,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
   const grandTotalAmount = activeItems.reduce((sum, e) => sum + (e.amount || 0), 0);
 
   const thaiMonthName = THAI_MONTH_NAMES[selectedMonth] || '';
-  const thaiYearBE = selectedYear + 543;
+  const thaiYearBE = selectedYear;
   const reportPeriodThai = `ประจำเดือน ${thaiMonthName} ${thaiYearBE}`;
 
   // Seller info formatting
@@ -274,7 +274,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
 
             {/* Year selector */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-extrabold text-[#18181B]">เลือกปี (พ.ศ.):</span>
+              <span className="text-xs font-extrabold text-[#18181B]">เลือกปี (ค.ศ.):</span>
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(parseInt(e.target.value, 10))}
@@ -282,7 +282,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
               >
                 {yearOptions.map((y) => (
                   <option key={y} value={y}>
-                    {y + 543} ({y})
+                    {y}
                   </option>
                 ))}
               </select>
@@ -303,7 +303,7 @@ export const MonthlyExpenseReportModal: React.FC<MonthlyExpenseReportModalProps>
                 >
                   {availablePeriods.map((p) => {
                     const mName = THAI_MONTH_NAMES[p.month];
-                    const yBE = p.year + 543;
+                    const yBE = p.year;
                     return (
                       <option key={`${p.year}-${p.month}`} value={`${p.year}-${p.month}`}>
                         {mName} {yBE} — {p.count} รายการ — ฿{formatCurrency(p.total)}

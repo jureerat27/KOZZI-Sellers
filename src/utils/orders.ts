@@ -41,12 +41,12 @@ export function todayISO(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-/** แสดงวันที่แบบ วว/ดด/ปปปป พ.ศ. เช่น 01/11/2569 */
+/** แสดงวันที่แบบ วว/ดด/ปปปป ค.ศ. เช่น 01/11/2026 */
 export function fmtDate(iso?: string): string {
   if (!iso) return '-';
   const [y, m, d] = iso.slice(0, 10).split('-');
   if (!y || !m || !d) return iso;
-  return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${Number(y) + 543}`;
+  return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
 }
 
 export function fmtMoney(n: number): string {
