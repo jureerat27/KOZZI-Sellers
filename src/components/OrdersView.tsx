@@ -348,7 +348,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                               {
                                 green: 'bg-emerald-50 text-emerald-700 border-emerald-200',
                                 amber: 'bg-amber-50 text-amber-800 border-amber-200',
-                                dark: 'bg-zinc-900 text-white border-zinc-900',
+                                dark: 'bg-[#003BB3] text-white border-[#003BB3]',
                                 neutral: 'bg-zinc-100 text-zinc-700 border-zinc-200',
                                 red: 'bg-rose-50 text-rose-700 border-rose-200',
                               }[productStatusTone(o.productStatus)]
@@ -556,7 +556,7 @@ const QueueView: React.FC<{
                 <button key={o.id} onClick={() => onOpen(o)} className="w-full text-left px-4 py-3 hover:bg-zinc-50 flex flex-wrap items-start gap-x-4 gap-y-1">
                   <div className="min-w-[180px] flex-1">
                     <div className="text-sm font-semibold text-zinc-900">
-                      {fmtTimeRange(o) && <span className="mr-2 px-1.5 py-0.5 rounded bg-zinc-900 text-white text-[11px]">{fmtTimeRange(o)}</span>}
+                      {fmtTimeRange(o) && <span className="mr-2 px-1.5 py-0.5 rounded bg-[#003BB3] text-white text-[11px]">{fmtTimeRange(o)}</span>}
                       {o.customerName} <span className="text-zinc-400 font-normal">· {o.orderNumber}</span>
                     </div>
                     <div className="text-xs text-zinc-600">

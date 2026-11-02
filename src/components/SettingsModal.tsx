@@ -138,7 +138,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#E4E4E7] flex items-center justify-between bg-white sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#18181B] text-white flex items-center justify-center font-bold shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-[#003BB3] text-white flex items-center justify-center font-bold shadow-md">
               <Settings className="w-5 h-5 text-white" />
             </div>
             <div>

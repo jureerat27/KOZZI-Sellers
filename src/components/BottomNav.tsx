@@ -64,7 +64,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                   }`}
                 />
                 {tab.badge && tab.badge > 0 ? (
-                  <span className="absolute -top-1 -right-2 bg-[#A1A1AA] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
+                  <span className="absolute -top-1 -right-2 bg-[#003BB3] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
                     {tab.badge}
                   </span>
                 ) : null}
@@ -73,7 +73,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 {tab.label}
               </span>
               {isActive && (
-                <span className="absolute bottom-0.5 w-7 h-1 bg-[#A1A1AA] rounded-full shadow-2xs"></span>
+                <span className="absolute bottom-0.5 w-7 h-1 bg-[#003BB3] rounded-full shadow-2xs"></span>
               )}
             </button>
           );

@@ -224,7 +224,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className="max-h-16 w-auto max-w-[160px] object-contain shrink-0 drop-shadow-xs"
             />
           ) : (
-            <div className="w-14 h-14 rounded-xl bg-[#18181B] text-white flex items-center justify-center shrink-0 shadow-md">
+            <div className="w-14 h-14 rounded-xl bg-[#003BB3] text-white flex items-center justify-center shrink-0 shadow-md">
               <Store className="w-7 h-7 text-white" />
             </div>
           )}
@@ -407,7 +407,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 ฿{formatCurrency(totalExpenses)}
               </div>
             </div>
-            <div className="w-11 h-11 rounded-full bg-[#71717A] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <div className="w-11 h-11 rounded-full bg-[#003BB3] text-white flex items-center justify-center shrink-0 shadow-xs">
               <Receipt className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
           </div>
@@ -462,7 +462,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="text-sm font-bold text-[#71717A]">รายการ</span>
               </div>
             </div>
-            <div className="w-11 h-11 rounded-full bg-[#71717A] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <div className="w-11 h-11 rounded-full bg-[#003BB3] text-white flex items-center justify-center shrink-0 shadow-xs">
               <Package className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
           </div>
@@ -695,7 +695,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     className="p-3.5 bg-[#FAFAFA] hover:bg-zinc-100 border border-[#E4E4E7] rounded-xl flex items-center justify-between gap-3 transition-all cursor-pointer shadow-2xs hover:border-[#D4D4D8]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-[#71717A] text-white flex items-center justify-center shrink-0 shadow-2xs font-black">
+                      <div className="w-9 h-9 rounded-lg bg-[#003BB3] text-white flex items-center justify-center shrink-0 shadow-2xs font-black">
                         <DollarSign className="w-5 h-5 text-white" />
                       </div>
                       <div>

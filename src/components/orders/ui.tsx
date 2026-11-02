@@ -7,7 +7,7 @@ export const inputCls =
 
 const toneCls: Record<Tone, string> = {
   neutral: 'bg-zinc-100 text-zinc-700 border-zinc-200',
-  dark: 'bg-zinc-900 text-white border-zinc-900',
+  dark: 'bg-[#003BB3] text-white border-[#003BB3]',
   green: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   amber: 'bg-amber-50 text-amber-800 border-amber-200',
   red: 'bg-rose-50 text-rose-700 border-rose-200',

@@ -70,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     : 'AD';
 
   const sidebarContent = (
-    <div className="h-full flex flex-col justify-between bg-gradient-to-b from-[#18181B] via-[#18181B] to-[#18181B] text-white p-4 w-64 select-none">
+    <div className="h-full flex flex-col justify-between bg-[#003BB3] text-white p-4 w-64 select-none">
       {/* Top Logo Section */}
       <div>
         <div className="flex items-center justify-between pb-6 pt-2 border-b border-white/10 px-2">
@@ -131,7 +131,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
 
                 {tab.badge && tab.badge > 0 ? (
-                  <span className="w-5 h-5 rounded-full bg-[#27272A] border border-zinc-300 text-white text-[11px] font-black flex items-center justify-center shadow-xs">
+                  <span className="w-5 h-5 rounded-full bg-white border border-white text-[#003BB3] text-[11px] font-black flex items-center justify-center shadow-xs">
                     {tab.badge}
                   </span>
                 ) : null}
@@ -159,7 +159,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="w-8 h-8 rounded-full object-cover border border-white/20 shrink-0"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-[#27272A] text-white font-extrabold text-xs flex items-center justify-center border border-white/20 shrink-0">
+              <div className="w-8 h-8 rounded-full bg-white text-[#003BB3] font-extrabold text-xs flex items-center justify-center border border-white/20 shrink-0">
                 {initials}
               </div>
             )}

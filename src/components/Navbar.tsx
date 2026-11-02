@@ -94,7 +94,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 : 'bg-[#FFFBEB] border-[#FDE68A] text-[#D97706]'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-[#27272A] inline-block animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-[#003BB3] inline-block animate-pulse"></span>
             <span>ออนไลน์</span>
           </div>
 
@@ -119,7 +119,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Bell className="w-5 h-5 text-[#18181B]" />
             {lowStockCount + orderAlertCount > 0 && (
-              <span className="absolute top-1 right-1 bg-[#71717A] text-white text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
+              <span className="absolute top-1 right-1 bg-[#003BB3] text-white text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
                 {lowStockCount + orderAlertCount}
               </span>
             )}
@@ -147,7 +147,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="w-8 h-8 rounded-full object-cover border border-zinc-200"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-[#18181B] text-white font-black text-xs flex items-center justify-center shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-[#003BB3] text-white font-black text-xs flex items-center justify-center shadow-xs">
                   {initials}
                 </div>
               )}

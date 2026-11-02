@@ -304,7 +304,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         {/* Card 1: พิมพ์ PDF ใบเสร็จรับเงินทั้งหมด */}
         <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
           <div>
-            <div className="w-10 h-10 rounded-lg bg-[#27272A] text-white flex items-center justify-center shadow-2xs mb-3">
+            <div className="w-10 h-10 rounded-lg bg-[#003BB3] text-white flex items-center justify-center shadow-2xs mb-3">
               <Receipt className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-sm font-extrabold text-[#18181B]">
@@ -327,7 +327,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         {/* Card 2: พิมพ์ PDF ค่าใช้จ่ายทั้งหมด */}
         <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
           <div>
-            <div className="w-10 h-10 rounded-lg bg-[#27272A] text-white flex items-center justify-center shadow-2xs mb-3">
+            <div className="w-10 h-10 rounded-lg bg-[#003BB3] text-white flex items-center justify-center shadow-2xs mb-3">
               <Wallet className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-sm font-extrabold text-[#18181B]">
@@ -350,7 +350,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         {/* Card 3: พิมพ์ PDF สรุปผลการดำเนินงานรวม */}
         <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
           <div>
-            <div className="w-10 h-10 rounded-lg bg-[#18181B] text-white flex items-center justify-center shadow-2xs mb-3">
+            <div className="w-10 h-10 rounded-lg bg-[#003BB3] text-white flex items-center justify-center shadow-2xs mb-3">
               <FileText className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-sm font-extrabold text-[#18181B]">
@@ -483,7 +483,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   className="flex items-center justify-between p-3 bg-[#F4F4F5] border border-[#E4E4E7] rounded-lg text-xs"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-7 h-7 rounded-lg bg-[#18181B] text-white font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
+                    <span className="w-7 h-7 rounded-lg bg-[#003BB3] text-white font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
                       #{idx + 1}
                     </span>
                     <div>
@@ -533,7 +533,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             {/* Modal Header Controls (Hidden on native Print) */}
             <div className="no-print p-4 sm:p-5 border-b border-[#E4E4E7] bg-[#F4F4F5] flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-[#18181B] text-white flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-lg bg-[#003BB3] text-white flex items-center justify-center font-bold">
                   <Printer className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -586,7 +586,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 </div>
 
                 <div className="text-right space-y-1">
-                  <span className="inline-block px-3 py-1 bg-[#18181B] text-white font-extrabold text-xs rounded-md">
+                  <span className="inline-block px-3 py-1 bg-[#003BB3] text-white font-extrabold text-xs rounded-md">
                     {printModalType === 'RECEIPTS' && 'รายงานใบเสร็จรับเงิน'}
                     {printModalType === 'EXPENSES' && 'รายงานค่าใช้จ่ายทั้งหมด'}
                     {printModalType === 'SUMMARY' && 'รายงานสรุปผลการดำเนินงาน'}
