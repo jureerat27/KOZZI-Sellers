@@ -286,6 +286,7 @@ export interface Order {
   completedDate?: string;     // วันที่ติดตั้ง/จัดส่งเสร็จ (เริ่มนับประกัน)
   warrantyEndDate?: string;
   warrantyAlertAcknowledged?: boolean; // กดรับทราบการแจ้งเตือนประกันแล้ว
+  warrantyNumber?: string;   // เลขที่ใบรับประกัน เช่น KZ-WR-2606-001
 
   serviceTickets: ServiceTicket[];
   note?: string;

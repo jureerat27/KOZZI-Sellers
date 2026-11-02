@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Ban, CheckCircle2, FileText, Pencil, Plus, Receipt, RotateCcw, ShieldCheck, Trash2, Wrench, X } from 'lucide-react';
+import { Ban, CheckCircle2, FileText, Pencil, Plus, Receipt, RotateCcw, ShieldCheck, Trash2, Wrench, X, Award } from 'lucide-react';
 import { Order, OrderOptions, OrderPayment, OrderPaymentType, ServiceTicket, ServiceTicketStatus } from '../../types';
 import {
-  addYears,
   balanceDue,
   fmtDate,
   fmtTimeRange,
@@ -12,12 +11,15 @@ import {
   productTitle,
   todayISO,
   warrantyState,
+  warrantyEndFrom,
   warrantyYearsFor,
 } from '../../utils/orders';
+import { WarrantyCardModal } from './WarrantyCardModal';
 import { Badge, DateInput, Field, Modal, Section, Select, btn, inputCls, productStatusTone } from './ui';
 
 interface Props {
   order: Order;
+  orders: Order[];
   options: OrderOptions;
   onSave: (order: Order) => Promise<Order>;
   onEdit: () => void;
@@ -53,6 +55,7 @@ function blankTicket(): ServiceTicket {
 
 export const OrderDetailModal: React.FC<Props> = ({
   order,
+  orders,
   options,
   onSave,
   onEdit,
@@ -75,6 +78,7 @@ export const OrderDetailModal: React.FC<Props> = ({
   const [closeDate, setCloseDate] = useState(todayISO());
   const [photo, setPhoto] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
+  const [cardOrder, setCardOrder] = useState<Order | null>(null);
 
   const save = async (next: Order) => {
     setBusy(true);
@@ -117,14 +121,17 @@ export const OrderDetailModal: React.FC<Props> = ({
 
   const closeJob = async () => {
     const doneStatus = o.fulfillment === 'ติดตั้ง' ? 'ติดตั้งเรียบร้อยแล้ว' : 'จัดส่งแล้ว';
-    await save({
+    const next: Order = {
       ...o,
       completedDate: closeDate,
       queueStatus: 'เสร็จแล้ว',
       productStatus: options.productStatuses.includes(doneStatus) ? doneStatus : o.productStatus,
-      warrantyEndDate: years > 0 ? addYears(closeDate, years) : undefined,
+      warrantyEndDate: years > 0 ? warrantyEndFrom(closeDate, years) : undefined,
       warrantyAlertAcknowledged: false,
-    });
+    };
+    await save(next);
+    // ปิดงานแล้วเปิดใบรับประกันให้ทันที
+    setCardOrder(next);
   };
 
   const reopenJob = async () => {
@@ -408,6 +415,11 @@ export const OrderDetailModal: React.FC<Props> = ({
                     รับทราบแล้ว (ซ่อนการแจ้งเตือน)
                   </button>
                 )}
+                {o.completedDate && (
+                  <button className={`${btn.small} mt-2 ml-0 sm:ml-2`} onClick={() => setCardOrder(o)} disabled={busy}>
+                    <Award className="w-3.5 h-3.5" /> ใบรับประกัน{o.warrantyNumber ? ` (${o.warrantyNumber})` : ''}
+                  </button>
+                )}
               </div>
             </div>
           </Section>
@@ -503,6 +515,10 @@ export const OrderDetailModal: React.FC<Props> = ({
           </Section>
         </div>
       </div>
+
+      {cardOrder && (
+        <WarrantyCardModal order={cardOrder} orders={orders} onSave={onSave} onClose={() => setCardOrder(null)} />
+      )}
 
       {photo !== null && o.sitePhotos && (
         <div className="fixed inset-0 z-[60] bg-zinc-950/90 flex items-center justify-center p-4" onClick={() => setPhoto(null)}>

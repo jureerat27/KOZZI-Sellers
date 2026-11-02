@@ -4,13 +4,13 @@ import { FulfillmentType, Order, OrderOptions, OrderPayment, Product, QueueStatu
 import {
   MAX_SITE_PHOTOS,
   TIME_OPTIONS,
-  addYears,
   compressImage,
   findStockProduct,
   fmtMoney,
   nextOrderNumber,
   todayISO,
   warrantyYearsFor,
+  warrantyEndFrom,
 } from '../../utils/orders';
 import { DateInput, Field, Modal, Section, Select, btn, inputCls } from './ui';
 
@@ -193,7 +193,7 @@ export const OrderFormModal: React.FC<Props> = ({
       payments,
       productId: matched?.id,
       queueStatus: f.queueStatus === 'ยังไม่ลงคิว' && f.scheduledDate ? 'ลงคิวแล้ว' : f.queueStatus,
-      warrantyEndDate: f.completedDate && years > 0 ? addYears(f.completedDate, years) : undefined,
+      warrantyEndDate: f.completedDate && years > 0 ? warrantyEndFrom(f.completedDate, years) : undefined,
     };
     setSaving(true);
     await onSave(saved);

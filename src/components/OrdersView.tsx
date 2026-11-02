@@ -477,6 +477,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
         <OrderDetailModal
           key={detailOrder.id}
           order={detailOrder}
+          orders={orders}
           options={options}
           onSave={onSaveOrder}
           onEdit={() => setFormOrder(detailOrder)}

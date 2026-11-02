@@ -220,3 +220,11 @@ export function fmtTimeRange(o: { scheduledTimeStart?: string; scheduledTimeEnd?
   if (a) return `${a} น.`;
   return '';
 }
+
+/** วันหมดประกัน = วันติดตั้ง/จัดส่งเสร็จ + จำนวนปี − 1 วัน (เช่น 15/06/2026 → 14/06/2027) */
+export function warrantyEndFrom(iso: string, years: number): string {
+  const end = addYears(iso, years);
+  const [y, m, d] = end.split('-').map(Number);
+  const dt = new Date(y, m - 1, d - 1);
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+}
