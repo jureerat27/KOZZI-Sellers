@@ -1,8 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   AlertTriangle,
+  Award,
   CalendarDays,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  ChevronsUpDown,
+  Clock,
   ClipboardList,
+  FileText,
+  MapPin,
+  MoreHorizontal,
+  Pencil,
+  Tag,
+  Trash2,
   Image as ImageIcon,
   Plus,
   Search,
@@ -26,7 +39,8 @@ import {
 } from '../utils/orders';
 import { OrderFormModal } from './orders/OrderFormModal';
 import { OrderDetailModal } from './orders/OrderDetailModal';
-import { Badge, Field, Modal, btn, inputCls, productStatusTone } from './orders/ui';
+import { Badge, Field, Modal, PageHeader, Pager, StatCard, TabButtons, btn, inputCls, productStatusTone } from './orders/ui';
+import { WarrantyCardModal } from './orders/WarrantyCardModal';
 
 const inlineSelect = inputCls.replace('w-full ', '') + ' w-auto';
 
@@ -51,11 +65,105 @@ const monthLabel = (ym: string) => {
 };
 
 const Th: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <th className={`px-3 py-2.5 text-left text-[11px] font-semibold text-zinc-500 whitespace-nowrap ${className}`}>{children}</th>
+  <th className={`px-4 py-3.5 text-left text-[13px] font-semibold text-zinc-600 whitespace-nowrap ${className}`}>{children}</th>
 );
 const Td: React.FC<{ children?: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <td className={`px-3 py-2.5 text-xs text-zinc-800 whitespace-nowrap ${className}`}>{children ?? ''}</td>
+  <td className={`px-4 py-4 text-[13px] text-zinc-800 whitespace-nowrap ${className}`}>{children ?? ''}</td>
 );
+
+const PAGE_SIZE = 20;
+type SortKey = 'default' | 'number' | 'price';
+
+const SortHead: React.FC<{
+  label: string;
+  k: SortKey;
+  sort: { key: SortKey; dir: 1 | -1 };
+  onSort: (k: SortKey) => void;
+}> = ({ label, k, sort, onSort }) => {
+  const Icon = sort.key !== k ? ChevronsUpDown : sort.dir === 1 ? ChevronUp : ChevronDown;
+  return (
+    <button type="button" onClick={() => onSort(k)} className="inline-flex items-center gap-1 hover:text-zinc-900">
+      {label}
+      <Icon className={`w-3.5 h-3.5 ${sort.key === k ? 'text-[#003BB3]' : 'text-zinc-400'}`} />
+    </button>
+  );
+};
+
+/** ปุ่ม ••• ท้ายแถว: แก้ไขข้อมูล / ใบรับประกัน / ลบออเดอร์ */
+const RowMenu: React.FC<{ order: Order; onEdit: () => void; onWarranty: () => void; onDelete: () => void }> = ({
+  order,
+  onEdit,
+  onWarranty,
+  onDelete,
+}) => {
+  // เมนูลอยแบบ fixed เพื่อไม่ให้ถูกตารางที่เลื่อนแนวนอนตัดหรือถูกแถวอื่นทับ
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  const open = !!pos;
+  const ref = React.useRef<HTMLDivElement>(null);
+  const setOpen = (v: boolean | ((x: boolean) => boolean)) => {
+    const next = typeof v === 'function' ? v(open) : v;
+    if (!next) return setPos(null);
+    const r = ref.current?.getBoundingClientRect();
+    if (r) setPos({ top: r.bottom + 4, right: window.innerWidth - r.right });
+  };
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: Event) => {
+      if (e.type === 'mousedown' && ref.current && ref.current.contains(e.target as Node)) return;
+      setPos(null);
+    };
+    document.addEventListener('mousedown', close);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [open]);
+  const item = 'w-full flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md';
+  const run = (fn: () => void) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpen(false);
+    fn();
+  };
+  return (
+    <div ref={ref} className="relative inline-block" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-11 h-10 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-700"
+        aria-label="จัดการออเดอร์"
+      >
+        <MoreHorizontal className="w-5 h-5" />
+      </button>
+      {pos &&
+        createPortal(
+        <div
+          style={{ top: pos.top, right: pos.right }}
+          className="fixed z-40 w-48 bg-white border border-zinc-200 rounded-lg shadow-lg p-1 text-left"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <button className={`${item} text-zinc-800 hover:bg-zinc-50`} onClick={run(onEdit)}>
+            <Pencil className="w-4 h-4" /> แก้ไขข้อมูล
+          </button>
+          <button
+            className={`${item} text-zinc-800 hover:bg-zinc-50 disabled:text-zinc-300 disabled:hover:bg-white`}
+            onClick={run(onWarranty)}
+            disabled={!order.completedDate}
+            title={order.completedDate ? '' : 'ใช้ได้เมื่อปิดงานแล้ว'}
+          >
+            <Award className="w-4 h-4" /> ใบรับประกัน
+          </button>
+          <button className={`${item} text-rose-600 hover:bg-rose-50`} onClick={run(onDelete)}>
+            <Trash2 className="w-4 h-4" /> ลบออเดอร์
+          </button>
+        </div>,
+          document.body
+        )}
+    </div>
+  );
+};
 
 export const OrdersView: React.FC<OrdersViewProps> = ({
   orders,
@@ -96,6 +204,11 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
   const [warrantyFilter, setWarrantyFilter] = useState<'alert' | 'active' | 'expired' | 'all'>('alert');
   const [ticketFilter, setTicketFilter] = useState<'open' | 'all'>('open');
   const [ticketOrderId, setTicketOrderId] = useState('');
+  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: 'default', dir: 1 });
+  const [pageRaw, setPage] = useState(1);
+  const [cardOrder, setCardOrder] = useState<Order | null>(null);
+  // เปลี่ยนตัวกรองแล้วกลับไปหน้าแรก
+  useEffect(() => setPage(1), [q, month, channel, status, payFilter]);
 
   const today = todayISO();
   const detailOrder = detailId ? orders.find((o) => o.id === detailId) || null : null;
@@ -136,8 +249,17 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
     }
     return true;
   });
-  // แสดงเรียงตามวันที่สั่งซื้อจากเก่าไปใหม่เหมือนตารางเดิม
-  const listRows = [...filtered].sort((a, b) => (a.orderDate + a.orderNumber).localeCompare(b.orderDate + b.orderNumber));
+  // ค่าเริ่มต้น: เรียงตามวันที่สั่งซื้อจากเก่าไปใหม่เหมือนตารางเดิม · กดหัวคอลัมน์เพื่อเรียงตามเลขออเดอร์/ยอดเงิน
+  const listRows = [...filtered].sort((a, b) => {
+    if (sort.key === 'price') return ((Number(a.price) || 0) - (Number(b.price) || 0)) * sort.dir;
+    if (sort.key === 'number') return a.orderNumber.localeCompare(b.orderNumber) * sort.dir;
+    return (a.orderDate + a.orderNumber).localeCompare(b.orderDate + b.orderNumber);
+  });
+  const pageCount = Math.max(1, Math.ceil(listRows.length / PAGE_SIZE));
+  const page = Math.min(pageRaw, pageCount);
+  const pageRows = listRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const toggleSort = (key: SortKey) =>
+    setSort((s) => (s.key === key ? (s.dir === 1 ? { key, dir: -1 } : { key: 'default', dir: 1 }) : { key, dir: 1 }));
 
   const openDetail = (o: Order, withTicket = false) => {
     setDetailTicket(withTicket);
@@ -153,22 +275,21 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
   return (
     <div className="space-y-4 pb-20">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-zinc-200 p-4 rounded-xl">
-        <div>
-          <h1 className="text-base font-bold text-zinc-900 flex items-center gap-2">
-            <ClipboardList className="w-5 h-5" /> ออเดอร์ & งานติดตั้ง
-          </h1>
-          <p className="text-xs text-zinc-500">รับมัดจำ · ตัดสต็อก · ลงคิวช่าง · ปิดงาน · ติดตามประกันและงานซ่อม</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className={btn.secondary} onClick={() => setOptionsOpen(true)}>
-            <Settings2 className="w-4 h-4" /> ตั้งค่าตัวเลือก
-          </button>
-          <button className={btn.primary} onClick={() => setFormOrder(null)}>
-            <Plus className="w-4 h-4" /> ออเดอร์ใหม่
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        icon={ClipboardList}
+        title="ออเดอร์ & งานติดตั้ง"
+        subtitle="รับมัดจำ · ตัดสต็อก · ลงคิวช่าง · ปิดงาน · ติดตามประกันและงานซ่อม"
+        actions={
+          <>
+            <button className={`${btn.secondary} px-5 py-2.5`} onClick={() => setOptionsOpen(true)}>
+              <Settings2 className="w-4 h-4" /> ตั้งค่าตัวเลือก
+            </button>
+            <button className={`${btn.primary} px-5 py-2.5`} onClick={() => setFormOrder(null)}>
+              <Plus className="w-4 h-4" /> ออเดอร์ใหม่
+            </button>
+          </>
+        }
+      />
 
       {/* Warranty alert */}
       {alerts.length > 0 && (
@@ -193,47 +314,19 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
 
       {/* Summary */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        {[
-          { label: `ออเดอร์${month === 'ALL' ? 'ทั้งหมด' : ` ${monthLabel(month)}`}`, value: `${summary.count} รายการ` },
-          { label: 'ยอดขาย', value: `฿${fmtMoney(summary.sales)}` },
-          { label: 'รับเงินแล้ว', value: `฿${fmtMoney(summary.received)}` },
-          { label: 'ยอดค้างรับ (ทุกออเดอร์)', value: `฿${fmtMoney(summary.outstanding)}` },
-          { label: 'งานที่ยังไม่ปิด', value: `${summary.pendingJobs} งาน` },
-        ].map((c) => (
-          <div key={c.label} className="bg-white border border-zinc-200 rounded-xl px-4 py-3">
-            <div className="text-[11px] text-zinc-500">{c.label}</div>
-            <div className="text-lg font-bold text-zinc-900 mt-0.5">{c.value}</div>
-          </div>
-        ))}
+        <StatCard icon={FileText} label={`ออเดอร์${month === 'ALL' ? 'ทั้งหมด' : ` ${monthLabel(month)}`}`} value={`${summary.count} รายการ`} />
+        <StatCard icon={Tag} label="ยอดขาย" value={`฿${fmtMoney(summary.sales)}`} />
+        <StatCard icon={CheckCircle2} tone="green" label="รับเงินแล้ว" value={`฿${fmtMoney(summary.received)}`} />
+        <StatCard icon={Clock} tone="orange" label="ยอดค้างรับ (ทุกออเดอร์)" value={`฿${fmtMoney(summary.outstanding)}`} />
+        <StatCard icon={Wrench} label="งานที่ยังไม่ปิด" value={`${summary.pendingJobs} งาน`} />
       </div>
 
       {/* Sub tabs */}
-      <div className="flex gap-1 bg-white border border-zinc-200 p-1 rounded-xl overflow-x-auto">
-        {subTabs.map((t) => {
-          const Icon = t.icon;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap ${
-                tab === t.id ? 'bg-[#0068F0] text-white' : 'text-zinc-600 hover:bg-zinc-100'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {t.label}
-              {!!t.badge && (
-                <span className={`text-[10px] px-1.5 rounded-full ${tab === t.id ? 'bg-white text-[#0068F0]' : 'bg-zinc-200 text-zinc-700'}`}>
-                  {t.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <TabButtons tabs={subTabs} value={tab} onChange={setTab} />
 
       {tab === 'list' && (
-        <div className="bg-white border border-zinc-200 rounded-xl">
-          <div className="p-3 grid grid-cols-2 md:grid-cols-6 gap-2 border-b border-zinc-100">
+        <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+          <div className="p-3 grid grid-cols-2 md:grid-cols-6 gap-2.5">
             <div className="relative col-span-2">
               <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -274,110 +367,154 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
           </div>
 
           {listRows.length === 0 ? (
-            <div className="p-10 text-center text-sm text-zinc-500">
+            <div className="p-10 text-center text-sm text-zinc-500 border-t border-zinc-100">
               {orders.length === 0 ? 'ยังไม่มีออเดอร์ กด "ออเดอร์ใหม่" เพื่อเริ่มบันทึก' : 'ไม่พบออเดอร์ตามเงื่อนไข'}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-zinc-50 border-b border-zinc-200">
-                  <tr>
-                    <Th>#</Th>
-                    <Th>วันที่สั่งซื้อ</Th>
-                    <Th>เลขออเดอร์</Th>
-                    <Th>ลูกค้า</Th>
-                    <Th>รุ่น</Th>
-                    <Th>สินค้า (MODEL · สี · ขนาด)</Th>
-                    <Th>ช่องทาง</Th>
-                    <Th>การดำเนินการ</Th>
-                    <Th>เพดาน</Th>
-                    <Th>ช่าง</Th>
-                    <Th>พื้นที่</Th>
-                    <Th>นัดวันที่</Th>
-                    <Th>สถานะคิว</Th>
-                    <Th>การชำระเงิน</Th>
-                    <Th>ชำระต้นทุนโดย</Th>
-                    <Th>สถานะสินค้า</Th>
-                    <Th>หมดประกัน</Th>
-                    <Th>Tracking No.</Th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-100">
-                  {listRows.map((o, i) => {
-                    const pay = paymentState(o);
-                    const w = warrantyState(o, options.warrantyAlertDays, today);
-                    return (
-                      <tr
-                        key={o.id}
-                        onClick={() => openDetail(o)}
-                        className={`cursor-pointer hover:bg-zinc-50 ${o.cancelled ? 'opacity-50' : ''}`}
-                      >
-                        <Td className="text-zinc-400">{i + 1}</Td>
-                        <Td>{fmtDate(o.orderDate)}</Td>
-                        <Td className="font-semibold">
-                          {o.orderNumber}
-                          {o.channelOrderId && <div className="text-[10px] text-zinc-400 font-normal">{o.channelOrderId}</div>}
-                        </Td>
-                        <Td className="font-medium">{o.customerName}</Td>
-                        <Td>{o.productLine}</Td>
-                        <Td>{productTitle(o)}{o.quantity > 1 ? ` ×${o.quantity}` : ''}</Td>
-                        <Td>
-                          <Badge tone="neutral">{o.channel}</Badge>
-                        </Td>
-                        <Td>
-                          <Badge tone={o.fulfillment === 'ติดตั้ง' ? 'dark' : 'neutral'}>{o.fulfillment}</Badge>
-                        </Td>
-                        <Td>{o.ceilingType}</Td>
-                        <Td>{o.technician}</Td>
-                        <Td className="max-w-[160px] truncate">{o.installArea}</Td>
-                        <Td className={o.scheduledDate && o.scheduledDate < today && o.queueStatus !== 'เสร็จแล้ว' ? 'text-rose-700 font-semibold' : ''}>
-                          {o.scheduledDate ? fmtDate(o.scheduledDate) : ''}
-                          {fmtTimeRange(o) && <div className="text-[10px] text-zinc-500 font-normal">{fmtTimeRange(o)}</div>}
-                        </Td>
-                        <Td>{o.queueStatus === 'ยังไม่ลงคิว' ? '' : o.queueStatus}</Td>
-                        <Td>
-                          <Badge tone={pay.tone}>{pay.label}</Badge>
-                        </Td>
-                        <Td>{o.costPaidBy}</Td>
-                        <Td>
-                          <select
-                            onClick={(e) => e.stopPropagation()}
-                            value={o.productStatus}
-                            onChange={(e) => onSaveOrder({ ...o, productStatus: e.target.value })}
-                            className={`text-[11px] font-semibold rounded-md border px-1.5 py-0.5 ${
-                              {
-                                green: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                amber: 'bg-amber-50 text-amber-800 border-amber-200',
-                                dark: 'bg-[#003BB3] text-white border-[#003BB3]',
-                                neutral: 'bg-zinc-100 text-zinc-700 border-zinc-200',
-                                red: 'bg-rose-50 text-rose-700 border-rose-200',
-                              }[productStatusTone(o.productStatus)]
-                            }`}
-                          >
-                            {(options.productStatuses.includes(o.productStatus)
-                              ? options.productStatuses
-                              : [o.productStatus, ...options.productStatuses]
-                            ).map((s) => (
-                              <option key={s}>{s}</option>
-                            ))}
-                          </select>
-                        </Td>
-                        <Td>
-                          {o.warrantyEndDate ? (
-                            <span className={w.status === 'expired' ? 'text-rose-700' : w.status === 'expiring' ? 'text-amber-700 font-semibold' : ''}>
-                              {fmtDate(o.warrantyEndDate)}
+            <>
+              <div className="overflow-x-auto border-t border-zinc-100">
+                <table className="min-w-full">
+                  <thead className="bg-zinc-50/80 border-b border-zinc-200">
+                    <tr>
+                      <Th>#</Th>
+                      <Th>
+                        <SortHead label="เลขที่ออเดอร์" k="number" sort={sort} onSort={toggleSort} />
+                      </Th>
+                      <Th>ลูกค้า</Th>
+                      <Th>สินค้า (MODEL · สี · ขนาด)</Th>
+                      <Th>นัดหมาย / พื้นที่ติดตั้ง</Th>
+                      <Th className="text-right">
+                        <SortHead label="ยอดเงิน" k="price" sort={sort} onSort={toggleSort} />
+                      </Th>
+                      <Th>สถานะ</Th>
+                      <Th>ช่องทาง</Th>
+                      <Th>ช่าง</Th>
+                      <Th>สถานะคิว</Th>
+                      <Th>การชำระเงิน</Th>
+                      <Th>ชำระต้นทุนโดย</Th>
+                      <Th>สถานะสินค้า</Th>
+                      <Th>หมดประกัน</Th>
+                      <Th>Tracking No.</Th>
+                      <Th className="text-center sticky right-0 bg-zinc-50 shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.12)]">จัดการ</Th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {pageRows.map((o, i) => {
+                      const pay = paymentState(o);
+                      const w = warrantyState(o, options.warrantyAlertDays, today);
+                      const late = o.scheduledDate && o.scheduledDate < today && o.queueStatus !== 'เสร็จแล้ว';
+                      return (
+                        <tr
+                          key={o.id}
+                          onClick={() => openDetail(o)}
+                          className={`group cursor-pointer hover:bg-zinc-50 align-top ${o.cancelled ? 'opacity-50' : ''}`}
+                        >
+                          <Td className="text-zinc-700 pt-5">{(page - 1) * PAGE_SIZE + i + 1}</Td>
+                          <Td>
+                            <div className="font-bold text-zinc-900">{o.orderNumber}</div>
+                            <div className="text-zinc-500 mt-0.5">{fmtDate(o.orderDate)}</div>
+                            {o.channelOrderId && <div className="text-[11px] text-zinc-400">{o.channelOrderId}</div>}
+                          </Td>
+                          <Td>
+                            <div className="font-medium text-zinc-900">{o.customerName}</div>
+                            {o.customerPhone && <div className="text-zinc-500 mt-0.5">{o.customerPhone}</div>}
+                          </Td>
+                          <Td>
+                            <div className="text-zinc-900">
+                              {[o.productLine, o.model].filter(Boolean).join(' ')}
+                              {o.quantity > 1 ? ` ×${o.quantity}` : ''}
+                            </div>
+                            <div className="text-zinc-500 mt-0.5">{[o.color, o.size].filter(Boolean).join(' · ')}</div>
+                          </Td>
+                          <Td>
+                            {o.scheduledDate ? (
+                              <div className={`flex items-center gap-1.5 ${late ? 'text-rose-700 font-semibold' : 'text-zinc-900'}`}>
+                                <CalendarDays className="w-4 h-4 text-zinc-500 shrink-0" />
+                                {fmtDate(o.scheduledDate)}
+                                {fmtTimeRange(o) ? ` ${fmtTimeRange(o)}` : ''}
+                              </div>
+                            ) : null}
+                            {o.installArea && (
+                              <div className="flex items-start gap-1.5 mt-1 text-zinc-700 min-w-[180px] max-w-[260px]">
+                                <MapPin className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
+                                <span className="whitespace-normal line-clamp-2">{o.installArea}</span>
+                              </div>
+                            )}
+                          </Td>
+                          <Td className="text-right font-bold text-zinc-900 text-[15px]">฿{fmtMoney(o.price)}</Td>
+                          <Td>
+                            <span
+                              className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
+                                o.fulfillment === 'ติดตั้ง' ? 'bg-[#DCE8FF] text-[#003BB3]' : 'bg-zinc-100 text-zinc-700'
+                              }`}
+                            >
+                              {o.fulfillment}
                             </span>
-                          ) : (
-                            ''
-                          )}
-                        </Td>
-                        <Td className="font-mono text-[11px]">{o.trackingNo}</Td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                            {o.ceilingType && <div className="text-zinc-500 mt-1.5">{o.ceilingType}</div>}
+                          </Td>
+                          <Td>
+                            <Badge tone="neutral">{o.channel}</Badge>
+                          </Td>
+                          <Td>{o.technician}</Td>
+                          <Td>{o.queueStatus === 'ยังไม่ลงคิว' ? '' : o.queueStatus}</Td>
+                          <Td>
+                            <Badge tone={pay.tone}>{pay.label}</Badge>
+                          </Td>
+                          <Td>{o.costPaidBy}</Td>
+                          <Td>
+                            <select
+                              onClick={(e) => e.stopPropagation()}
+                              value={o.productStatus}
+                              onChange={(e) => onSaveOrder({ ...o, productStatus: e.target.value })}
+                              className={`text-[11px] font-semibold rounded-md border px-1.5 py-0.5 ${
+                                {
+                                  green: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                  amber: 'bg-amber-50 text-amber-800 border-amber-200',
+                                  dark: 'bg-[#003BB3] text-white border-[#003BB3]',
+                                  neutral: 'bg-zinc-100 text-zinc-700 border-zinc-200',
+                                  red: 'bg-rose-50 text-rose-700 border-rose-200',
+                                }[productStatusTone(o.productStatus)]
+                              }`}
+                            >
+                              {(options.productStatuses.includes(o.productStatus)
+                                ? options.productStatuses
+                                : [o.productStatus, ...options.productStatuses]
+                              ).map((s) => (
+                                <option key={s}>{s}</option>
+                              ))}
+                            </select>
+                          </Td>
+                          <Td>
+                            {o.warrantyEndDate ? (
+                              <span className={w.status === 'expired' ? 'text-rose-700' : w.status === 'expiring' ? 'text-amber-700 font-semibold' : ''}>
+                                {fmtDate(o.warrantyEndDate)}
+                              </span>
+                            ) : (
+                              ''
+                            )}
+                          </Td>
+                          <Td className="font-mono text-[11px]">{o.trackingNo}</Td>
+                          <Td className="text-center sticky right-0 bg-white group-hover:bg-zinc-50 shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.12)]">
+                            <RowMenu
+                              order={o}
+                              onEdit={() => setFormOrder(o)}
+                              onWarranty={() => setCardOrder(o)}
+                              onDelete={() => {
+                                if (!confirm(`ลบออเดอร์ ${o.orderNumber} ถาวร?${o.stockDeducted ? '\nสต็อกที่ตัดไปจะถูกคืนเข้าคลัง' : ''}`)) return;
+                                onDeleteOrder(o);
+                              }}
+                            />
+                          </Td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <div className="border-t border-zinc-100">
+                <Pager page={page} pageSize={PAGE_SIZE} total={listRows.length} onPage={setPage} />
+              </div>
+            </>
           )}
         </div>
       )}
@@ -396,7 +533,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
 
       {tab === 'aftersales' && (
         <div className="space-y-4">
-          <div className="bg-white border border-zinc-200 rounded-xl">
+          <div className="bg-white border border-zinc-200/80 rounded-2xl">
             <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-zinc-100">
               <h3 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4" /> การรับประกัน
@@ -423,7 +560,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
             />
           </div>
 
-          <div className="bg-white border border-zinc-200 rounded-xl">
+          <div className="bg-white border border-zinc-200/80 rounded-2xl">
             <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-zinc-100">
               <h3 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
                 <Wrench className="w-4 h-4" /> งานแจ้งซ่อม
@@ -489,6 +626,15 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
         />
       )}
 
+      {cardOrder && (
+        <WarrantyCardModal
+          order={orders.find((x) => x.id === cardOrder.id) || cardOrder}
+          orders={orders}
+          onSave={onSaveOrder}
+          onClose={() => setCardOrder(null)}
+        />
+      )}
+
       {optionsOpen && <OptionsModal options={options} onSave={onSaveOptions} onClose={() => setOptionsOpen(false)} />}
     </div>
   );
@@ -523,7 +669,7 @@ const QueueView: React.FC<{
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-2 bg-white border border-zinc-200 rounded-xl p-3">
+      <div className="flex flex-wrap gap-2 bg-white border border-zinc-200/80 rounded-2xl p-3">
         <select className={`${inlineSelect}`} value={tech} onChange={(e) => setTech(e.target.value)}>
           <option value="">ช่างทุกคน</option>
           {options.technicians.map((t) => (
@@ -539,11 +685,11 @@ const QueueView: React.FC<{
       </div>
 
       {keys.length === 0 && (
-        <div className="bg-white border border-zinc-200 rounded-xl p-10 text-center text-sm text-zinc-500">ไม่มีงานค้างในคิว</div>
+        <div className="bg-white border border-zinc-200/80 rounded-2xl p-10 text-center text-sm text-zinc-500">ไม่มีงานค้างในคิว</div>
       )}
 
       {keys.map((k) => (
-        <div key={k} className="bg-white border border-zinc-200 rounded-xl">
+        <div key={k} className="bg-white border border-zinc-200/80 rounded-2xl">
           <div className={`px-4 py-2.5 border-b border-zinc-100 text-sm font-bold ${k === 'late' ? 'text-rose-700' : 'text-zinc-900'}`}>
             {title(k)} <span className="text-zinc-400 font-normal">({groups.get(k)!.length})</span>
           </div>

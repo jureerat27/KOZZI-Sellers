@@ -211,14 +211,14 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   return (
     <div className="space-y-6 pb-20">
       {/* 1. Header & Date Range Filter Section */}
-      <div className="bg-white border border-[#E4E4E7] p-5 sm:p-6 rounded-xl sm:rounded-xl shadow-2xs space-y-4">
+      <div className="bg-white border border-zinc-200/80 p-5 sm:p-6 rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04)] space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E4E4E7] pb-4">
           <div>
-            <h1 className="text-base sm:text-lg font-extrabold text-[#18181B] flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-[#18181B]" />
+            <h1 className="text-2xl font-bold text-zinc-900 flex items-center gap-3">
+              <BarChart3 className="w-8 h-8 stroke-[1.75] text-zinc-900 shrink-0" />
               <span>รายงานสรุปผลการดำเนินงาน & พิมพ์ PDF</span>
             </h1>
-            <p className="text-xs text-[#27272A] mt-1 font-medium">
+            <p className="text-sm text-zinc-500 mt-1 sm:ml-11">
               เลือกระยะเวลาเพื่อดูวิเคราะห์ พิมพ์ใบเสร็จรับเงิน หรือส่งออกรายงานค่าใช้จ่ายเป็น PDF
             </p>
           </div>
@@ -304,8 +304,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         {/* Card 1: พิมพ์ PDF ใบเสร็จรับเงินทั้งหมด */}
         <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
           <div>
-            <div className="w-10 h-10 rounded-lg bg-[#003BB3] text-white flex items-center justify-center shadow-2xs mb-3">
-              <Receipt className="w-5 h-5 text-white" />
+            <div className="w-11 h-11 rounded-full bg-[#EAF1FF] text-[#0068F0] flex items-center justify-center mb-3">
+              <Receipt className="w-5 h-5 text-[#0068F0]" />
             </div>
             <h3 className="text-sm font-extrabold text-[#18181B]">
               พิมพ์ PDF ใบเสร็จรับเงิน
@@ -327,8 +327,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         {/* Card 2: พิมพ์ PDF ค่าใช้จ่ายทั้งหมด */}
         <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
           <div>
-            <div className="w-10 h-10 rounded-lg bg-[#003BB3] text-white flex items-center justify-center shadow-2xs mb-3">
-              <Wallet className="w-5 h-5 text-white" />
+            <div className="w-11 h-11 rounded-full bg-[#EAF1FF] text-[#0068F0] flex items-center justify-center mb-3">
+              <Wallet className="w-5 h-5 text-[#0068F0]" />
             </div>
             <h3 className="text-sm font-extrabold text-[#18181B]">
               พิมพ์ PDF ค่าใช้จ่ายทั้งหมด (รายเดือน)
@@ -350,8 +350,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         {/* Card 3: พิมพ์ PDF สรุปผลการดำเนินงานรวม */}
         <div className="bg-white border border-[#E4E4E7] p-5 rounded-xl shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-4">
           <div>
-            <div className="w-10 h-10 rounded-lg bg-[#003BB3] text-white flex items-center justify-center shadow-2xs mb-3">
-              <FileText className="w-5 h-5 text-white" />
+            <div className="w-11 h-11 rounded-full bg-[#EAF1FF] text-[#0068F0] flex items-center justify-center mb-3">
+              <FileText className="w-5 h-5 text-[#0068F0]" />
             </div>
             <h3 className="text-sm font-extrabold text-[#18181B]">
               พิมพ์ PDF สรุปภาพรวมกำไรขาดทุน

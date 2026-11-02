@@ -56,13 +56,13 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
   return (
     <div className="space-y-5 pb-20">
       {/* Header & New Document Quick Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/90 border border-zinc-100 p-4 rounded-xl shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-zinc-200/80 px-5 py-5 rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
         <div>
-          <h1 className="text-base font-bold text-zinc-800 flex items-center gap-2">
-            <FileText className="w-5 h-5" />
+          <h1 className="text-2xl font-bold text-zinc-900 flex items-center gap-3">
+            <FileText className="w-8 h-8 stroke-[1.75] shrink-0" />
             <span>ระบบจัดการเอกสารการขาย</span>
           </h1>
-          <p className="text-xs text-zinc-500">
+          <p className="text-sm text-zinc-500 mt-1 sm:ml-11">
             ออกใบเสนอราคา ใบแจ้งหนี้ และใบเสร็จรับเงินในนามบุคคลมินิมอล
           </p>
         </div>
@@ -70,7 +70,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => onCreateDoc('QUOTATION')}
-            className="px-3.5 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-5 py-2.5 bg-[#0068F0] hover:bg-[#0052C7] text-white text-sm font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
           >
             <FilePlus className="w-4 h-4" />
             <span>+ ใบเสนอราคา</span>
@@ -78,7 +78,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
           <button
             onClick={() => onCreateDoc('INVOICE')}
-            className="px-3.5 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-5 py-2.5 bg-[#0068F0] hover:bg-[#0052C7] text-white text-sm font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
           >
             <Receipt className="w-4 h-4" />
             <span>+ ใบแจ้งหนี้</span>
@@ -86,7 +86,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
           <button
             onClick={() => onCreateDoc('RECEIPT')}
-            className="px-3.5 py-2 bg-[#0068F0] hover:bg-[#0052C7] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-5 py-2.5 bg-[#0068F0] hover:bg-[#0052C7] text-white text-sm font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
           >
             <CheckCircle className="w-4 h-4" />
             <span>+ ใบเสร็จ</span>
@@ -95,46 +95,46 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
       </div>
 
       {/* Filter and Search Section */}
-      <div className="bg-white/90 border border-zinc-100 p-4 rounded-xl space-y-3 shadow-xs">
+      <div className="bg-white border border-zinc-200/80 p-4 rounded-2xl space-y-3 shadow-xs">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Type Filter Pills */}
-          <div className="flex items-center gap-1 bg-zinc-50/60 p-1 rounded-lg w-full sm:w-auto overflow-x-auto border border-zinc-100">
+          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
             <button
               onClick={() => setTypeFilter('ALL')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap border transition-all ${
                 typeFilter === 'ALL'
-                  ? 'bg-white text-zinc-900 shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-900'
+                  ? 'bg-[#003BB3] border-[#003BB3] text-white'
+                  : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'
               }`}
             >
               ทั้งหมด ({documents.length})
             </button>
             <button
               onClick={() => setTypeFilter('QUOTATION')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap border transition-all ${
                 typeFilter === 'QUOTATION'
-                  ? 'bg-zinc-900 text-white shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-900'
+                  ? 'bg-[#003BB3] border-[#003BB3] text-white'
+                  : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'
               }`}
             >
               ใบเสนอราคา
             </button>
             <button
               onClick={() => setTypeFilter('INVOICE')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap border transition-all ${
                 typeFilter === 'INVOICE'
-                  ? 'bg-zinc-900 text-white shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-900'
+                  ? 'bg-[#003BB3] border-[#003BB3] text-white'
+                  : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'
               }`}
             >
               ใบแจ้งหนี้
             </button>
             <button
               onClick={() => setTypeFilter('RECEIPT')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap border transition-all ${
                 typeFilter === 'RECEIPT'
-                  ? 'bg-zinc-900 text-white shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-900'
+                  ? 'bg-[#003BB3] border-[#003BB3] text-white'
+                  : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'
               }`}
             >
               ใบเสร็จรับเงิน
@@ -158,7 +158,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
       {/* Documents List */}
       <div className="space-y-2.5">
         {filteredDocs.length === 0 ? (
-          <div className="bg-white/90 border border-zinc-100 rounded-xl p-10 text-center text-zinc-400 text-xs shadow-xs">
+          <div className="bg-white border border-zinc-200/80 rounded-2xl p-10 text-center text-zinc-400 text-xs shadow-xs">
             ไม่พบเอกสารตามเงื่อนไขที่ค้นหา
           </div>
         ) : (
@@ -196,7 +196,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
             return (
               <div
                 key={doc.id}
-                className="bg-white/90 border border-zinc-100 hover:border-zinc-200 p-4 rounded-xl transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
+                className="bg-white border border-zinc-200/80 hover:border-zinc-200 p-4 rounded-xl transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
               >
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-800 shrink-0 mt-0.5">

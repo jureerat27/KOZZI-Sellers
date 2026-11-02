@@ -136,20 +136,20 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
   return (
     <div className="space-y-5 pb-20">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/90 border border-zinc-100 p-4 rounded-xl shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-zinc-200/80 px-5 py-5 rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
         <div>
-          <h1 className="text-base font-bold text-zinc-800 flex items-center gap-2">
-            <Package className="w-5 h-5" />
+          <h1 className="text-2xl font-bold text-zinc-900 flex items-center gap-3">
+            <Package className="w-8 h-8 stroke-[1.75] shrink-0" />
             <span>คลังสินค้า & การจัดการสต็อก</span>
           </h1>
-          <p className="text-xs text-zinc-500">
+          <p className="text-sm text-zinc-500 mt-1 sm:ml-11">
             ระบบบริหารสินค้าคงคลัง พร้อมแจ้งเตือนสต็อกต่ำอัตโนมัติ
           </p>
         </div>
 
         <button
           onClick={handleOpenAddModal}
-          className="px-4 py-2 bg-gradient-to-r from-[#0068F0] to-[#0068F0] hover:from-[#0052C7] hover:to-[#0052C7] text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all"
+          className="px-5 py-2.5 bg-gradient-to-r from-[#0068F0] to-[#0068F0] hover:from-[#0052C7] hover:to-[#0052C7] text-white text-sm font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>+ เพิ่มสินค้าใหม่</span>
@@ -157,7 +157,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white/90 border border-zinc-100 p-4 rounded-xl space-y-3 shadow-xs">
+      <div className="bg-white border border-zinc-200/80 p-4 rounded-2xl space-y-3 shadow-xs">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
             {/* Low stock toggle filter */}
@@ -205,7 +205,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
       {/* Product List Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {filteredProducts.length === 0 ? (
-          <div className="col-span-full bg-white/90 border border-zinc-100 rounded-xl p-10 text-center text-zinc-400 text-xs shadow-xs">
+          <div className="col-span-full bg-white border border-zinc-200/80 rounded-2xl p-10 text-center text-zinc-400 text-xs shadow-xs">
             ไม่พบสินค้าตามเงื่อนไขที่ค้นหา
           </div>
         ) : (
@@ -216,7 +216,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
             return (
               <div
                 key={p.id}
-                className={`bg-white/90 border p-4 rounded-xl transition-all shadow-xs space-y-3 ${
+                className={`bg-white border p-4 rounded-2xl transition-all shadow-[0_1px_2px_rgba(16,24,40,0.04)] space-y-3 ${
                   isLowStock
                     ? 'border-rose-300 bg-zinc-50/40'
                     : 'border-zinc-100 hover:border-zinc-200'

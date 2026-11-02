@@ -277,13 +277,13 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
   return (
     <div className="space-y-5 pb-20 animate-fadeIn">
       {/* Header Bar & Summary Card */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/95 border border-zinc-100 p-4 rounded-xl shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-zinc-200/80 px-5 py-5 rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
         <div>
-          <h1 className="text-base font-bold text-zinc-800 flex items-center gap-2">
-            <Wallet className="w-5 h-5" />
+          <h1 className="text-2xl font-bold text-zinc-900 flex items-center gap-3">
+            <Wallet className="w-8 h-8 stroke-[1.75] shrink-0" />
             <span>หมวดรายจ่าย & ใบสำคัญจ่าย (Payment Voucher)</span>
           </h1>
-          <p className="text-xs text-zinc-500">
+          <p className="text-sm text-zinc-500 mt-1 sm:ml-11">
             บันทึกรายจ่ายและสร้างใบสำคัญจ่ายอัตโนมัติ พร้อมพิมพ์และดาวน์โหลด PDF ได้ทันที
           </p>
         </div>
@@ -291,7 +291,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={() => setIsMonthlyReportOpen(true)}
-            className="px-4 py-2.5 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-[#18181B] text-xs font-extrabold rounded-lg shadow-2xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+            className="px-5 py-2.5 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-[#18181B] text-sm font-extrabold rounded-lg shadow-2xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
           >
             <FileSpreadsheet className="w-4 h-4 text-[#18181B]" />
             <span>รายงานค่าใช้จ่ายทั้งหมด</span>
@@ -299,7 +299,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
 
           <button
             onClick={openAddModal}
-            className="px-4 py-2.5 bg-gradient-to-r from-[#0068F0] to-[#0068F0] hover:from-[#0052C7] hover:to-[#0052C7] text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+            className="px-5 py-2.5 bg-gradient-to-r from-[#0068F0] to-[#0068F0] hover:from-[#0052C7] hover:to-[#0052C7] text-white text-sm font-bold rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
           >
             <Plus className="w-4 h-4" />
             <span>+ บันทึกรายจ่ายใหม่</span>
@@ -308,7 +308,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
       </div>
 
       {/* Monthly Expense Badge with Month Selector */}
-      <div className="bg-white/95 border border-zinc-100 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+      <div className="bg-white border border-zinc-200/80 p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-zinc-500 font-medium">
@@ -366,7 +366,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
       </div>
 
       {/* Filters and Search Bar */}
-      <div className="bg-white/95 border border-zinc-100 p-4 rounded-xl space-y-3 shadow-xs">
+      <div className="bg-white border border-zinc-200/80 p-4 rounded-2xl space-y-3 shadow-xs">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Month / Year Selector */}
           <div className="relative">
@@ -427,7 +427,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
       {/* Expense List */}
       <div className="space-y-2.5">
         {filteredExpenses.length === 0 ? (
-          <div className="bg-white/95 border border-zinc-100 rounded-xl p-10 text-center space-y-3 shadow-xs">
+          <div className="bg-white border border-zinc-200/80 rounded-2xl p-10 text-center space-y-3 shadow-xs">
             <p className="text-sm font-bold text-zinc-700">
               ไม่พบรายการรายจ่ายประจำเดือน{' '}
               <span className="text-rose-600">
@@ -465,7 +465,7 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
               <div
                 key={exp.id}
                 onClick={() => onViewVoucher(exp)}
-                className="bg-white/95 border border-zinc-100 hover:border-zinc-300 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3.5 transition-all shadow-xs cursor-pointer hover:shadow-md"
+                className="bg-white border border-zinc-200/80 hover:border-zinc-300 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3.5 transition-all shadow-xs cursor-pointer hover:shadow-md"
               >
                 {/* Left Side: Icon, Voucher No, Description & Meta */}
                 <div className="flex items-start gap-3.5 min-w-0">

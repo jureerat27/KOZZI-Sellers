@@ -202,7 +202,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-5 pb-12">
       {/* 1. Store Profile Banner Card */}
-      <div className="bg-gradient-to-r from-[#F4F4F5] via-[#F4F4F5] to-[#F4F4F5] border border-[#D4D4D8] rounded-xl sm:rounded-xl p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden">
+      <div className="bg-white border border-zinc-200/80 rounded-2xl p-5 sm:p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden">
         {/* Faded Background Illustration Accent */}
         <div className="absolute right-32 top-1/2 -translate-y-1/2 opacity-15 pointer-events-none hidden lg:block">
           <svg width="240" height="120" viewBox="0 0 240 120" fill="none">
@@ -224,13 +224,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className="max-h-16 w-auto max-w-[160px] object-contain shrink-0 drop-shadow-xs"
             />
           ) : (
-            <div className="w-14 h-14 rounded-xl bg-[#003BB3] text-white flex items-center justify-center shrink-0 shadow-md">
-              <Store className="w-7 h-7 text-white" />
+            <div className="w-14 h-14 rounded-2xl bg-[#EAF1FF] flex items-center justify-center shrink-0">
+              <Store className="w-7 h-7 text-[#003BB3]" />
             </div>
           )}
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-black text-[#18181B]">
+              <h2 className="text-xl sm:text-2xl font-bold text-zinc-900">
                 {seller.name || 'ร้านค้าของฉัน'}
               </h2>
               <CheckCircle2 className="w-4 h-4 text-[#71717A] fill-[#71717A] text-white shrink-0" />
@@ -262,7 +262,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* 2. Month Selector & Summary Bar */}
-      <div className="bg-white border border-[#D4D4D8] rounded-xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white border border-zinc-200/80 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-zinc-500 font-extrabold flex items-center gap-1.5">
@@ -374,18 +374,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 4. Row 1: 4 KPI Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: ยอดขายรวม (Green #00B754) */}
-        <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-xs hover:shadow-md transition-all">
+        <div className="bg-white border border-zinc-200/80 rounded-2xl p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-extrabold text-[#27272A] block">
+              <span className="text-sm font-medium text-zinc-500 block">
                 {selectedMonth === 'ALL' ? 'ยอดขายรวมทั้งหมด' : 'ยอดขายประจำเดือน'}
               </span>
-              <div className="text-2xl sm:text-3xl font-black text-[#00B754] tracking-tight mt-1 font-mono">
+              <div className="text-2xl sm:text-[28px] font-bold text-[#00B754] tracking-tight mt-1">
                 ฿{formatCurrency(totalSales)}
               </div>
             </div>
-            <div className="w-11 h-11 rounded-full bg-[#00B754] text-white flex items-center justify-center shrink-0 shadow-xs">
-              <TrendingUp className="w-5 h-5 text-white stroke-[2.5]" />
+            <div className="w-11 h-11 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+              <TrendingUp className="w-5 h-5 text-emerald-600" />
             </div>
           </div>
           <div className="mt-3 pt-3 border-t border-zinc-100 flex items-center justify-between text-xs">
@@ -397,18 +397,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Card 2: รายจ่ายรวม (Blue #71717A) */}
-        <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-xs hover:shadow-md transition-all">
+        <div className="bg-white border border-zinc-200/80 rounded-2xl p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-extrabold text-[#27272A] block">
+              <span className="text-sm font-medium text-zinc-500 block">
                 {selectedMonth === 'ALL' ? 'รายจ่ายรวมทั้งหมด' : 'รายจ่ายประจำเดือน'}
               </span>
-              <div className="text-2xl sm:text-3xl font-black text-[#71717A] tracking-tight mt-1 font-mono">
+              <div className="text-2xl sm:text-[28px] font-bold text-zinc-900 tracking-tight mt-1">
                 ฿{formatCurrency(totalExpenses)}
               </div>
             </div>
-            <div className="w-11 h-11 rounded-full bg-[#003BB3] text-white flex items-center justify-center shrink-0 shadow-xs">
-              <Receipt className="w-5 h-5 text-white stroke-[2.5]" />
+            <div className="w-11 h-11 rounded-full bg-[#EAF1FF] flex items-center justify-center shrink-0">
+              <Receipt className="w-5 h-5 text-[#0068F0]" />
             </div>
           </div>
           <div className="mt-3 pt-3 border-t border-zinc-100 flex items-center justify-between text-xs">
@@ -420,14 +420,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Card 3: กำไรสุทธิ (Orange #F97316) */}
-        <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-xs hover:shadow-md transition-all">
+        <div className="bg-white border border-zinc-200/80 rounded-2xl p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-extrabold text-[#27272A] block">
+              <span className="text-sm font-medium text-zinc-500 block">
                 {selectedMonth === 'ALL' ? 'กำไรสุทธิรวม' : 'กำไรสุทธิประจำเดือน'}
               </span>
               <div
-                className={`text-2xl sm:text-3xl font-black tracking-tight mt-1 font-mono ${
+                className={`text-2xl sm:text-[28px] font-bold tracking-tight mt-1 font-mono ${
                   netProfit >= 0 ? 'text-[#F97316]' : 'text-rose-600'
                 }`}
               >
@@ -435,11 +435,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
             <div
-              className={`w-11 h-11 rounded-full text-white flex items-center justify-center shrink-0 shadow-xs ${
-                netProfit >= 0 ? 'bg-[#F97316]' : 'bg-rose-600'
+              className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${
+                netProfit >= 0 ? 'bg-orange-100/70' : 'bg-rose-50'
               }`}
             >
-              <Coins className="w-5 h-5 text-white stroke-[2.5]" />
+              <Coins className={`w-5 h-5 ${netProfit >= 0 ? 'text-orange-500' : 'text-rose-600'}`} />
             </div>
           </div>
           <div className="mt-3 pt-3 border-t border-zinc-100 flex items-center justify-between text-xs">
@@ -453,17 +453,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Card 4: สินค้าใกล้หมด (Purple #71717A) */}
-        <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-xs hover:shadow-md transition-all">
+        <div className="bg-white border border-zinc-200/80 rounded-2xl p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-extrabold text-[#27272A] block">สินค้าใกล้หมด</span>
-              <div className="text-2xl sm:text-3xl font-black text-[#71717A] tracking-tight mt-1">
+              <span className="text-sm font-medium text-zinc-500 block">สินค้าใกล้หมด</span>
+              <div className="text-2xl sm:text-[28px] font-bold text-zinc-900 tracking-tight mt-1">
                 {lowStockProducts.length}{' '}
                 <span className="text-sm font-bold text-[#71717A]">รายการ</span>
               </div>
             </div>
-            <div className="w-11 h-11 rounded-full bg-[#003BB3] text-white flex items-center justify-center shrink-0 shadow-xs">
-              <Package className="w-5 h-5 text-white stroke-[2.5]" />
+            <div className="w-11 h-11 rounded-full bg-[#EAF1FF] flex items-center justify-center shrink-0">
+              <Package className="w-5 h-5 text-[#0068F0]" />
             </div>
           </div>
           <div className="mt-3 pt-3 border-t border-zinc-100 flex items-center justify-between text-xs">
@@ -476,7 +476,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* 5. Row 2: Dynamic Doughnut Chart Card */}
-      <div className="bg-white border border-[#E4E4E7] rounded-xl sm:rounded-xl p-5 sm:p-6 shadow-xs">
+      <div className="bg-white border border-zinc-200/80 rounded-2xl p-5 sm:p-6 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2">
             <h3 className="text-sm sm:text-base font-extrabold text-[#18181B]">
@@ -576,7 +576,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 6. Row 3: Two Equal Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Left Column: เอกสารล่าสุดในเดือน */}
-        <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-xs">
+        <div className="bg-white border border-zinc-200/80 rounded-2xl p-5 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm sm:text-base font-extrabold text-[#18181B]">
               เอกสารล่าสุด{' '}
@@ -666,7 +666,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Right Column: รายการใกล้ดำเนินการ (Pending Actions) */}
-        <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-xs">
+        <div className="bg-white border border-zinc-200/80 rounded-2xl p-5 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm sm:text-base font-extrabold text-[#18181B]">
