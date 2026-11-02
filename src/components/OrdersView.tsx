@@ -65,10 +65,10 @@ const monthLabel = (ym: string) => {
 };
 
 const Th: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <th className={`px-4 py-3.5 text-left text-[13px] font-semibold text-zinc-600 whitespace-nowrap ${className}`}>{children}</th>
+  <th className={`px-3 py-2.5 text-left text-[11px] font-semibold text-zinc-500 whitespace-nowrap ${className}`}>{children}</th>
 );
 const Td: React.FC<{ children?: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <td className={`px-4 py-4 text-[13px] text-zinc-800 whitespace-nowrap ${className}`}>{children ?? ''}</td>
+  <td className={`px-3 py-2.5 text-xs text-zinc-800 whitespace-nowrap ${className}`}>{children ?? ''}</td>
 );
 
 const PAGE_SIZE = 20;
@@ -132,10 +132,10 @@ const RowMenu: React.FC<{ order: Order; onEdit: () => void; onWarranty: () => vo
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-11 h-10 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-700"
+        className="w-8 h-7 rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-700"
         aria-label="จัดการออเดอร์"
       >
-        <MoreHorizontal className="w-5 h-5" />
+        <MoreHorizontal className="w-4 h-4" />
       </button>
       {pos &&
         createPortal(
@@ -374,21 +374,22 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
             <>
               <div className="overflow-x-auto border-t border-zinc-100">
                 <table className="min-w-full">
-                  <thead className="bg-zinc-50/80 border-b border-zinc-200">
+                  <thead className="bg-zinc-50 border-b border-zinc-200">
                     <tr>
                       <Th>#</Th>
+                      <Th>วันที่สั่งซื้อ</Th>
                       <Th>
-                        <SortHead label="เลขที่ออเดอร์" k="number" sort={sort} onSort={toggleSort} />
+                        <SortHead label="เลขออเดอร์" k="number" sort={sort} onSort={toggleSort} />
                       </Th>
                       <Th>ลูกค้า</Th>
+                      <Th>รุ่น</Th>
                       <Th>สินค้า (MODEL · สี · ขนาด)</Th>
-                      <Th>นัดหมาย / พื้นที่ติดตั้ง</Th>
-                      <Th className="text-right">
-                        <SortHead label="ยอดเงิน" k="price" sort={sort} onSort={toggleSort} />
-                      </Th>
-                      <Th>สถานะ</Th>
                       <Th>ช่องทาง</Th>
+                      <Th>การดำเนินการ</Th>
+                      <Th>เพดาน</Th>
                       <Th>ช่าง</Th>
+                      <Th>พื้นที่</Th>
+                      <Th>นัดวันที่</Th>
                       <Th>สถานะคิว</Th>
                       <Th>การชำระเงิน</Th>
                       <Th>ชำระต้นทุนโดย</Th>
@@ -402,60 +403,34 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                     {pageRows.map((o, i) => {
                       const pay = paymentState(o);
                       const w = warrantyState(o, options.warrantyAlertDays, today);
-                      const late = o.scheduledDate && o.scheduledDate < today && o.queueStatus !== 'เสร็จแล้ว';
                       return (
                         <tr
                           key={o.id}
                           onClick={() => openDetail(o)}
-                          className={`group cursor-pointer hover:bg-zinc-50 align-top ${o.cancelled ? 'opacity-50' : ''}`}
+                          className={`group cursor-pointer hover:bg-zinc-50 ${o.cancelled ? 'opacity-50' : ''}`}
                         >
-                          <Td className="text-zinc-700 pt-5">{(page - 1) * PAGE_SIZE + i + 1}</Td>
-                          <Td>
-                            <div className="font-bold text-zinc-900">{o.orderNumber}</div>
-                            <div className="text-zinc-500 mt-0.5">{fmtDate(o.orderDate)}</div>
-                            {o.channelOrderId && <div className="text-[11px] text-zinc-400">{o.channelOrderId}</div>}
+                          <Td className="text-zinc-400">{(page - 1) * PAGE_SIZE + i + 1}</Td>
+                          <Td>{fmtDate(o.orderDate)}</Td>
+                          <Td className="font-semibold">
+                            {o.orderNumber}
+                            {o.channelOrderId && <div className="text-[10px] text-zinc-400 font-normal">{o.channelOrderId}</div>}
                           </Td>
-                          <Td>
-                            <div className="font-medium text-zinc-900">{o.customerName}</div>
-                            {o.customerPhone && <div className="text-zinc-500 mt-0.5">{o.customerPhone}</div>}
-                          </Td>
-                          <Td>
-                            <div className="text-zinc-900">
-                              {[o.productLine, o.model].filter(Boolean).join(' ')}
-                              {o.quantity > 1 ? ` ×${o.quantity}` : ''}
-                            </div>
-                            <div className="text-zinc-500 mt-0.5">{[o.color, o.size].filter(Boolean).join(' · ')}</div>
-                          </Td>
-                          <Td>
-                            {o.scheduledDate ? (
-                              <div className={`flex items-center gap-1.5 ${late ? 'text-rose-700 font-semibold' : 'text-zinc-900'}`}>
-                                <CalendarDays className="w-4 h-4 text-zinc-500 shrink-0" />
-                                {fmtDate(o.scheduledDate)}
-                                {fmtTimeRange(o) ? ` ${fmtTimeRange(o)}` : ''}
-                              </div>
-                            ) : null}
-                            {o.installArea && (
-                              <div className="flex items-start gap-1.5 mt-1 text-zinc-700 min-w-[180px] max-w-[260px]">
-                                <MapPin className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
-                                <span className="whitespace-normal line-clamp-2">{o.installArea}</span>
-                              </div>
-                            )}
-                          </Td>
-                          <Td className="text-right font-bold text-zinc-900 text-[15px]">฿{fmtMoney(o.price)}</Td>
-                          <Td>
-                            <span
-                              className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
-                                o.fulfillment === 'ติดตั้ง' ? 'bg-[#DCE8FF] text-[#003BB3]' : 'bg-zinc-100 text-zinc-700'
-                              }`}
-                            >
-                              {o.fulfillment}
-                            </span>
-                            {o.ceilingType && <div className="text-zinc-500 mt-1.5">{o.ceilingType}</div>}
-                          </Td>
+                          <Td className="font-medium">{o.customerName}</Td>
+                          <Td>{o.productLine}</Td>
+                          <Td>{productTitle(o)}{o.quantity > 1 ? ` ×${o.quantity}` : ''}</Td>
                           <Td>
                             <Badge tone="neutral">{o.channel}</Badge>
                           </Td>
+                          <Td>
+                            <Badge tone={o.fulfillment === 'ติดตั้ง' ? 'dark' : 'neutral'}>{o.fulfillment}</Badge>
+                          </Td>
+                          <Td>{o.ceilingType}</Td>
                           <Td>{o.technician}</Td>
+                          <Td className="max-w-[160px] truncate">{o.installArea}</Td>
+                          <Td className={o.scheduledDate && o.scheduledDate < today && o.queueStatus !== 'เสร็จแล้ว' ? 'text-rose-700 font-semibold' : ''}>
+                            {o.scheduledDate ? fmtDate(o.scheduledDate) : ''}
+                            {fmtTimeRange(o) && <div className="text-[10px] text-zinc-500 font-normal">{fmtTimeRange(o)}</div>}
+                          </Td>
                           <Td>{o.queueStatus === 'ยังไม่ลงคิว' ? '' : o.queueStatus}</Td>
                           <Td>
                             <Badge tone={pay.tone}>{pay.label}</Badge>
@@ -494,7 +469,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                             )}
                           </Td>
                           <Td className="font-mono text-[11px]">{o.trackingNo}</Td>
-                          <Td className="text-center sticky right-0 bg-white group-hover:bg-zinc-50 shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.12)]">
+                          <Td className="text-center py-1.5 sticky right-0 bg-white group-hover:bg-zinc-50 shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.12)]">
                             <RowMenu
                               order={o}
                               onEdit={() => setFormOrder(o)}
