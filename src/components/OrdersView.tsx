@@ -377,6 +377,8 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                   <thead className="bg-zinc-50 border-b border-zinc-200">
                     <tr>
                       <Th>#</Th>
+                      <Th>สถานะสินค้า</Th>
+                      <Th>การชำระเงิน</Th>
                       <Th>วันที่สั่งซื้อ</Th>
                       <Th>
                         <SortHead label="เลขออเดอร์" k="number" sort={sort} onSort={toggleSort} />
@@ -391,9 +393,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       <Th>พื้นที่</Th>
                       <Th>นัดวันที่</Th>
                       <Th>สถานะคิว</Th>
-                      <Th>การชำระเงิน</Th>
                       <Th>ชำระต้นทุนโดย</Th>
-                      <Th>สถานะสินค้า</Th>
                       <Th>หมดประกัน</Th>
                       <Th>Tracking No.</Th>
                       <Th className="text-center sticky right-0 bg-zinc-50 shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.12)]">จัดการ</Th>
@@ -410,32 +410,6 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                           className={`group cursor-pointer hover:bg-zinc-50 ${o.cancelled ? 'opacity-50' : ''}`}
                         >
                           <Td className="text-zinc-400">{(page - 1) * PAGE_SIZE + i + 1}</Td>
-                          <Td>{fmtDate(o.orderDate)}</Td>
-                          <Td className="font-semibold">
-                            {o.orderNumber}
-                            {o.channelOrderId && <div className="text-[10px] text-zinc-400 font-normal">{o.channelOrderId}</div>}
-                          </Td>
-                          <Td className="font-medium">{o.customerName}</Td>
-                          <Td>{o.productLine}</Td>
-                          <Td>{productTitle(o)}{o.quantity > 1 ? ` ×${o.quantity}` : ''}</Td>
-                          <Td>
-                            <Badge tone="neutral">{o.channel}</Badge>
-                          </Td>
-                          <Td>
-                            <Badge tone={o.fulfillment === 'ติดตั้ง' ? 'dark' : 'neutral'}>{o.fulfillment}</Badge>
-                          </Td>
-                          <Td>{o.ceilingType}</Td>
-                          <Td>{o.technician}</Td>
-                          <Td className="max-w-[160px] truncate">{o.installArea}</Td>
-                          <Td className={o.scheduledDate && o.scheduledDate < today && o.queueStatus !== 'เสร็จแล้ว' ? 'text-rose-700 font-semibold' : ''}>
-                            {o.scheduledDate ? fmtDate(o.scheduledDate) : ''}
-                            {fmtTimeRange(o) && <div className="text-[10px] text-zinc-500 font-normal">{fmtTimeRange(o)}</div>}
-                          </Td>
-                          <Td>{o.queueStatus === 'ยังไม่ลงคิว' ? '' : o.queueStatus}</Td>
-                          <Td>
-                            <Badge tone={pay.tone}>{pay.label}</Badge>
-                          </Td>
-                          <Td>{o.costPaidBy}</Td>
                           <Td>
                             <select
                               onClick={(e) => e.stopPropagation()}
@@ -459,6 +433,32 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                               ))}
                             </select>
                           </Td>
+                          <Td>
+                            <Badge tone={pay.tone}>{pay.label}</Badge>
+                          </Td>
+                          <Td>{fmtDate(o.orderDate)}</Td>
+                          <Td className="font-semibold">
+                            {o.orderNumber}
+                            {o.channelOrderId && <div className="text-[10px] text-zinc-400 font-normal">{o.channelOrderId}</div>}
+                          </Td>
+                          <Td className="font-medium">{o.customerName}</Td>
+                          <Td>{o.productLine}</Td>
+                          <Td>{productTitle(o)}{o.quantity > 1 ? ` ×${o.quantity}` : ''}</Td>
+                          <Td>
+                            <Badge tone="neutral">{o.channel}</Badge>
+                          </Td>
+                          <Td>
+                            <Badge tone={o.fulfillment === 'ติดตั้ง' ? 'dark' : 'neutral'}>{o.fulfillment}</Badge>
+                          </Td>
+                          <Td>{o.ceilingType}</Td>
+                          <Td>{o.technician}</Td>
+                          <Td className="max-w-[160px] truncate">{o.installArea}</Td>
+                          <Td className={o.scheduledDate && o.scheduledDate < today && o.queueStatus !== 'เสร็จแล้ว' ? 'text-rose-700 font-semibold' : ''}>
+                            {o.scheduledDate ? fmtDate(o.scheduledDate) : ''}
+                            {fmtTimeRange(o) && <div className="text-[10px] text-zinc-500 font-normal">{fmtTimeRange(o)}</div>}
+                          </Td>
+                          <Td>{o.queueStatus === 'ยังไม่ลงคิว' ? '' : o.queueStatus}</Td>
+                          <Td>{o.costPaidBy}</Td>
                           <Td>
                             {o.warrantyEndDate ? (
                               <span className={w.status === 'expired' ? 'text-rose-700' : w.status === 'expiring' ? 'text-amber-700 font-semibold' : ''}>
