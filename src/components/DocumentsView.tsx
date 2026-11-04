@@ -12,9 +12,12 @@ import {
   FilePlus,
   CheckCircle,
   Edit3,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { DocumentStatus, DocumentType, SalesDocument } from '../types';
-import { formatCurrency, formatDate } from '../utils/format';
+import { formatCurrency, formatDate, formatMonthThai } from '../utils/format';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal';
 
 interface DocumentsViewProps {
@@ -39,7 +42,23 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingDoc, setDeletingDoc] = useState<SalesDocument | null>(null);
 
-  const filteredDocs = documents.filter((doc) => {
+  // เลือกเดือนที่จะแสดง: ค่าเริ่มต้นคือเดือนปัจจุบัน ('ALL' = ทุกเดือน)
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const [month, setMonth] = useState<string>(currentMonth);
+  const monthList = Array.from(
+    new Set([currentMonth, ...documents.map((d) => (d.date || '').slice(0, 7)).filter((m) => /^\d{4}-\d{2}$/.test(m))])
+  ).sort((a, b) => b.localeCompare(a));
+  const shiftMonth = (step: number) => {
+    const base = month === 'ALL' ? currentMonth : month;
+    const [y, m] = base.split('-').map(Number);
+    const d = new Date(y, m - 1 + step, 1);
+    setMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  };
+  const monthDocs = month === 'ALL' ? documents : documents.filter((d) => (d.date || '').startsWith(month));
+  const typeCount = (t: DocumentType) => monthDocs.filter((d) => d.type === t).length;
+
+  const filteredDocs = monthDocs.filter((doc) => {
     const matchesType = typeFilter === 'ALL' || doc.type === typeFilter;
     const matchesStatus = statusFilter === 'ALL' || doc.status === statusFilter;
     const term = searchTerm.trim().toLowerCase();
@@ -96,6 +115,53 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
       {/* Filter and Search Section */}
       <div className="bg-white border border-zinc-200/80 p-4 rounded-2xl space-y-3 shadow-xs">
+        {/* Month selector */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-100">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => shiftMonth(-1)}
+              className="w-10 h-10 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-600"
+              aria-label="เดือนก่อนหน้า"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="relative">
+              <Calendar className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <select
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+                className="h-10 bg-white border border-zinc-200 rounded-lg pl-9 pr-8 text-sm font-bold text-zinc-900 focus:outline-none focus:border-[#0068F0]"
+              >
+                {(month === 'ALL' || monthList.includes(month) ? monthList : [month, ...monthList]).map((m) => (
+                  <option key={m} value={m}>
+                    {formatMonthThai(m)}
+                    {m === currentMonth ? ' (เดือนนี้)' : ''}
+                  </option>
+                ))}
+                <option value="ALL">ทุกเดือน</option>
+              </select>
+            </div>
+            <button
+              onClick={() => shiftMonth(1)}
+              className="w-10 h-10 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-600"
+              aria-label="เดือนถัดไป"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            {month !== currentMonth && (
+              <button
+                onClick={() => setMonth(currentMonth)}
+                className="ml-1 px-3 h-10 rounded-lg text-sm font-semibold text-[#003BB3] hover:bg-[#EAF1FF]"
+              >
+                กลับเดือนนี้
+              </button>
+            )}
+          </div>
+          <div className="text-sm text-zinc-600">
+            รวม <b className="text-zinc-900">{filteredDocs.length}</b> ใบ ·{' '}
+            <b className="text-zinc-900">฿{formatCurrency(filteredDocs.reduce((sum, d) => sum + (Number(d.grandTotal) || 0), 0))}</b>
+          </div>
+        </div>
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Type Filter Pills */}
           <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
@@ -107,7 +173,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'
               }`}
             >
-              ทั้งหมด ({documents.length})
+              ทั้งหมด ({monthDocs.length})
             </button>
             <button
               onClick={() => setTypeFilter('QUOTATION')}
@@ -117,7 +183,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'
               }`}
             >
-              ใบเสนอราคา
+              ใบเสนอราคา ({typeCount('QUOTATION')})
             </button>
             <button
               onClick={() => setTypeFilter('INVOICE')}
@@ -127,7 +193,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'
               }`}
             >
-              ใบแจ้งหนี้
+              ใบแจ้งหนี้ ({typeCount('INVOICE')})
             </button>
             <button
               onClick={() => setTypeFilter('RECEIPT')}
@@ -137,7 +203,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'
               }`}
             >
-              ใบเสร็จรับเงิน
+              ใบเสร็จรับเงิน ({typeCount('RECEIPT')})
             </button>
           </div>
 
@@ -159,7 +225,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
       <div className="space-y-2.5">
         {filteredDocs.length === 0 ? (
           <div className="bg-white border border-zinc-200/80 rounded-2xl p-10 text-center text-zinc-400 text-xs shadow-xs">
-            ไม่พบเอกสารตามเงื่อนไขที่ค้นหา
+            {month !== 'ALL' && monthDocs.length === 0 ? `ยังไม่มีเอกสารในเดือน${formatMonthThai(month)}` : 'ไม่พบเอกสารตามเงื่อนไขที่ค้นหา'}
           </div>
         ) : (
           filteredDocs.map((doc) => {
