@@ -456,96 +456,100 @@ export const ExpenseManagement: React.FC<ExpenseManagementProps> = ({
             </div>
           </div>
         ) : (
-          filteredExpenses.map((exp) => {
-            const statusKey: ExpenseStatus = exp.status || 'PAID';
-            const statusCfg = STATUS_LABELS[statusKey] || STATUS_LABELS.PAID;
-            const StatusIcon = statusCfg.icon;
-
-            return (
-              <div
-                key={exp.id}
-                onClick={() => onViewVoucher(exp)}
-                className="bg-white border border-zinc-200/80 hover:border-zinc-300 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3.5 transition-all shadow-xs cursor-pointer hover:shadow-md"
-              >
-                {/* Left Side: Icon, Voucher No, Description & Meta */}
-                <div className="flex items-start gap-3.5 min-w-0">
-                  <div className="w-11 h-11 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-700 shrink-0 shadow-2xs mt-0.5">
-                    <Receipt className="w-5 h-5 text-zinc-700" />
-                  </div>
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono font-black text-xs text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-md border border-zinc-200">
-                        {exp.voucherNumber || 'PV-AUTO'}
-                      </span>
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
-                      >
-                        <StatusIcon className="w-3 h-3" />
-                        {statusCfg.label}
-                      </span>
-                      <span className="px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-700 font-bold text-[11px]">
-                        {CATEGORY_LABELS[exp.category] || exp.category}
-                      </span>
-                    </div>
-
-                    <h4 className="font-bold text-sm text-zinc-900 truncate">
-                      {exp.description}
-                    </h4>
-
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-zinc-500">
-                      <span>{formatDate(exp.date)}</span>
-                      {exp.recipient && <span>ผู้รับ: {exp.recipient}</span>}
-                      {exp.paymentMethod && <span>{exp.paymentMethod}</span>}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Side: Amount and Actions */}
-                <div
-                  className="flex items-center justify-between md:justify-end gap-3 pt-2 md:pt-0 border-t md:border-t-0 border-zinc-100"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <span className={`font-mono font-extrabold text-base ${statusKey === 'CANCELLED' ? 'text-zinc-400 line-through' : 'text-zinc-900'}`}>
-                    -฿{formatCurrency(exp.amount)}
-                  </span>
-
-                  <div className="flex items-center gap-1.5">
-                    {/* View Payment Voucher Button */}
-                    <button
+          <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-xs overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-zinc-50 border-b border-zinc-200">
+                <tr className="text-left text-[11px] font-semibold text-zinc-500 whitespace-nowrap">
+                  <th className="px-3 py-2.5">#</th>
+                  <th className="px-3 py-2.5">วันที่</th>
+                  <th className="px-3 py-2.5">เลขที่ PV</th>
+                  <th className="px-3 py-2.5">รายการ</th>
+                  <th className="px-3 py-2.5 text-right">จำนวนเงิน</th>
+                  <th className="px-3 py-2.5">สถานะ</th>
+                  <th className="px-3 py-2.5">หมวดหมู่</th>
+                  <th className="px-3 py-2.5">ผู้รับเงิน</th>
+                  <th className="px-3 py-2.5">วิธีจ่าย</th>
+                  <th className="px-3 py-2.5 text-center sticky right-0 bg-zinc-50 shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.12)]">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {filteredExpenses.map((exp, idx) => {
+                  const statusKey: ExpenseStatus = exp.status || 'PAID';
+                  const statusCfg = STATUS_LABELS[statusKey] || STATUS_LABELS.PAID;
+                  const StatusIcon = statusCfg.icon;
+                  return (
+                    <tr
+                      key={exp.id}
                       onClick={() => onViewVoucher(exp)}
-                      className="px-2.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 text-zinc-900 text-xs font-bold rounded-lg border border-zinc-200 flex items-center gap-1 transition-all"
-                      title="ดูใบสำคัญจ่าย"
+                      className="group cursor-pointer hover:bg-zinc-50 text-xs text-zinc-800 whitespace-nowrap"
                     >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">ดูใบสำคัญจ่าย</span>
-                    </button>
-
-                    {/* Edit Expense */}
-                    <button
-                      onClick={() => openEditModal(exp)}
-                      className="p-1.5 sm:px-2.5 sm:py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-lg border border-zinc-200 flex items-center gap-1 transition-all"
-                      title="แก้ไขรายจ่าย"
-                    >
-                      <Edit className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">แก้ไข</span>
-                    </button>
-
-                    {/* Delete Expense */}
-                    <button
-                      onClick={() => {
-                        setDeletingExpense(exp);
-                        setDeleteConfirmInput('');
-                      }}
-                      className="p-1.5 sm:p-2 text-rose-600 hover:text-rose-700 bg-zinc-50 hover:bg-zinc-100 rounded-lg border border-zinc-200 transition-all"
-                      title="ลบรายจ่าย"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })
+                      <td className="px-3 py-2.5 text-zinc-400">{idx + 1}</td>
+                      <td className="px-3 py-2.5">{formatDate(exp.date)}</td>
+                      <td className="px-3 py-2.5 font-mono font-bold text-zinc-900">{exp.voucherNumber || 'PV-AUTO'}</td>
+                      <td className="px-3 py-2.5 font-semibold text-zinc-900 max-w-[220px] truncate" title={exp.description}>
+                        {exp.description}
+                      </td>
+                      <td
+                        className={`px-3 py-2.5 text-right font-mono font-extrabold text-sm ${
+                          statusKey === 'CANCELLED' ? 'text-zinc-400 line-through' : 'text-zinc-900'
+                        }`}
+                      >
+                        -฿{formatCurrency(exp.amount)}
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}
+                        >
+                          <StatusIcon className="w-3 h-3" />
+                          {statusCfg.label}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <span className="px-2 py-0.5 bg-zinc-50 border border-zinc-200 rounded-md text-zinc-700 font-bold text-[11px]">
+                          {CATEGORY_LABELS[exp.category] || exp.category}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5 max-w-[150px] truncate" title={exp.recipient}>{exp.recipient}</td>
+                      <td className="px-3 py-2.5 text-zinc-600">{exp.paymentMethod}</td>
+                      <td
+                        className="px-3 py-1.5 sticky right-0 bg-white group-hover:bg-zinc-50 shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.12)]"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => onViewVoucher(exp)}
+                            className="px-2 py-1 bg-zinc-50 hover:bg-zinc-100 text-zinc-900 text-[11px] font-bold rounded-md border border-zinc-200 flex items-center gap-1"
+                            title="ดูใบสำคัญจ่าย"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>ดู</span>
+                          </button>
+                          <button
+                            onClick={() => openEditModal(exp)}
+                            className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[11px] font-bold rounded-md border border-zinc-200 flex items-center gap-1"
+                            title="แก้ไขรายจ่าย"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                            <span>แก้ไข</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setDeletingExpense(exp);
+                              setDeleteConfirmInput('');
+                            }}
+                            className="p-1.5 text-rose-600 hover:text-rose-700 bg-zinc-50 hover:bg-zinc-100 rounded-md border border-zinc-200"
+                            title="ลบรายจ่าย"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

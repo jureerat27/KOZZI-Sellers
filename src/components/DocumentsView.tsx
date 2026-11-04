@@ -221,157 +221,149 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
         </div>
       </div>
 
-      {/* Documents List */}
-      <div className="space-y-2.5">
-        {filteredDocs.length === 0 ? (
-          <div className="bg-white border border-zinc-200/80 rounded-2xl p-10 text-center text-zinc-400 text-xs shadow-xs">
-            {month !== 'ALL' && monthDocs.length === 0 ? `ยังไม่มีเอกสารในเดือน${formatMonthThai(month)}` : 'ไม่พบเอกสารตามเงื่อนไขที่ค้นหา'}
-          </div>
-        ) : (
-          filteredDocs.map((doc) => {
-            let statusBg = 'bg-zinc-100 text-zinc-600 border-zinc-200';
-            let statusText = 'ฉบับร่าง';
+      {/* Documents List: ตารางแถวละบรรทัดเดียว */}
+      {filteredDocs.length === 0 ? (
+        <div className="bg-white border border-zinc-200/80 rounded-2xl p-10 text-center text-zinc-400 text-xs shadow-xs">
+          {month !== 'ALL' && monthDocs.length === 0 ? `ยังไม่มีเอกสารในเดือน${formatMonthThai(month)}` : 'ไม่พบเอกสารตามเงื่อนไขที่ค้นหา'}
+        </div>
+      ) : (
+        <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-xs overflow-x-auto">
+          <table className="min-w-full">
+            <thead className="bg-zinc-50 border-b border-zinc-200">
+              <tr className="text-left text-[11px] font-semibold text-zinc-500 whitespace-nowrap">
+                <th className="px-3 py-2.5">#</th>
+                <th className="px-3 py-2.5">วันที่</th>
+                <th className="px-3 py-2.5">เลขที่เอกสาร</th>
+                <th className="px-3 py-2.5">ประเภท</th>
+                <th className="px-3 py-2.5">สถานะ</th>
+                <th className="px-3 py-2.5">ลูกค้า</th>
+                <th className="px-3 py-2.5 text-center">รายการ</th>
+                <th className="px-3 py-2.5 text-right">ยอดรวมทั้งสิ้น</th>
+                <th className="px-3 py-2.5 text-center sticky right-0 bg-zinc-50 shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.12)]">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {filteredDocs.map((doc, idx) => {
+                let statusBg = 'bg-zinc-100 text-zinc-600 border-zinc-200';
+                let statusText = 'ฉบับร่าง';
 
-            if (doc.status === 'PAID') {
-              statusBg = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-              statusText = 'ชำระแล้ว';
-            } else if (doc.status === 'DEPOSIT_PAID') {
-              statusBg = 'bg-zinc-100 text-zinc-950 border-zinc-200';
-              statusText = 'ชำระมัดจำแล้ว';
-            } else if (doc.status === 'PENDING_DEPOSIT') {
-              statusBg = 'bg-amber-100 text-amber-800 border-amber-200';
-              statusText = 'รอมัดจำ ⏳';
-            } else if (doc.status === 'PARTIALLY_PAID') {
-              statusBg = 'bg-yellow-100 text-yellow-800 border-yellow-200';
-              statusText = 'ชำระบางส่วน';
-            } else if (doc.status === 'SENT') {
-              statusBg = 'bg-zinc-100 text-zinc-950 border-zinc-200';
-              statusText = 'ส่งแล้ว';
-            } else if (doc.status === 'APPROVED') {
-              statusBg = 'bg-zinc-100 text-zinc-950 border-zinc-200';
-              statusText = 'อนุมัติแล้ว';
-            }
+                if (doc.status === 'PAID') {
+                  statusBg = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                  statusText = 'ชำระแล้ว';
+                } else if (doc.status === 'DEPOSIT_PAID') {
+                  statusBg = 'bg-zinc-100 text-zinc-950 border-zinc-200';
+                  statusText = 'ชำระมัดจำแล้ว';
+                } else if (doc.status === 'PENDING_DEPOSIT') {
+                  statusBg = 'bg-amber-100 text-amber-800 border-amber-200';
+                  statusText = 'รอมัดจำ ⏳';
+                } else if (doc.status === 'PARTIALLY_PAID') {
+                  statusBg = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                  statusText = 'ชำระบางส่วน';
+                } else if (doc.status === 'SENT') {
+                  statusBg = 'bg-zinc-100 text-zinc-950 border-zinc-200';
+                  statusText = 'ส่งแล้ว';
+                } else if (doc.status === 'APPROVED') {
+                  statusBg = 'bg-zinc-100 text-zinc-950 border-zinc-200';
+                  statusText = 'อนุมัติแล้ว';
+                }
 
-            const typeBadgeColor =
-              doc.type === 'QUOTATION'
-                ? 'bg-zinc-100 text-zinc-950 border-zinc-200'
-                : doc.type === 'INVOICE'
-                ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                : 'bg-zinc-100 text-zinc-950 border-zinc-200';
+                const typeBadgeColor =
+                  doc.type === 'QUOTATION'
+                    ? 'bg-zinc-100 text-zinc-950 border-zinc-200'
+                    : doc.type === 'INVOICE'
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                    : 'bg-zinc-100 text-zinc-950 border-zinc-200';
 
-            return (
-              <div
-                key={doc.id}
-                className="bg-white border border-zinc-200/80 hover:border-zinc-200 p-4 rounded-xl transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-800 shrink-0 mt-0.5">
-                    <FileText className="w-5 h-5 text-zinc-800" />
-                  </div>
-
-                  <div>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-bold text-sm text-zinc-800">{doc.docNumber}</span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold ${typeBadgeColor}`}>
-                        {doc.type}
-                      </span>
-                      {doc.paymentStage && (
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded-md border font-bold ${
-                            doc.paymentStage === 'DEPOSIT'
-                              ? 'bg-amber-50 text-amber-700 border-amber-200'
-                              : doc.paymentStage === 'BALANCE'
-                              ? 'bg-zinc-50 text-zinc-900 border-zinc-200'
-                              : 'bg-zinc-50 text-zinc-600 border-zinc-200'
-                          }`}
-                        >
-                          {doc.paymentStage === 'DEPOSIT'
-                            ? 'เงินมัดจำ'
-                            : doc.paymentStage === 'BALANCE'
-                            ? 'ยอดคงเหลือ'
-                            : 'เต็มจำนวน'}
-                        </span>
-                      )}
-                      {doc.type === 'QUOTATION' && doc.paymentTermType === 'DEPOSIT' && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-md border font-bold bg-amber-50 text-amber-700 border-amber-200">
-                          มัดจำ {doc.depositPercent ? `${doc.depositPercent}%` : `฿${formatCurrency(doc.depositAmount || 0)}`}
-                        </span>
-                      )}
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${statusBg}`}>
-                        {statusText}
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-zinc-700 font-semibold mt-1">
-                      ลูกค้า: {doc.customerName}
-                      {doc.customerTaxId ? (
-                        <span className="font-normal font-mono text-zinc-500 text-[11px] ml-1.5">
-                          (Tax: {doc.customerTaxId})
-                        </span>
-                      ) : null}
-                    </p>
-                    <p className="text-[11px] text-zinc-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
-                      <span>ออกเมื่อ: {formatDate(doc.date)}</span>
-                      <span>• {doc.items.length} รายการ</span>
+                return (
+                  <tr
+                    key={doc.id}
+                    onClick={() => onOpenDocDetail(doc)}
+                    className="group cursor-pointer hover:bg-zinc-50 text-xs text-zinc-800 whitespace-nowrap"
+                  >
+                    <td className="px-3 py-2.5 text-zinc-400">{idx + 1}</td>
+                    <td className="px-3 py-2.5">{formatDate(doc.date)}</td>
+                    <td className="px-3 py-2.5 font-bold text-zinc-900">
+                      {doc.docNumber}
                       {doc.parentQuotationDocNumber && (
-                        <span className="text-zinc-400 font-mono text-[10px] bg-zinc-50 px-1.5 py-0.5 rounded border border-zinc-200">
-                          QT: {doc.parentQuotationDocNumber}
-                        </span>
+                        <div className="text-[10px] text-zinc-400 font-normal font-mono">QT: {doc.parentQuotationDocNumber}</div>
                       )}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-zinc-50">
-                  <div className="text-left sm:text-right">
-                    <span className="text-[10px] text-zinc-500 block">ยอดรวมทั้งสิ้น</span>
-                    <span className="font-extrabold text-zinc-900 text-base">
-                      ฿{formatCurrency(doc.grandTotal)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => onOpenDocDetail(doc)}
-                      className="px-3 py-1.5 bg-zinc-50 hover:bg-zinc-100 text-zinc-900 rounded-lg text-xs font-bold border border-zinc-200 flex items-center gap-1 transition-all"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>ดู/พิมพ์</span>
-                    </button>
-
-                    {onEditDoc && (
-                      <button
-                        onClick={() => onEditDoc(doc)}
-                        className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-lg text-xs font-bold border border-amber-200 flex items-center gap-1 transition-all"
-                        title="แก้ไขเอกสาร"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span>แก้ไข</span>
-                      </button>
-                    )}
-
-                    <button
-                      onClick={() => onShowPromptPayQR(doc.grandTotal, doc.docNumber)}
-                      className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg border border-emerald-200 transition-all"
-                      title="PromptPay QR Code"
-                    >
-                      <QrCode className="w-4 h-4" />
-                    </button>
-
-                    <button
-                      onClick={() => setDeletingDoc(doc)}
-                      className="p-2 bg-zinc-50 hover:bg-zinc-100 text-rose-600 rounded-lg border border-zinc-200 transition-all"
-                      title="ลบเอกสาร"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-1">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold ${typeBadgeColor}`}>{doc.type}</span>
+                        {doc.paymentStage && (
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-md border font-bold ${
+                              doc.paymentStage === 'DEPOSIT'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : doc.paymentStage === 'BALANCE'
+                                ? 'bg-zinc-50 text-zinc-900 border-zinc-200'
+                                : 'bg-zinc-50 text-zinc-600 border-zinc-200'
+                            }`}
+                          >
+                            {doc.paymentStage === 'DEPOSIT' ? 'เงินมัดจำ' : doc.paymentStage === 'BALANCE' ? 'ยอดคงเหลือ' : 'เต็มจำนวน'}
+                          </span>
+                        )}
+                        {doc.type === 'QUOTATION' && doc.paymentTermType === 'DEPOSIT' && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-md border font-bold bg-amber-50 text-amber-700 border-amber-200">
+                            มัดจำ {doc.depositPercent ? `${doc.depositPercent}%` : `฿${formatCurrency(doc.depositAmount || 0)}`}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${statusBg}`}>{statusText}</span>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <span className="font-semibold">{doc.customerName}</span>
+                      {doc.customerTaxId ? (
+                        <span className="font-mono text-zinc-500 text-[11px] ml-1.5">(Tax: {doc.customerTaxId})</span>
+                      ) : null}
+                    </td>
+                    <td className="px-3 py-2.5 text-center text-zinc-600">{doc.items.length}</td>
+                    <td className="px-3 py-2.5 text-right font-bold text-zinc-900 text-sm">฿{formatCurrency(doc.grandTotal)}</td>
+                    <td className="px-3 py-1.5 sticky right-0 bg-white group-hover:bg-zinc-50 shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.12)]" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => onOpenDocDetail(doc)}
+                          className="px-2 py-1 bg-zinc-50 hover:bg-zinc-100 text-zinc-900 rounded-md text-[11px] font-bold border border-zinc-200 flex items-center gap-1"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>ดู/พิมพ์</span>
+                        </button>
+                        {onEditDoc && (
+                          <button
+                            onClick={() => onEditDoc(doc)}
+                            className="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-md text-[11px] font-bold border border-amber-200 flex items-center gap-1"
+                            title="แก้ไขเอกสาร"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>แก้ไข</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => onShowPromptPayQR(doc.grandTotal, doc.docNumber)}
+                          className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md border border-emerald-200"
+                          title="PromptPay QR Code"
+                        >
+                          <QrCode className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setDeletingDoc(doc)}
+                          className="p-1.5 bg-zinc-50 hover:bg-zinc-100 text-rose-600 rounded-md border border-zinc-200"
+                          title="ลบเอกสาร"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Confirmation Modal for Document Deletion */}
       <ConfirmDeleteModal
