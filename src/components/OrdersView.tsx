@@ -36,6 +36,7 @@ import {
   todayISO,
   warrantyAlerts,
   warrantyState,
+  Tone,
 } from '../utils/orders';
 import { OrderFormModal } from './orders/OrderFormModal';
 import { OrderDetailModal } from './orders/OrderDetailModal';
@@ -72,6 +73,23 @@ const Td: React.FC<{ children?: React.ReactNode; className?: string }> = ({ chil
 );
 
 const PAGE_SIZE = 20;
+
+/** ช่องการชำระเงินในตาราง: ถ้ามีหลายส่วน (มัดจำ · เก็บหน้างาน) แยกเป็นบรรทัดละส่วน ตัวอักษรเล็ก */
+const PayCell: React.FC<{ label: string; tone: Tone }> = ({ label, tone }) => {
+  const lines = label.split(' · ');
+  if (lines.length === 1) return <Badge tone={tone}>{label}</Badge>;
+  return (
+    <span
+      className={`inline-flex flex-col px-1.5 py-0.5 rounded-md border text-[10px] font-semibold leading-tight ${
+        { neutral: 'bg-zinc-100 text-zinc-700 border-zinc-200', dark: 'bg-zinc-900 text-white border-zinc-900', green: 'bg-emerald-50 text-emerald-700 border-emerald-200', amber: 'bg-amber-50 text-amber-800 border-amber-200', red: 'bg-rose-50 text-rose-700 border-rose-200' }[tone || 'neutral']
+      }`}
+    >
+      {lines.map((l) => (
+        <span key={l}>{l}</span>
+      ))}
+    </span>
+  );
+};
 type SortKey = 'default' | 'number' | 'price';
 
 const SortHead: React.FC<{
@@ -380,6 +398,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       <Th>สถานะสินค้า</Th>
                       <Th>การชำระเงิน</Th>
                       <Th>วันที่สั่งซื้อ</Th>
+                      <Th>นัดวันที่</Th>
                       <Th>
                         <SortHead label="เลขออเดอร์" k="number" sort={sort} onSort={toggleSort} />
                       </Th>
@@ -391,7 +410,6 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       <Th>เพดาน</Th>
                       <Th>ช่าง</Th>
                       <Th>พื้นที่</Th>
-                      <Th>นัดวันที่</Th>
                       <Th>สถานะคิว</Th>
                       <Th>ชำระต้นทุนโดย</Th>
                       <Th>หมดประกัน</Th>
@@ -434,9 +452,13 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                             </select>
                           </Td>
                           <Td>
-                            <Badge tone={pay.tone}>{pay.label}</Badge>
+                            <PayCell label={pay.label} tone={pay.tone} />
                           </Td>
                           <Td>{fmtDate(o.orderDate)}</Td>
+                          <Td className={o.scheduledDate && o.scheduledDate < today && o.queueStatus !== 'เสร็จแล้ว' ? 'text-rose-700 font-semibold' : ''}>
+                            {o.scheduledDate ? fmtDate(o.scheduledDate) : ''}
+                            {fmtTimeRange(o) && <div className="text-[10px] text-zinc-500 font-normal">{fmtTimeRange(o)}</div>}
+                          </Td>
                           <Td className="font-semibold">
                             {o.orderNumber}
                             {o.channelOrderId && <div className="text-[10px] text-zinc-400 font-normal">{o.channelOrderId}</div>}
@@ -453,10 +475,6 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                           <Td>{o.ceilingType}</Td>
                           <Td>{o.technician}</Td>
                           <Td className="max-w-[160px] truncate">{o.installArea}</Td>
-                          <Td className={o.scheduledDate && o.scheduledDate < today && o.queueStatus !== 'เสร็จแล้ว' ? 'text-rose-700 font-semibold' : ''}>
-                            {o.scheduledDate ? fmtDate(o.scheduledDate) : ''}
-                            {fmtTimeRange(o) && <div className="text-[10px] text-zinc-500 font-normal">{fmtTimeRange(o)}</div>}
-                          </Td>
                           <Td>{o.queueStatus === 'ยังไม่ลงคิว' ? '' : o.queueStatus}</Td>
                           <Td>{o.costPaidBy}</Td>
                           <Td>
