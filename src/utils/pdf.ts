@@ -28,120 +28,98 @@ export async function exportElementToPdf(
       logging: false,
       backgroundColor: '#ffffff',
       onclone: (clonedDoc, clonedElement) => {
-        // 1. Convert all external <link rel="stylesheet"> into inline <style> tags with oklch sanitized
-        // In production builds, CSS is bundled into <link> stylesheets which html2canvas parses
-        const linkTags = Array.from(clonedDoc.querySelectorAll('link[rel="stylesheet"]'));
-        linkTags.forEach((link) => {
-          const href = link.getAttribute('href') || '';
-          let fullCss = '';
+        // html2canvas อ่านสีแบบใหม่ของ Tailwind v4 (oklch / oklab / color-mix) ไม่ได้
+        // วิธีแก้: แปลงสีที่เบราว์เซอร์คำนวณแล้วของทุกองค์ประกอบเป็น rgb จริงด้วย canvas แล้วใส่เป็น inline style
+        // และแปลงฟังก์ชันสีแบบใหม่ที่เหลือในสไตล์ชีต/inline style เป็น rgb เพื่อไม่ให้ html2canvas พัง
+        const MODERN = /(oklch|oklab|lab|lch|color-mix|color)\(/i;
+        // ตัวแปลงสีใดๆ → rgba ด้วย canvas (เบราว์เซอร์แปลงให้เอง)
+        const cvs = document.createElement('canvas');
+        cvs.width = cvs.height = 1;
+        const ctx = cvs.getContext('2d', { willReadFrequently: true });
+        const cache = new Map<string, string>();
+        const toRgb = (c: string): string => {
+          if (!c || /^rgba?\(/i.test(c) || c === 'transparent') return c;
+          const hit = cache.get(c);
+          if (hit) return hit;
+          let out = 'transparent';
+          if (ctx) {
+            ctx.clearRect(0, 0, 1, 1);
+            ctx.fillStyle = '#000';
+            ctx.fillStyle = c;
+            ctx.fillRect(0, 0, 1, 1);
+            const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+            out = `rgba(${r}, ${g}, ${b}, ${Math.round((a / 255) * 1000) / 1000})`;
+          }
+          cache.set(c, out);
+          return out;
+        };
 
-          // Look through document.styleSheets and clonedDoc.styleSheets to extract parsed CSS rules
-          const allSheets = [...Array.from(document.styleSheets), ...Array.from(clonedDoc.styleSheets)];
+        // แปลงฟังก์ชันสีแบบใหม่ในข้อความ CSS เป็น rgb (ตัวที่มี var() ซึ่งแปลงไม่ได้จะกลายเป็น transparent)
+        const stripModern = (css: string) =>
+          css.replace(/(?:oklch|oklab|lab|lch|color-mix|color)\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)/gi, (m) =>
+            /var\(/i.test(m) ? 'transparent' : toRgb(m)
+          );
+
+        // 1) แทน <link> สไตล์ชีตด้วย <style> ที่ล้างสีแบบใหม่แล้ว
+        const allSheets = Array.from(document.styleSheets);
+        Array.from(clonedDoc.querySelectorAll('link[rel="stylesheet"]')).forEach((link) => {
+          const href = link.getAttribute('href') || '';
           for (const sheet of allSheets) {
             try {
               if (sheet.href && href && (sheet.href.includes(href) || href.includes(sheet.href))) {
-                const rules = sheet.cssRules || sheet.rules;
-                if (rules && rules.length > 0) {
-                  fullCss = Array.from(rules).map((r) => r.cssText).join('\n');
-                  if (fullCss) break;
-                }
+                const css = Array.from(sheet.cssRules).map((r) => r.cssText).join('\n');
+                const styleEl = clonedDoc.createElement('style');
+                styleEl.textContent = stripModern(css);
+                link.parentNode?.replaceChild(styleEl, link);
+                break;
               }
-            } catch (e) {
-              // ignore cross-origin stylesheet access restrictions
+            } catch {
+              /* สไตล์ชีตข้ามโดเมน (เช่น Google Fonts) อ่านไม่ได้ ข้ามไป */
             }
           }
-
-          // If extracted CSS rules, replace oklch and replace the <link> with a <style> tag
-          if (fullCss) {
-            const styleEl = clonedDoc.createElement('style');
-            styleEl.textContent = fullCss.replace(/oklch\s*\([^)]+\)/gi, 'rgb(100, 100, 100)');
-            link.parentNode?.replaceChild(styleEl, link);
-          }
+        });
+        clonedDoc.querySelectorAll('style').forEach((st) => {
+          if (st.textContent && MODERN.test(st.textContent)) st.textContent = stripModern(st.textContent);
         });
 
-        // 2. Scan all clonedDoc.styleSheets directly for any remaining oklch rules and sanitize
-        try {
-          const sheets = Array.from(clonedDoc.styleSheets);
-          sheets.forEach((sheet) => {
-            try {
-              const rules = sheet.cssRules || sheet.rules;
-              if (rules) {
-                let hasOklch = false;
-                let sheetCss = '';
-                for (let i = 0; i < rules.length; i++) {
-                  const ruleText = rules[i].cssText;
-                  sheetCss += ruleText + '\n';
-                  if (/oklch/i.test(ruleText)) {
-                    hasOklch = true;
-                  }
-                }
-                if (hasOklch && sheet.ownerNode && sheet.ownerNode.parentNode) {
-                  const styleEl = clonedDoc.createElement('style');
-                  styleEl.textContent = sheetCss.replace(/oklch\s*\([^)]+\)/gi, 'rgb(100, 100, 100)');
-                  sheet.ownerNode.parentNode.replaceChild(styleEl, sheet.ownerNode);
-                }
-              }
-            } catch (e) {
-              // ignore
-            }
-          });
-        } catch (e) {
-          // ignore
-        }
-
-        // 3. Replace oklch(...) in all <style> tags of the cloned document
-        const styleTags = clonedDoc.querySelectorAll('style');
-        styleTags.forEach((style) => {
-          if (style.textContent && /oklch/i.test(style.textContent)) {
-            style.textContent = style.textContent.replace(
-              /oklch\s*\([^)]+\)/gi,
-              'rgb(100, 100, 100)'
-            );
-          }
-        });
-
-        // 4. Replace oklch in inline style attributes if any exist
-        const allClonedNodes = clonedDoc.querySelectorAll('*');
-        allClonedNodes.forEach((node) => {
-          const styleAttr = node.getAttribute('style');
-          if (styleAttr && /oklch/i.test(styleAttr)) {
-            node.setAttribute(
-              'style',
-              styleAttr.replace(/oklch\s*\([^)]+\)/gi, 'rgb(100, 100, 100)')
-            );
-          }
-        });
-
-        // 5. Inline resolved computed RGB colors from original DOM to preserve exact visual colors
-        const originalAll = element.querySelectorAll('*');
-        const clonedAll = clonedElement.querySelectorAll('*');
-
-        const applyComputedRgb = (orig: Element, clone: HTMLElement) => {
+        const apply = (orig: Element, clone: HTMLElement) => {
           try {
             const cs = window.getComputedStyle(orig);
-            if (cs.color && cs.color.includes('rgb') && !/oklch/i.test(cs.color)) {
-              clone.style.color = cs.color;
+            clone.style.color = toRgb(cs.color);
+            clone.style.backgroundColor = toRgb(cs.backgroundColor);
+            clone.style.borderTopColor = toRgb(cs.borderTopColor);
+            clone.style.borderRightColor = toRgb(cs.borderRightColor);
+            clone.style.borderBottomColor = toRgb(cs.borderBottomColor);
+            clone.style.borderLeftColor = toRgb(cs.borderLeftColor);
+            clone.style.outlineColor = toRgb(cs.outlineColor);
+            clone.style.textDecorationColor = toRgb(cs.textDecorationColor);
+            if (MODERN.test(cs.boxShadow)) clone.style.boxShadow = 'none';
+            if (MODERN.test(cs.textShadow)) clone.style.textShadow = 'none';
+            if (MODERN.test(cs.backgroundImage)) clone.style.backgroundImage = 'none';
+            if (cs.fill && MODERN.test(cs.fill)) clone.style.fill = toRgb(cs.fill);
+            if (cs.stroke && MODERN.test(cs.stroke)) clone.style.stroke = toRgb(cs.stroke);
+            // ข้อความที่ถูกตัดด้วย truncate: ตัวอักษรไทย (สระล่าง) จะโดนตัดใน PDF จึงปล่อยให้แสดงเต็ม
+            if (cs.overflow === 'hidden' && cs.textOverflow === 'ellipsis') {
+              clone.style.overflow = 'visible';
+              clone.style.textOverflow = 'clip';
             }
-            if (cs.backgroundColor && cs.backgroundColor.includes('rgb') && !/oklch/i.test(cs.backgroundColor)) {
-              clone.style.backgroundColor = cs.backgroundColor;
-            }
-            if (cs.borderColor && cs.borderColor.includes('rgb') && !/oklch/i.test(cs.borderColor)) {
-              clone.style.borderColor = cs.borderColor;
-            }
-          } catch (e) {
-            // ignore
+          } catch {
+            /* ignore */
           }
         };
 
-        if (clonedElement instanceof HTMLElement) {
-          applyComputedRgb(element, clonedElement);
-        }
+        // องค์ประกอบที่ html2canvas สร้างแทน ::before/::after จะคัดลอกสีแบบใหม่มาเป็น inline style → แปลงให้หมด
+        clonedDoc.querySelectorAll('[style]').forEach((n) => {
+          const st = n.getAttribute('style') || '';
+          if (MODERN.test(st)) n.setAttribute('style', stripModern(st));
+        });
 
+        if (clonedElement instanceof HTMLElement) apply(element, clonedElement);
+        const originalAll = element.querySelectorAll('*');
+        const clonedAll = clonedElement.querySelectorAll('*');
         originalAll.forEach((orig, idx) => {
           const clone = clonedAll[idx] as HTMLElement | undefined;
-          if (clone) {
-            applyComputedRgb(orig, clone);
-          }
+          if (clone && clone.style) apply(orig, clone);
         });
       },
     });
