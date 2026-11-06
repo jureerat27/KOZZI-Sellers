@@ -248,6 +248,17 @@ export interface ServiceTicket {
   completedDate?: string;
 }
 
+/** สินค้าแต่ละแถวในออเดอร์ (1 ออเดอร์มีได้หลายรุ่น/หลายสี) */
+export interface OrderItem {
+  productLine: string;
+  model: string;
+  color: string;
+  size: string;
+  quantity: number;
+  unitPrice: number;          // ราคาต่อชิ้น
+  productId?: string;         // สินค้าในคลังที่ตรงกัน
+}
+
 export interface Order {
   id: string;
   orderNumber: string;        // เลขออเดอร์ระบบ เช่น K2611-001
@@ -256,7 +267,11 @@ export interface Order {
   channel: string;
   customerName: string;
   customerPhone?: string;
+  customerAddress?: string;   // ที่อยู่ลูกค้า (เต็ม)
 
+  items?: OrderItem[];        // รายการสินค้า (ถ้าไม่มี ใช้ช่องด้านล่างเป็นสินค้า 1 แถว)
+  deductedItems?: { id: string; qty: number }[]; // สต็อกที่ตัดไปแล้วรายสินค้า
+  // ช่องด้านล่างเก็บสินค้าแถวแรก/ยอดรวม เพื่อให้ส่วนอื่นของระบบใช้ได้เหมือนเดิม
   productLine: string;
   model: string;
   color: string;

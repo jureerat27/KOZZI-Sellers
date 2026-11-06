@@ -32,7 +32,8 @@ import {
   nextOrderNumber,
   paidTotal,
   paymentState,
-  productTitle,
+  itemsTitle,
+  productLinesOf,
   todayISO,
   warrantyAlerts,
   warrantyState,
@@ -260,7 +261,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
       if (payFilter === 'มัดจำ' ? !label.startsWith('มัดจำ') : label !== payFilter) return false;
     }
     if (q) {
-      const hay = [o.orderNumber, o.channelOrderId, o.customerName, o.customerPhone, o.model, o.installArea, o.trackingNo]
+      const hay = [o.orderNumber, o.channelOrderId, o.customerName, o.customerPhone, itemsTitle(o), o.installArea, o.customerAddress, o.trackingNo]
         .join(' ')
         .toLowerCase();
       if (!hay.includes(q.toLowerCase())) return false;
@@ -464,8 +465,8 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                             {o.channelOrderId && <div className="text-[10px] text-zinc-400 font-normal">{o.channelOrderId}</div>}
                           </Td>
                           <Td className="font-medium">{o.customerName}</Td>
-                          <Td>{o.productLine}</Td>
-                          <Td>{productTitle(o)}{o.quantity > 1 ? ` ×${o.quantity}` : ''}</Td>
+                          <Td>{productLinesOf(o)}</Td>
+                          <Td className="max-w-[420px] truncate" title={itemsTitle(o)}>{itemsTitle(o)}</Td>
                           <Td>
                             <Badge tone="neutral">{o.channel}</Badge>
                           </Td>
@@ -699,7 +700,7 @@ const QueueView: React.FC<{
                       {o.customerName} <span className="text-zinc-400 font-normal">· {o.orderNumber}</span>
                     </div>
                     <div className="text-xs text-zinc-600">
-                      {o.productLine} · {productTitle(o)}
+                      {productLinesOf(o)} · {itemsTitle(o)}
                     </div>
                   </div>
                   <div className="text-xs text-zinc-600 min-w-[200px] flex-1">
@@ -763,7 +764,7 @@ const WarrantyList: React.FC<{
                   {o.customerPhone && <div className="text-[10px] text-zinc-400">{o.customerPhone}</div>}
                 </Td>
                 <Td>
-                  {o.productLine} · {productTitle(o)}
+                  {productLinesOf(o)} · {itemsTitle(o)}
                 </Td>
                 <Td>{fmtDate(o.completedDate)}</Td>
                 <Td>{fmtDate(o.warrantyEndDate)}</Td>

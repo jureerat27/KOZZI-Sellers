@@ -64,7 +64,7 @@ import {
   saveOrderCloud,
   deleteOrderCloud,
 } from './services/firestoreService';
-import { getOrderOptions, warrantyAlerts, productTitle } from './utils/orders';
+import { getOrderOptions, warrantyAlerts, orderItems, deductedOf, itemsTitle, productLinesOf } from './utils/orders';
 import { subscribeAuthState, logOut, User } from './services/authService';
 import { Loader2, ShoppingBag, Lock } from 'lucide-react';
 
@@ -662,18 +662,39 @@ export default function App() {
     const prev = orders.find((o) => o.id === incoming.id);
     const confirmed =
       !incoming.cancelled && ((incoming.payments || []).length > 0 || !!incoming.awaitingShopeePayout);
-    const target = confirmed && incoming.productId ? { id: incoming.productId, qty: incoming.quantity } : null;
-    const before = prev?.stockDeducted && prev.productId ? { id: prev.productId, qty: prev.quantity } : null;
+    // รวมจำนวนต่อสินค้าในคลัง (1 ออเดอร์มีได้หลายแถว)
+    const sum = (list: { id: string; qty: number }[]) => {
+      const m = new Map<string, number>();
+      list.forEach((x) => m.set(x.id, (m.get(x.id) || 0) + x.qty));
+      return Array.from(m, ([id, qty]) => ({ id, qty }));
+    };
+    const target = confirmed
+      ? sum(
+          orderItems(incoming)
+            .filter((i) => i.productId)
+            .map((i) => ({ id: i.productId as string, qty: Math.max(1, Number(i.quantity) || 1) }))
+        )
+      : [];
+    const before = sum(deductedOf(prev));
 
     let nextProducts = products;
-    const same = before && target && before.id === target.id && before.qty === target.qty;
-    if (!same) {
-      if (before) nextProducts = adjustStock(before.id, before.qty, nextProducts);
-      if (target) nextProducts = adjustStock(target.id, -target.qty, nextProducts);
+    const key = (l: { id: string; qty: number }[]) =>
+      l
+        .map((x) => `${x.id}:${x.qty}`)
+        .sort()
+        .join('|');
+    if (key(before) !== key(target)) {
+      before.forEach((b) => (nextProducts = adjustStock(b.id, b.qty, nextProducts)));
+      target.forEach((t) => (nextProducts = adjustStock(t.id, -t.qty, nextProducts)));
       if (nextProducts !== products) setProducts(nextProducts);
     }
 
-    const order: Order = { ...incoming, stockDeducted: !!target, updatedAt: new Date().toISOString() };
+    const order: Order = {
+      ...incoming,
+      stockDeducted: target.length > 0,
+      deductedItems: target,
+      updatedAt: new Date().toISOString(),
+    };
     setOrders((list) => {
       const i = list.findIndex((o) => o.id === order.id);
       return i >= 0 ? list.map((o) => (o.id === order.id ? order : o)) : [order, ...list];
@@ -692,9 +713,9 @@ export default function App() {
   };
 
   const handleDeleteOrder = (order: Order) => {
-    if (order.stockDeducted && order.productId) {
-      setProducts(adjustStock(order.productId, order.quantity, products));
-    }
+    let nextProducts = products;
+    deductedOf(order).forEach((d) => (nextProducts = adjustStock(d.id, d.qty, nextProducts)));
+    if (nextProducts !== products) setProducts(nextProducts);
     setOrders((list) => list.filter((o) => o.id !== order.id));
     deleteOrderCloud(order.id);
   };
@@ -723,7 +744,7 @@ export default function App() {
       pay.type === 'มัดจำ' ? 'DEPOSIT' : pay.type === 'ชำระหน้างาน' ? 'BALANCE' : 'FULL';
     const docNumber = generateDocNumber('RECEIPT', documents);
     const now = new Date().toISOString();
-    const itemName = `${order.productLine} ${productTitle(order)}`.trim();
+    const itemName = `${productLinesOf(order)} ${itemsTitle(order)}`.trim();
     const receipt: SalesDocument = {
       id: `doc-${Date.now()}`,
       docNumber,
@@ -733,7 +754,7 @@ export default function App() {
       customerId: '',
       customerName: order.customerName,
       customerPhone: order.customerPhone || '',
-      customerAddress: order.installArea || '',
+      customerAddress: order.customerAddress || order.installArea || '',
       items: [
         {
           // ไม่ผูก productId: สต็อกถูกตัดไปแล้วตอนยืนยันออเดอร์ ถ้าผูกไว้ระบบเอกสารจะตัดซ้ำ

@@ -178,13 +178,13 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
     if (doc.type === 'RECEIPT') {
       if (doc.paymentStage === 'DEPOSIT') {
         return {
-          titleThai: 'ใบเสร็จรับเงิน (เงินมัดจำ)',
+          titleThai: 'ใบเสร็จรับเงิน',
           titleEnglish: 'RECEIPT',
         };
       }
       if (doc.paymentStage === 'BALANCE') {
         return {
-          titleThai: 'ใบเสร็จรับเงิน (ยอดคงเหลือ)',
+          titleThai: 'ใบเสร็จรับเงิน',
           titleEnglish: 'RECEIPT',
         };
       }

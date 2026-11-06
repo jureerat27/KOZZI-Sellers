@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { AlertTriangle, CheckCircle2, ImagePlus, Loader2, PackagePlus, Trash2 } from 'lucide-react';
-import { FulfillmentType, Order, OrderOptions, OrderPayment, Product, QueueStatus } from '../../types';
+import { AlertTriangle, CheckCircle2, ImagePlus, Loader2, PackagePlus, Plus, Trash2, X } from 'lucide-react';
+import { FulfillmentType, Order, OrderItem, OrderOptions, OrderPayment, Product, QueueStatus } from '../../types';
 import {
   MAX_SITE_PHOTOS,
   TIME_OPTIONS,
   compressImage,
+  deductedOf,
   findStockProduct,
+  orderItems,
   fmtMoney,
   nextOrderNumber,
   todayISO,
@@ -25,6 +27,8 @@ interface Props {
 }
 
 const QUEUE: QueueStatus[] = ['ยังไม่ลงคิว', 'ลงคิวแล้ว', 'เสร็จแล้ว'];
+
+const blankItem = (): OrderItem => ({ productLine: '', model: '', color: '', size: '', quantity: 1, unitPrice: 0 });
 
 function blankOrder(orders: Order[], options: OrderOptions): Order {
   const date = todayISO();
@@ -79,11 +83,24 @@ export const OrderFormModal: React.FC<Props> = ({
   const set = <K extends keyof Order>(k: K, v: Order[K]) => setF((p) => ({ ...p, [k]: v }));
 
   const isShopee = f.channel.toLowerCase().includes('shopee');
-  const matched = useMemo(() => findStockProduct(products, f), [products, f.model, f.color, f.size]);
-  // สต็อกที่ใช้ได้ = คงเหลือ + จำนวนที่ออเดอร์นี้ตัดไปแล้ว (กรณีแก้ไข)
-  const available = matched
-    ? matched.stock + (order?.stockDeducted && order.productId === matched.id ? order.quantity : 0)
-    : 0;
+
+  // รายการสินค้า (หลายรุ่น/หลายสีได้) · ยอดรวมคำนวณอัตโนมัติจาก จำนวน × ราคาต่อชิ้น
+  const [items, setItems] = useState<OrderItem[]>(() => (order ? orderItems(order).map((i) => ({ ...i })) : [blankItem()]));
+  const setItem = (idx: number, patch: Partial<OrderItem>) =>
+    setItems((list) => list.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
+  const lineTotal = (i: OrderItem) => (Math.max(0, Number(i.quantity) || 0) * Math.max(0, Number(i.unitPrice) || 0));
+  const total = items.reduce((s, i) => s + lineTotal(i), 0);
+  const totalQty = items.reduce((s, i) => s + (Number(i.quantity) || 0), 0);
+  const matchedList = useMemo(() => items.map((i) => findStockProduct(products, i)), [products, items]);
+  // สต็อกที่ใช้ได้ = คงเหลือ + จำนวนที่ออเดอร์นี้ตัดไปแล้ว (กรณีแก้ไข) − จำนวนที่แถวก่อนหน้าในออเดอร์เดียวกันใช้ไป
+  const prevDeducted = deductedOf(order);
+  const availableFor = (idx: number) => {
+    const m = matchedList[idx];
+    if (!m) return 0;
+    const back = prevDeducted.filter((d) => d.id === m.id).reduce((s, d) => s + d.qty, 0);
+    const usedBefore = items.slice(0, idx).reduce((s, it, j) => s + (matchedList[j]?.id === m.id ? Number(it.quantity) || 0 : 0), 0);
+    return m.stock + back - usedBefore;
+  };
 
   const changeDate = (d: string) => {
     setF((p) => ({ ...p, orderDate: d, orderNumber: isNew && !numberTouched ? nextOrderNumber(orders, d, options) : p.orderNumber }));
@@ -122,21 +139,21 @@ export const OrderFormModal: React.FC<Props> = ({
     }
   };
 
-  const createStockItem = () => {
+  const createStockItem = (it: OrderItem) => {
     const p: Product = {
       id: `prod-${Date.now()}`,
-      sku: `${f.model}-${f.color}-${f.size}`.replace(/\s+/g, ''),
-      name: `${f.model} ${f.color} ${f.size}`,
-      category: f.productLine || 'ราวตากผ้า',
-      price: Number(f.price) || 0,
-      costPrice: Number(f.costPrice) || 0,
+      sku: `${it.model}-${it.color}-${it.size}`.replace(/\s+/g, ''),
+      name: `${it.model} ${it.color} ${it.size}`,
+      category: it.productLine || 'ราวตากผ้า',
+      price: Number(it.unitPrice) || 0,
+      costPrice: 0,
       stock: 0,
       minStock: 1,
       unit: 'ชุด',
-      productLine: f.productLine || undefined,
-      model: f.model,
-      color: f.color,
-      size: f.size,
+      productLine: it.productLine || undefined,
+      model: it.model,
+      color: it.color,
+      size: it.size,
       updatedAt: new Date().toISOString(),
     };
     onCreateStockProduct(p);
@@ -146,10 +163,16 @@ export const OrderFormModal: React.FC<Props> = ({
     setError('');
     const missing = [
       !f.customerName.trim() && 'ชื่อลูกค้า',
-      !f.productLine && 'รุ่น',
-      !f.model && 'MODEL',
-      !f.color && 'สี',
-      !f.size && 'ขนาด',
+      ...items.flatMap((it, i) => {
+        const n = items.length > 1 ? ` (สินค้าแถวที่ ${i + 1})` : '';
+        return [
+          !it.productLine && `รุ่น${n}`,
+          !it.model && `MODEL${n}`,
+          !it.color && `สี${n}`,
+          !it.size && `ขนาด${n}`,
+          !(Number(it.quantity) >= 1) && `จำนวน${n}`,
+        ];
+      }),
     ].filter(Boolean);
     if (missing.length) {
       setError(`กรุณากรอก: ${missing.join(', ')}`);
@@ -170,7 +193,7 @@ export const OrderFormModal: React.FC<Props> = ({
 
     let payments: OrderPayment[] = f.payments || [];
     if (isNew && takeDeposit && Number(depositAmount) > 0) {
-      const full = Number(f.price) > 0 && Number(depositAmount) >= Number(f.price);
+      const full = total > 0 && Number(depositAmount) >= total;
       payments = [
         {
           id: `pay-${Date.now()}`,
@@ -182,16 +205,35 @@ export const OrderFormModal: React.FC<Props> = ({
       ];
     }
 
-    const years = warrantyYearsFor(f, options);
-    const saved: Order = {
+    const cleanItems: OrderItem[] = items.map((it, i) => ({
+      productLine: it.productLine,
+      model: it.model,
+      color: it.color,
+      size: it.size,
+      quantity: Math.max(1, Number(it.quantity) || 1),
+      unitPrice: Math.max(0, Number(it.unitPrice) || 0),
+      ...(matchedList[i]?.id ? { productId: matchedList[i]!.id } : {}),
+    }));
+    const first = cleanItems[0];
+    const withItems: Order = {
       ...f,
+      items: cleanItems,
+      // ช่องหลักเก็บสินค้าแถวแรก + จำนวน/ยอดรวม เพื่อให้ส่วนอื่นของระบบทำงานเหมือนเดิม
+      productLine: first.productLine,
+      model: first.model,
+      color: first.color,
+      size: first.size,
+      quantity: cleanItems.reduce((s, i) => s + i.quantity, 0),
+      price: total,
+      productId: first.productId,
+    };
+    const years = warrantyYearsFor(withItems, options);
+    const saved: Order = {
+      ...withItems,
       orderNumber: f.orderNumber.trim(),
       customerName: f.customerName.trim(),
-      quantity: Math.max(1, Number(f.quantity) || 1),
-      price: Number(f.price) || 0,
       costPrice: Number(f.costPrice) || 0,
       payments,
-      productId: matched?.id,
       queueStatus: f.queueStatus === 'ยังไม่ลงคิว' && f.scheduledDate ? 'ลงคิวแล้ว' : f.queueStatus,
       warrantyEndDate: f.completedDate && years > 0 ? warrantyEndFrom(f.completedDate, years) : undefined,
     };
@@ -255,65 +297,125 @@ export const OrderFormModal: React.FC<Props> = ({
           <Field label="เบอร์โทร">
             <input className={inputCls} value={f.customerPhone || ''} onChange={(e) => set('customerPhone', e.target.value)} />
           </Field>
-        </div>
-      </Section>
-
-      <Section title="2. สินค้า">
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <Field label="รุ่น" required>
-            <Select value={f.productLine} onChange={(v) => set('productLine', v)} options={options.productLines.map((l) => l.name)} />
-          </Field>
-          <Field label="MODEL" required>
-            <Select value={f.model} onChange={(v) => set('model', v)} options={options.models} />
-          </Field>
-          <Field label="สี" required>
-            <Select value={f.color} onChange={(v) => set('color', v)} options={options.colors} />
-          </Field>
-          <Field label="ขนาด" required>
-            <Select value={f.size} onChange={(v) => set('size', v)} options={options.sizes} />
-          </Field>
-          <Field label="จำนวน">
-            <input
-              type="number"
-              min={1}
+          <Field label="ที่อยู่ลูกค้า" className="sm:col-span-3" hint="ใช้ในใบเสร็จและใบรับประกัน">
+            <textarea
+              rows={2}
               className={inputCls}
-              value={f.quantity}
-              onChange={(e) => set('quantity', Number(e.target.value))}
+              value={f.customerAddress || ''}
+              onChange={(e) => set('customerAddress', e.target.value)}
+              placeholder="บ้านเลขที่ หมู่บ้าน/คอนโด ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด รหัสไปรษณีย์"
             />
           </Field>
         </div>
-        {f.model && f.color && f.size && (
-          <div className="mt-3 text-xs">
-            {matched ? (
-              <div
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
-                  available >= f.quantity ? 'bg-zinc-50 border-zinc-200 text-zinc-700' : 'bg-amber-50 border-amber-200 text-amber-800'
-                }`}
-              >
-                {available >= f.quantity ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
-                <span>
-                  ในคลัง: <b>{matched.name}</b> คงเหลือ {available} {matched.unit}
-                  {available < f.quantity && ' — สต็อกไม่พอ (บันทึกได้ แต่สต็อกจะเหลือ 0)'}
-                  {willDeduct ? ' · จะตัดสต็อกเมื่อบันทึก' : ' · ยังไม่ตัดสต็อกจนกว่าจะรับเงิน'}
-                </span>
+      </Section>
+
+      <Section
+        title="2. สินค้า"
+        action={
+          <button type="button" className={btn.small} onClick={() => setItems((l) => [...l, blankItem()])}>
+            <Plus className="w-3.5 h-3.5" /> เพิ่มสินค้า
+          </button>
+        }
+      >
+        <div className="space-y-3">
+          {items.map((it, idx) => {
+            const m = matchedList[idx];
+            const avail = availableFor(idx);
+            const qty = Number(it.quantity) || 0;
+            return (
+              <div key={idx} className={items.length > 1 ? 'rounded-lg border border-zinc-200 p-3' : ''}>
+                {items.length > 1 && (
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-zinc-700">สินค้าแถวที่ {idx + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => setItems((l) => l.filter((_, i) => i !== idx))}
+                      className="p-1 rounded text-zinc-400 hover:text-rose-600 hover:bg-rose-50"
+                      aria-label={`ลบสินค้าแถวที่ ${idx + 1}`}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <Field label="รุ่น" required>
+                    <Select value={it.productLine} onChange={(v) => setItem(idx, { productLine: v })} options={options.productLines.map((l) => l.name)} />
+                  </Field>
+                  <Field label="MODEL" required>
+                    <Select value={it.model} onChange={(v) => setItem(idx, { model: v })} options={options.models} />
+                  </Field>
+                  <Field label="สี" required>
+                    <Select value={it.color} onChange={(v) => setItem(idx, { color: v })} options={options.colors} />
+                  </Field>
+                  <Field label="ขนาด" required>
+                    <Select value={it.size} onChange={(v) => setItem(idx, { size: v })} options={options.sizes} />
+                  </Field>
+                </div>
+                <div className="grid grid-cols-3 gap-3 mt-3">
+                  <Field label="จำนวน">
+                    <input
+                      type="number"
+                      min={1}
+                      className={inputCls}
+                      value={it.quantity}
+                      onChange={(e) => setItem(idx, { quantity: Number(e.target.value) })}
+                    />
+                  </Field>
+                  <Field label="ราคาต่อชิ้น (บาท)">
+                    <input
+                      type="number"
+                      min={0}
+                      className={inputCls}
+                      value={it.unitPrice}
+                      onChange={(e) => setItem(idx, { unitPrice: Number(e.target.value) })}
+                    />
+                  </Field>
+                  <Field label="รวม (บาท)">
+                    <div className={`${inputCls} bg-zinc-50 font-semibold text-zinc-900`}>{fmtMoney(lineTotal(it))}</div>
+                  </Field>
+                </div>
+                {it.model && it.color && it.size && (
+                  <div className="mt-2 text-xs">
+                    {m ? (
+                      <div
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
+                          avail >= qty ? 'bg-zinc-50 border-zinc-200 text-zinc-700' : 'bg-amber-50 border-amber-200 text-amber-800'
+                        }`}
+                      >
+                        {avail >= qty ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
+                        <span>
+                          ในคลัง: <b>{m.name}</b> คงเหลือ {Math.max(0, avail)} {m.unit}
+                          {avail < qty && ' — สต็อกไม่พอ (บันทึกได้ แต่สต็อกจะเหลือ 0)'}
+                          {willDeduct ? ' · จะตัดสต็อกเมื่อบันทึก' : ' · ยังไม่ตัดสต็อกจนกว่าจะรับเงิน'}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap items-center gap-2 px-3 py-2 rounded-lg border bg-amber-50 border-amber-200 text-amber-800">
+                        <AlertTriangle className="w-4 h-4" />
+                        <span>
+                          ไม่พบ {it.model} · {it.color} · {it.size} ในคลังสินค้า ระบบจะยังไม่ตัดสต็อกให้สินค้านี้
+                        </span>
+                        <button type="button" className={btn.small} onClick={() => createStockItem(it)}>
+                          <PackagePlus className="w-3.5 h-3.5" /> เพิ่มสินค้านี้เข้าคลัง
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="flex flex-wrap items-center gap-2 px-3 py-2 rounded-lg border bg-amber-50 border-amber-200 text-amber-800">
-                <AlertTriangle className="w-4 h-4" />
-                <span>ไม่พบ {f.model} · {f.color} · {f.size} ในคลังสินค้า ระบบจะยังไม่ตัดสต็อกให้ออเดอร์นี้</span>
-                <button type="button" className={btn.small} onClick={createStockItem}>
-                  <PackagePlus className="w-3.5 h-3.5" /> เพิ่มสินค้านี้เข้าคลัง
-                </button>
-              </div>
-            )}
+            );
+          })}
+          <div className="flex items-center justify-end gap-4 pt-1 text-sm">
+            <span className="text-zinc-500">รวม {totalQty} ชิ้น</span>
+            <span className="font-bold text-zinc-900">ยอดรวม ฿{fmtMoney(total)}</span>
           </div>
-        )}
+        </div>
       </Section>
 
       <Section title="3. ราคาและการชำระเงิน">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Field label="ราคาขาย (บาท)">
-            <input type="number" min={0} className={inputCls} value={f.price} onChange={(e) => set('price', Number(e.target.value))} />
+          <Field label="ราคาขายรวม (บาท)" hint="คำนวณอัตโนมัติจากรายการสินค้า">
+            <div className={`${inputCls} bg-zinc-50 font-bold text-zinc-900`}>{fmtMoney(total)}</div>
           </Field>
           <Field label="ต้นทุนสินค้า (บาท)">
             <input
@@ -348,7 +450,7 @@ export const OrderFormModal: React.FC<Props> = ({
             </label>
             {takeDeposit && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <Field label="ยอดมัดจำ (บาท)" hint={f.price > 0 ? `เก็บหน้างานอีก ฿${fmtMoney(Math.max(0, f.price - depositAmount))}` : undefined}>
+                <Field label="ยอดมัดจำ (บาท)" hint={total > 0 ? `เก็บหน้างานอีก ฿${fmtMoney(Math.max(0, total - depositAmount))}` : undefined}>
                   <input
                     type="number"
                     min={0}

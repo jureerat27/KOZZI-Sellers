@@ -1,4 +1,7 @@
 import { Order } from '../types';
+import { orderItems } from './orders';
+
+const uniq = (l: string[]) => Array.from(new Set(l.filter(Boolean))).join(', ');
 import { WARRANTY_TEMPLATE, WARRANTY_TEMPLATE_H, WARRANTY_TEMPLATE_W } from '../assets/warrantyTemplate';
 
 /** วันที่แบบ วว/ดด/ปปปป (ค.ศ.) ตามตัวอย่างใบรับประกัน เช่น 15/06/2026 */
@@ -76,10 +79,11 @@ export function cardDataFromOrder(o: Order, warrantyNumber: string): WarrantyCar
   return {
     warrantyNumber,
     customerName: o.customerName,
-    address: o.installArea || '',
-    model: o.model,
-    color: o.color,
-    size: o.size,
+    address: o.customerAddress || o.installArea || '',
+    // หลายรายการ: รวมค่าที่ไม่ซ้ำกันไว้ในช่องเดียว
+    model: uniq(orderItems(o).map((i) => i.model)),
+    color: uniq(orderItems(o).map((i) => i.color)),
+    size: uniq(orderItems(o).map((i) => i.size)),
     orderDate: o.orderDate,
     deliveryDate: o.fulfillment === 'จัดส่ง' ? o.completedDate : undefined,
     installDate: o.fulfillment === 'ติดตั้ง' ? o.completedDate : undefined,

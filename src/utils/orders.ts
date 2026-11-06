@@ -1,4 +1,4 @@
-import { Order, OrderNumberDateFormat, OrderOptions, Product, SellerProfile } from '../types';
+import { Order, OrderItem, OrderNumberDateFormat, OrderOptions, Product, SellerProfile } from '../types';
 
 export const DEFAULT_ORDER_OPTIONS: OrderOptions = {
   productLines: [
@@ -79,9 +79,52 @@ export function productTitle(o: Pick<Order, 'productLine' | 'model' | 'color' | 
   return [o.model, o.color, o.size].filter(Boolean).join(' · ');
 }
 
+/** รายการสินค้าของออเดอร์ (ออเดอร์เก่าที่มีสินค้าแถวเดียวจะแปลงเป็นรายการ 1 แถว) */
+export function orderItems(o: Order): OrderItem[] {
+  if (o.items && o.items.length) return o.items;
+  const qty = Math.max(1, Number(o.quantity) || 1);
+  return [
+    {
+      productLine: o.productLine,
+      model: o.model,
+      color: o.color,
+      size: o.size,
+      quantity: qty,
+      unitPrice: Math.round(((Number(o.price) || 0) / qty) * 100) / 100,
+      productId: o.productId,
+    },
+  ];
+}
+
+/** ชื่อสินค้าทั้งหมดในออเดอร์ เช่น "G06 · สีดำ · 1.5 เมตร ×1, G03 · สีขาว · 1.5 เมตร ×2" */
+export function itemsTitle(o: Order): string {
+  const items = orderItems(o);
+  return items
+    .map((i) => `${productTitle(i)}${items.length > 1 || i.quantity > 1 ? ` ×${i.quantity}` : ''}`)
+    .join(', ');
+}
+
+/** รุ่นทั้งหมดในออเดอร์ (ไม่ซ้ำ) */
+export function productLinesOf(o: Order): string {
+  return Array.from(new Set(orderItems(o).map((i) => i.productLine).filter(Boolean))).join(', ');
+}
+
+/** สต็อกที่ออเดอร์นี้ตัดไปแล้ว (รองรับออเดอร์เก่า) */
+export function deductedOf(o?: Order | null): { id: string; qty: number }[] {
+  if (!o || !o.stockDeducted) return [];
+  if (o.deductedItems) return o.deductedItems;
+  return o.productId ? [{ id: o.productId, qty: Number(o.quantity) || 1 }] : [];
+}
+
+/** ปีรับประกัน: ถ้ามีหลายรุ่น ใช้ระยะที่นานที่สุด */
 export function warrantyYearsFor(o: Order, opts: OrderOptions): number {
-  const line = opts.productLines.find((l) => l.name === o.productLine);
-  return line ? Number(line.warrantyYears) || 0 : 0;
+  return Math.max(
+    0,
+    ...orderItems(o).map((i) => {
+      const line = opts.productLines.find((l) => l.name === i.productLine);
+      return line ? Number(line.warrantyYears) || 0 : 0;
+    })
+  );
 }
 
 export function addYears(iso: string, years: number): string {

@@ -9,6 +9,8 @@ import {
   paidTotal,
   paymentState,
   productTitle,
+  orderItems,
+  productLinesOf,
   todayISO,
   warrantyState,
   warrantyEndFrom,
@@ -213,9 +215,18 @@ export const OrderDetailModal: React.FC<Props> = ({
           <Section title="ลูกค้าและสินค้า">
             <Row label="ลูกค้า">{o.customerName}</Row>
             <Row label="เบอร์โทร">{o.customerPhone}</Row>
-            <Row label="รุ่น">{o.productLine}</Row>
-            <Row label="สินค้า">{productTitle(o)}</Row>
-            <Row label="จำนวน">{o.quantity}</Row>
+            <Row label="ที่อยู่">{o.customerAddress}</Row>
+            <Row label="สินค้า">
+              <div className="space-y-0.5">
+                {orderItems(o).map((it, i) => (
+                  <div key={i}>
+                    {it.productLine} · {productTitle(it)} ×{it.quantity}
+                    {it.unitPrice > 0 && <span className="text-zinc-500"> · ฿{fmtMoney(it.unitPrice * it.quantity)}</span>}
+                  </div>
+                ))}
+              </div>
+            </Row>
+            <Row label="จำนวนรวม">{o.quantity}</Row>
             <Row label="สต็อก">
               {o.stockDeducted ? (
                 <Badge tone="green">ตัดสต็อกแล้ว</Badge>
@@ -393,7 +404,7 @@ export const OrderDetailModal: React.FC<Props> = ({
             <div className="flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-zinc-700 mt-0.5 shrink-0" />
               <div className="text-sm text-zinc-700 flex-1">
-                {years > 0 ? `${o.productLine} รับประกัน ${years} ปี` : 'ยังไม่ได้ตั้งระยะประกันของรุ่นนี้'}
+                {years > 0 ? `${productLinesOf(o)} รับประกัน ${years} ปี` : 'ยังไม่ได้ตั้งระยะประกันของรุ่นนี้'}
                 <div className="mt-1">
                   {o.warrantyEndDate ? (
                     <span className="flex flex-wrap items-center gap-2">
