@@ -62,7 +62,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
       {/* Top Header Section */}
       <div className={`flex flex-row justify-between items-start ${compact ? 'gap-2' : 'gap-4'}`}>
         {/* Left Side: Logo + Store Name on Top, and Lines starting from the Far-Left under Logo */}
-        <div className={`flex-1 min-w-0 ${compact ? 'space-y-1' : 'space-y-1.5'}`}>
+        <div className={`flex-1 min-w-0 ${compact ? 'space-y-0.5' : 'space-y-1'}`}>
           {/* Row 1: Logo on Left + Store Name on the Right of Logo */}
           <div className={`flex items-center ${compact ? 'gap-2' : 'gap-3'}`}>
             {seller.logoUrl ? (
@@ -84,7 +84,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           </div>
 
           {/* Details below Logo: Address, Phone, Email, and optionally Entrepreneur/Tax ID for Payment Voucher & Receipt */}
-          <div className={`space-y-0.5 ${compact ? 'text-xs leading-snug pt-1' : 'text-xs text-zinc-600 pt-1'}`}>
+          <div className={`space-y-0.5 ${compact ? 'text-xs leading-snug' : 'text-xs text-zinc-600'}`}>
             {shouldShowTaxAndOwner && (
               <>
                 <p className="font-semibold text-zinc-800">
@@ -100,12 +100,12 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             </p>
             {showPhoneAndEmail && (
               <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 pt-0.5 text-zinc-600">
-                <span className="flex items-center gap-1 font-medium">
+                <span className="inline-flex items-center gap-1 font-medium leading-none">
                   <Phone className={`${compact ? 'w-3 h-3' : 'w-3 h-3'} text-[#18181B] shrink-0`} />
                   <span>{phoneText}</span>
                 </span>
                 <span className="text-zinc-300">|</span>
-                <span className="flex items-center gap-1 font-medium">
+                <span className="inline-flex items-center gap-1 font-medium leading-none">
                   <Mail className={`${compact ? 'w-3 h-3' : 'w-3 h-3'} text-[#18181B] shrink-0`} />
                   <span>{emailText}</span>
                 </span>
@@ -117,7 +117,8 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
         {/* Right Side: Document Title Frame & English Title below */}
         <div className="flex flex-col items-end shrink-0 pl-2">
           {/* Light Blue Box for Title */}
-          <div className={`bg-[#E4E4E7] border border-[#A1A1AA] ${compact ? 'px-4 py-2 min-w-[150px] rounded-lg' : 'px-6 py-2 min-w-[170px] rounded-lg'} text-center`}>
+          {/* กล่องชื่อเอกสาร: สูงเท่าโลโก้ (ขอบบนตรงกัน) ข้อความอยู่กึ่งกลางกล่อง */}
+          <div className={`bg-[#E4E4E7] border border-[#A1A1AA] ${compact ? 'h-11 px-4 min-w-[150px] rounded-lg' : 'h-14 px-6 min-w-[170px] rounded-lg'} flex items-center justify-center text-center`}>
             <h1 className={`${compact ? 'text-base' : 'text-base sm:text-xl'} font-black tracking-wide text-[#18181B] leading-tight`}>
               {titleThai}
             </h1>

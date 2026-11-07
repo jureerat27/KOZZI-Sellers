@@ -748,7 +748,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   {doc.items.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-zinc-50">
+                    <tr key={idx} className="hover:bg-zinc-50 align-top">
                       <td className="py-3 px-3 text-zinc-400 font-medium">{idx + 1}</td>
                       <td className="py-3 px-3 font-semibold text-zinc-800">
                         <div>{item.productName}</div>
@@ -940,8 +940,8 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                   </span>
                 </div>
 
-                {/* Deposit Terms Breakdown on Quotation */}
-                {doc.type === 'QUOTATION' && hasDepositTerms && (
+                {/* Deposit Terms Breakdown on Quotation / Invoice (ใบแจ้งหนี้ที่กำหนดมัดจำ) */}
+                {(doc.type === 'QUOTATION' || (doc.type === 'INVOICE' && doc.paymentStage !== 'DEPOSIT' && doc.paymentStage !== 'BALANCE')) && hasDepositTerms && (
                   <div className="bg-amber-50/80 border border-amber-200 rounded-lg p-2.5 space-y-1.5 mt-2">
                     <div className="text-[11px] font-bold text-amber-900 flex items-center justify-between border-b border-amber-200/80 pb-1">
                       <span>เงื่อนไขการชำระเงิน (มัดจำ & ยอดคงเหลือ):</span>

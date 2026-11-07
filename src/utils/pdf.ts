@@ -21,6 +21,13 @@ export async function exportElementToPdf(
   const orientation = options?.orientation || 'p';
   const marginMm = options?.marginMm !== undefined ? options.marginMm : (format === 'a5' ? 5 : 0);
 
+  // html2canvas วัดตำแหน่งเส้นฐานตัวอักษรด้วย <img> ชั่วคราวใน body แต่ Tailwind ตั้ง img เป็น display:block
+  // ทำให้วัดผิดและตัวหนังสือใน PDF ถูกวาดต่ำกว่าจริง (ไม่อยู่กึ่งกลางกรอบ/ไม่ตรงกับไอคอน)
+  // แก้โดยให้ img ในกล่องวัดของ html2canvas (div ที่ซ่อนไว้ใต้ body) เป็น inline ระหว่างสร้าง PDF เท่านั้น
+  const metricsFix = document.createElement('style');
+  metricsFix.textContent = 'body > div[style*="visibility: hidden"] > img { display: inline !important; }';
+  document.head.appendChild(metricsFix);
+
   try {
     const canvas = await html2canvas(element, {
       scale: 2.5, // Crisp high resolution
@@ -152,6 +159,9 @@ export async function exportElementToPdf(
     console.error('Failed to generate PDF:', error);
     // Fallback to isolated print
     printElementIsolated(elementId, filename, format);
+  }
+  finally {
+    metricsFix.remove();
   }
 }
 
