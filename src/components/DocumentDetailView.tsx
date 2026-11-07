@@ -142,12 +142,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   useEffect(() => {
     setCustomNotes(doc.notes || getDefaultNoteForDocType(doc.type, doc.paymentStage));
     setSlipUrl(doc.paymentSlipUrl || '');
-    if (doc.type !== 'RECEIPT' && seller.promptPayNumber) {
-      generatePromptPayQRDataUrl(seller.promptPayNumber, doc.grandTotal)
-        .then((url) => setQrCodeDataUrl(url))
-        .catch((err) => console.error(err));
-    }
-  }, [doc, seller.promptPayNumber]);
+  }, [doc]);
 
   // Determine Titles for Shared Document Header
   const getDocDisplayTitles = () => {
@@ -247,6 +242,24 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
       : (rootQuotation?.balanceAmount !== undefined
           ? rootQuotation.balanceAmount
           : Math.max(0, (rootQuotation?.grandTotal || doc.grandTotal) - depositAmount));
+
+  // ยอดเงินใน QR พร้อมเพย์: ใบแจ้งหนี้ที่ตั้งมัดจำไว้ ใช้ยอดมัดจำ (ถ้ารับมัดจำแล้ว ใช้ยอดคงเหลือ) ใบอื่นใช้ยอดเต็ม
+  const qrInfo = (() => {
+    const isDepositInvoice =
+      doc.type === 'INVOICE' && hasDepositTerms && doc.paymentStage !== 'DEPOSIT' && doc.paymentStage !== 'BALANCE' && depositAmount > 0;
+    if (isDepositInvoice && doc.status === 'DEPOSIT_PAID') return { amount: balanceAmount, label: 'ยอดคงเหลือ' };
+    if (isDepositInvoice)
+      return { amount: depositAmount, label: `เงินมัดจำ${doc.depositPercent ? ` ${doc.depositPercent}%` : ''}` };
+    return { amount: doc.grandTotal, label: '' };
+  })();
+
+  useEffect(() => {
+    if (doc.type !== 'RECEIPT' && seller.promptPayNumber) {
+      generatePromptPayQRDataUrl(seller.promptPayNumber, qrInfo.amount)
+        .then((url) => setQrCodeDataUrl(url))
+        .catch((err) => console.error(err));
+    }
+  }, [doc.type, seller.promptPayNumber, qrInfo.amount]);
 
   // PDF Export
   const handleDownloadPdf = async () => {
@@ -803,6 +816,11 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                       <p className="text-zinc-700 font-semibold">
                         เลขพร้อมเพย์: {seller.promptPayNumber}
                       </p>
+                      {qrInfo.label && (
+                        <p className="text-amber-800 font-bold">
+                          ยอดใน QR: ฿{formatCurrency(qrInfo.amount)} ({qrInfo.label})
+                        </p>
+                      )}
                       <p className="text-zinc-600">ชื่อบัญชี: {seller.bankAccountName || seller.name}</p>
                       {seller.bankName && (
                         <p className="text-zinc-500 text-[11px]">
