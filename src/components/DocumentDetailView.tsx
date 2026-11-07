@@ -753,7 +753,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                       <td className="py-3 px-3 font-semibold text-zinc-800">
                         <div>{item.productName}</div>
                         {item.description ? (
-                          <div className="text-[11px] text-zinc-500 font-normal mt-0.5 leading-snug">
+                          <div className="text-[11px] text-zinc-500 font-normal mt-0.5 leading-snug whitespace-pre-line">
                             {item.description}
                           </div>
                         ) : null}
