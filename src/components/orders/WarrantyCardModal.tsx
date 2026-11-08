@@ -4,6 +4,7 @@ import { Order } from '../../types';
 import { cardDataFromOrder, nextWarrantyNumber, renderWarrantyCard } from '../../utils/warrantyCard';
 import { notify } from '../AppNotifier';
 import { Modal, btn } from './ui';
+import { docFileName } from '../../utils/pdf';
 
 interface Props {
   order: Order;
@@ -52,8 +53,8 @@ export const WarrantyCardModal: React.FC<Props> = ({ order, orders, onSave, onCl
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ชื่อไฟล์ภาษาอังกฤษ (บางเบราว์เซอร์ไม่รับชื่อไฟล์ภาษาไทย)
-  const fileName = `KOZZI-Warranty_${number || order.orderNumber}.jpg`.replace(/[^A-Za-z0-9_.-]/g, '');
+  // ชื่อไฟล์: เลขใบรับประกัน_ชื่อลูกค้า
+  const fileName = `${docFileName(number || order.orderNumber, order.customerName)}.jpg`;
 
   const download = () => {
     const url = URL.createObjectURL(dataUrlToBlob(img));

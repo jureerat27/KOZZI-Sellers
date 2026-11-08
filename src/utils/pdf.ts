@@ -165,6 +165,16 @@ export async function exportElementToPdf(
   }
 }
 
+/** ชื่อไฟล์เอกสาร: "เลขที่เอกสาร_ชื่อ" (ตัดอักขระที่ใช้ในชื่อไฟล์ไม่ได้ออก) */
+export function docFileName(docNumber: string, name?: string): string {
+  const clean = (s?: string) =>
+    (s || '')
+      .replace(/[\\/:*?"<>|\r\n\t]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  return [clean(docNumber), clean(name)].filter(Boolean).join('_') || 'document';
+}
+
 export function printDocument(): void {
   window.print();
 }
@@ -173,12 +183,15 @@ export function printDocument(): void {
  * พิมพ์เฉพาะเอกสาร: คัดลอกเอกสารไปไว้ใต้ body แล้วซ่อนหน้าแอปทั้งหมด (display:none) ระหว่างพิมพ์
  * ไม่ให้เนื้อหาที่ซ่อนอยู่ด้านหลังกินพื้นที่จนเกิดหน้าว่างหน้าที่ 2
  */
-export function printOnlyElement(elementId: string): void {
+export function printOnlyElement(elementId: string, fileTitle?: string): void {
   const el = document.getElementById(elementId);
   if (!el) {
     window.print();
     return;
   }
+  // ชื่อไฟล์ตอน "บันทึกเป็น PDF" จากหน้าพิมพ์ = document.title
+  const prevTitle = document.title;
+  if (fileTitle) document.title = fileTitle;
   const holder = document.createElement('div');
   holder.id = 'print-only-holder';
   holder.appendChild(el.cloneNode(true));
@@ -190,6 +203,7 @@ export function printOnlyElement(elementId: string): void {
     done = true;
     document.body.classList.remove('printing-only-doc');
     holder.remove();
+    document.title = prevTitle;
     window.removeEventListener('afterprint', cleanup);
   };
   window.addEventListener('afterprint', cleanup);

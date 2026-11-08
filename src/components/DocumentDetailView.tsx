@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { PaymentRecord, PaymentStage, SalesDocument, SellerProfile } from '../types';
 import { generatePromptPayQRDataUrl } from '../utils/promptpay';
-import { exportElementToPdf, printOnlyElement } from '../utils/pdf';
+import { docFileName, exportElementToPdf, printOnlyElement } from '../utils/pdf';
 import { formatDocumentForLine } from '../utils/line';
 import { formatCurrency, formatDate } from '../utils/format';
 import { DatePicker } from './DatePicker';
@@ -265,7 +265,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   const handleDownloadPdf = async () => {
     setIsExporting(true);
     try {
-      await exportElementToPdf('printable-document-container', `${doc.docNumber}`);
+      await exportElementToPdf('printable-document-container', docFileName(doc.docNumber, doc.customerName));
     } catch (e) {
       console.error(e);
     } finally {
@@ -473,7 +473,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             </button>
 
             <button
-              onClick={() => printOnlyElement('printable-document-container')}
+              onClick={() => printOnlyElement('printable-document-container', docFileName(doc.docNumber, doc.customerName))}
               className="px-3 py-1.5 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-semibold rounded-lg border border-zinc-300 flex items-center gap-1.5"
             >
               <Printer className="w-3.5 h-3.5" />

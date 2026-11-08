@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Expense, ExpenseCategory, ExpenseStatus, SellerProfile } from '../types';
 import { formatCurrency, formatDate, bahtText } from '../utils/format';
-import { exportElementToPdf, printElementIsolated } from '../utils/pdf';
+import { exportElementToPdf, printElementIsolated, docFileName } from '../utils/pdf';
 import { DocumentHeader } from './DocumentHeader';
 
 interface PaymentVoucherDetailViewProps {
@@ -75,7 +75,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
   const handlePrint = () => {
     printElementIsolated(
       'payment-voucher-container',
-      `ใบสำคัญจ่าย_${expense.voucherNumber || expense.id}`,
+      docFileName(expense.voucherNumber || expense.id, expense.recipient),
       'a5'
     );
   };
@@ -83,7 +83,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
   const handleDownloadPdf = async () => {
     try {
       setIsExporting(true);
-      const filename = `Payment_Voucher_${expense.voucherNumber || expense.id}`;
+      const filename = docFileName(expense.voucherNumber || expense.id, expense.recipient);
       await exportElementToPdf('payment-voucher-container', filename, {
         format: 'a5',
         orientation: 'p',
@@ -93,7 +93,7 @@ export const PaymentVoucherDetailView: React.FC<PaymentVoucherDetailViewProps> =
       console.error('Error generating PDF:', err);
       printElementIsolated(
         'payment-voucher-container',
-        `ใบสำคัญจ่าย_${expense.voucherNumber || expense.id}`,
+        docFileName(expense.voucherNumber || expense.id, expense.recipient),
         'a5'
       );
     } finally {
