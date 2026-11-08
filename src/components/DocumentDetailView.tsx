@@ -680,7 +680,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               </div>
 
               {/* Box 2: Document Metadata & Status */}
-              <div className="w-full sm:w-[260px] print:w-[260px] shrink-0 bg-zinc-50 border border-zinc-200 rounded-lg p-4 flex flex-col justify-between text-xs space-y-2">
+              <div className="w-full sm:w-[260px] print:w-[260px] shrink-0 bg-zinc-50 border border-zinc-200 rounded-lg p-4 text-xs">
                 <div className="space-y-1.5">
                   <div className="flex items-baseline justify-between gap-2 border-b border-zinc-200 pb-1.5">
                     <span className="font-semibold text-zinc-500">เลขที่เอกสาร:</span>
@@ -710,40 +710,6 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                   )}
                 </div>
 
-                <div className="pt-2 border-t border-zinc-200 flex flex-col items-center justify-center">
-                  <span
-                    className={`text-xs font-bold px-3 py-1 rounded-full border inline-flex items-center gap-1 shadow-2xs ${
-                      doc.status === 'PAID'
-                        ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                        : doc.status === 'DEPOSIT_PAID'
-                        ? 'bg-zinc-100 text-zinc-950 border-zinc-300'
-                        : doc.status === 'PENDING_DEPOSIT'
-                        ? 'bg-amber-100 text-amber-800 border-amber-300'
-                        : doc.status === 'SENT' || doc.status === 'APPROVED'
-                        ? 'bg-zinc-100 text-zinc-950 border-zinc-300'
-                        : 'bg-zinc-200 text-zinc-800 border-zinc-300'
-                    }`}
-                  >
-                    {doc.status === 'PAID'
-                      ? '✓ ชำระเงินเรียบร้อยแล้ว'
-                      : doc.status === 'DEPOSIT_PAID'
-                      ? '✓ ชำระเงินมัดจำแล้ว'
-                      : doc.status === 'PENDING_DEPOSIT'
-                      ? '⏳ รอมัดจำ'
-                      : doc.status === 'SENT'
-                      ? 'รอชำระเงิน'
-                      : doc.status}
-                  </span>
-                  {hasDepositTerms && (
-                    <span className="text-[10px] text-zinc-500 mt-1 font-medium text-center">
-                      {doc.paymentStage === 'DEPOSIT'
-                        ? `(งวดที่ 1: เงินมัดจำ ฿${formatCurrency(depositAmount)})`
-                        : doc.paymentStage === 'BALANCE'
-                        ? `(งวดที่ 2: ยอดคงเหลือ ฿${formatCurrency(balanceAmount)})`
-                        : '(มีเงื่อนไขแบ่งจ่ายมัดจำ)'}
-                    </span>
-                  )}
-                </div>
               </div>
             </div>
 
@@ -787,6 +753,12 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                       </td>
                     </tr>
                   ))}
+                </tbody>
+                {/* บรรทัดว่างประมาณ 5 บรรทัด ใต้รายการสินค้า */}
+                <tbody aria-hidden="true">
+                  <tr>
+                    <td colSpan={5} className="h-20 p-0" />
+                  </tr>
                 </tbody>
               </table>
             </div>
