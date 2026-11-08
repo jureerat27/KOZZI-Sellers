@@ -382,23 +382,23 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
       : rootQuotation?.paymentRecords || [];
 
   return (
-    <div className="fixed inset-0 z-50 bg-zinc-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:bg-transparent print:p-0 print:m-0 print:overflow-visible print:block">
-      <div className="bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-xl w-full max-w-4xl max-h-[95vh] flex flex-col shadow-2xl overflow-hidden my-auto print:bg-transparent print:border-none print:shadow-none print:max-w-full print:max-h-none print:p-0 print:m-0 print:overflow-visible">
+    <div className="fixed inset-0 z-50 bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:bg-transparent print:p-0 print:m-0 print:overflow-visible print:block">
+      <div className="bg-white border border-zinc-200 text-zinc-800 rounded-xl w-full max-w-4xl max-h-[95vh] flex flex-col shadow-2xl overflow-hidden my-auto print:bg-transparent print:border-none print:shadow-none print:max-w-full print:max-h-none print:p-0 print:m-0 print:overflow-visible">
         {/* Top Header Actions */}
-        <div className="px-5 py-3 border-b border-zinc-800 bg-zinc-900 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-20 no-print">
+        <div className="px-5 py-3 border-b border-zinc-200 bg-white flex flex-wrap items-center justify-between gap-2 sticky top-0 z-20 no-print">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-bold text-sm text-zinc-100">{doc.docNumber}</span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800">
+            <span className="font-bold text-sm text-zinc-900">{doc.docNumber}</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
               {doc.type}
             </span>
             {doc.paymentStage && (
               <span
                 className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
                   doc.paymentStage === 'DEPOSIT'
-                    ? 'bg-amber-950 text-amber-300 border-amber-800'
+                    ? 'bg-amber-50 text-amber-700 border-amber-200'
                     : doc.paymentStage === 'BALANCE'
-                    ? 'bg-white text-zinc-300 border-zinc-950'
-                    : 'bg-zinc-800 text-zinc-300 border-zinc-700'
+                    ? 'bg-[#EAF1FF] text-[#003BB3] border-[#BFD3FF]'
+                    : 'bg-zinc-100 text-zinc-700 border-zinc-200'
                 }`}
               >
                 {doc.paymentStage === 'DEPOSIT'
@@ -411,14 +411,14 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             <span
               className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                 doc.status === 'PAID'
-                  ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                   : doc.status === 'DEPOSIT_PAID'
-                  ? 'bg-white text-zinc-300 border-zinc-950'
+                  ? 'bg-[#EAF1FF] text-[#003BB3] border-[#BFD3FF]'
                   : doc.status === 'PENDING_DEPOSIT'
-                  ? 'bg-amber-950 text-amber-300 border-amber-800'
+                  ? 'bg-amber-50 text-amber-700 border-amber-200'
                   : doc.status === 'PARTIALLY_PAID'
-                  ? 'bg-yellow-950 text-yellow-300 border-yellow-800'
-                  : 'bg-zinc-800 text-zinc-400 border-zinc-700'
+                  ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                  : 'bg-zinc-100 text-zinc-600 border-zinc-200'
               }`}
             >
               {doc.status === 'PAID'
@@ -438,7 +438,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={handleSaveDocumentEdits}
-              className="px-3 py-1.5 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-extrabold rounded-lg flex items-center gap-1.5 shadow transition-all active:scale-95"
+              className="px-3 py-1.5 bg-[#003BB3] hover:bg-[#002E8C] text-white text-xs font-extrabold rounded-lg flex items-center gap-1.5 shadow transition-all active:scale-95"
               title="บันทึกการแก้ไขข้อมูลและการชำระเงิน"
             >
               <span>บันทึกเอกสาร</span>
@@ -447,7 +447,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             {onEditDoc && (
               <button
                 onClick={() => onEditDoc(doc)}
-                className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 text-xs font-bold rounded-lg flex items-center gap-1.5 shadow transition-all active:scale-95"
+                className="px-3 py-1.5 bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-300 text-xs font-bold rounded-lg flex items-center gap-1.5 shadow transition-all active:scale-95"
                 title="แก้ไขข้อมูลเอกสาร"
               >
                 <Edit3 className="w-3.5 h-3.5" />
@@ -457,7 +457,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
 
             <button
               onClick={handleCopyLineText}
-              className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-lg border border-zinc-700 flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-semibold rounded-lg border border-zinc-300 flex items-center gap-1.5"
             >
               <Copy className="w-3.5 h-3.5" />
               <span>{copied ? 'คัดลอกแล้ว!' : 'คัดลอกส่ง LINE'}</span>
@@ -466,7 +466,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             <button
               onClick={handleDownloadPdf}
               disabled={isExporting}
-              className="px-3 py-1.5 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow"
+              className="px-3 py-1.5 bg-[#003BB3] hover:bg-[#002E8C] text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow"
             >
               <Download className="w-3.5 h-3.5" />
               <span>{isExporting ? 'กำลังสร้าง...' : 'PDF'}</span>
@@ -474,7 +474,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
 
             <button
               onClick={printDocument}
-              className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-lg border border-zinc-700 flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-semibold rounded-lg border border-zinc-300 flex items-center gap-1.5"
             >
               <Printer className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">พิมพ์</span>
@@ -483,7 +483,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             {onDeleteDoc && (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="px-3 py-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 hover:text-white border border-rose-800/80 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-all"
+                className="px-3 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-all"
                 title="ลบเอกสารนี้"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -493,7 +493,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
 
             <button
               onClick={onClose}
-              className="p-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-lg"
+              className="p-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 rounded-lg"
             >
               <X className="w-5 h-5" />
             </button>
@@ -502,15 +502,15 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
 
         {/* Linked Documents Flow Banner (Quotation ➔ Deposit Invoice ➔ Receipt ➔ Balance Invoice ➔ Receipt) */}
         {(hasDepositTerms || linkedInvoices.length > 0 || linkedReceipts.length > 0 || doc.type === 'QUOTATION') && (
-          <div className="bg-zinc-950 border-b border-zinc-800 px-5 py-2.5 no-print">
+          <div className="bg-zinc-50 border-b border-zinc-200 px-5 py-2.5 no-print">
             <div className="flex items-center justify-between gap-2 flex-wrap mb-1.5">
-              <span className="text-[11px] font-bold text-zinc-400 flex items-center gap-1.5 uppercase tracking-wider">
-                <Layers className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-[11px] font-bold text-zinc-500 flex items-center gap-1.5 uppercase tracking-wider">
+                <Layers className="w-3.5 h-3.5 text-[#003BB3]" />
                 <span>เส้นทางเอกสารและการชำระเงิน (Document & Payment Pipeline)</span>
               </span>
               {rootQuotation && (
-                <span className="text-[11px] text-zinc-400 font-mono">
-                  อ้างอิง QT: <strong className="text-zinc-200">{rootQuotation.docNumber}</strong> (฿{formatCurrency(rootQuotation.grandTotal)})
+                <span className="text-[11px] text-zinc-500 font-mono">
+                  อ้างอิง QT: <strong className="text-zinc-800">{rootQuotation.docNumber}</strong> (฿{formatCurrency(rootQuotation.grandTotal)})
                 </span>
               )}
             </div>
@@ -524,8 +524,8 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                   onClick={() => onSelectDoc && onSelectDoc(rootQuotation)}
                   className={`px-3 py-1.5 rounded-lg border flex items-center gap-1.5 transition-all shrink-0 ${
                     doc.id === rootQuotation.id
-                      ? 'bg-white text-zinc-950 font-extrabold border-zinc-500 ring-2 ring-zinc-500/40 shadow-sm'
-                      : 'bg-zinc-900 hover:bg-slate-850 text-zinc-300 border-zinc-700 hover:border-zinc-800'
+                      ? 'bg-[#EAF1FF] text-[#003BB3] font-extrabold border-[#003BB3] ring-2 ring-[#003BB3]/20 shadow-sm'
+                      : 'bg-white hover:bg-zinc-100 text-zinc-700 border-zinc-300 hover:border-zinc-400'
                   }`}
                 >
                   <FileText className="w-3.5 h-3.5" />
@@ -534,7 +534,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               )}
 
               {/* Step 2: Deposit Invoice */}
-              <ChevronRight className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               {depositInvoice ? (
                 <button
                   type="button"
@@ -542,89 +542,89 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                   className={`px-3 py-1.5 rounded-lg border flex items-center gap-1.5 transition-all shrink-0 ${
                     doc.id === depositInvoice.id
                       ? 'bg-amber-400 text-zinc-950 font-extrabold border-amber-300 ring-2 ring-amber-400/40 shadow-sm'
-                      : 'bg-zinc-900 hover:bg-slate-850 text-zinc-300 border-zinc-700 hover:border-amber-400'
+                      : 'bg-white hover:bg-zinc-100 text-zinc-700 border-zinc-300 hover:border-amber-400'
                   }`}
                 >
-                  <Receipt className="w-3.5 h-3.5 text-amber-400" />
+                  <Receipt className="w-3.5 h-3.5 text-amber-500" />
                   <span>2. บิลมัดจำ ({depositInvoice.docNumber})</span>
-                  <span className="text-[10px] bg-zinc-950/60 px-1.5 py-0.5 rounded text-amber-300 font-mono font-bold">
+                  <span className="text-[10px] bg-amber-100 px-1.5 py-0.5 rounded text-amber-800 font-mono font-bold">
                     ฿{formatCurrency(depositInvoice.grandTotal)}
                   </span>
                 </button>
               ) : (
-                <div className="px-2.5 py-1 rounded-lg bg-zinc-900/60 border border-dashed border-zinc-800 text-zinc-500 text-[11px] flex items-center gap-1 shrink-0">
+                <div className="px-2.5 py-1 rounded-lg bg-white/60 border border-dashed border-zinc-300 text-zinc-400 text-[11px] flex items-center gap-1 shrink-0">
                   <span>2. บิลมัดจำ (ยังไม่ออก)</span>
                 </div>
               )}
 
               {/* Step 3: Deposit Receipt */}
-              <ChevronRight className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               {depositReceipt ? (
                 <button
                   type="button"
                   onClick={() => onSelectDoc && onSelectDoc(depositReceipt)}
                   className={`px-3 py-1.5 rounded-lg border flex items-center gap-1.5 transition-all shrink-0 ${
                     doc.id === depositReceipt.id
-                      ? 'bg-white text-zinc-950 font-extrabold border-emerald-400 ring-2 ring-emerald-400/40 shadow-sm'
-                      : 'bg-zinc-900 hover:bg-slate-850 text-emerald-400 border-emerald-800/80 hover:border-emerald-500'
+                      ? 'bg-emerald-50 text-emerald-800 font-extrabold border-emerald-500 ring-2 ring-emerald-400/30 shadow-sm'
+                      : 'bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-300 hover:border-emerald-500'
                   }`}
                 >
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                   <span>3. ใบเสร็จมัดจำ ({depositReceipt.docNumber})</span>
-                  <span className="text-[10px] bg-emerald-950 px-1.5 py-0.5 rounded text-emerald-300 font-mono font-bold">
+                  <span className="text-[10px] bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-800 font-mono font-bold">
                     ✓ ฿{formatCurrency(depositReceipt.grandTotal)}
                   </span>
                 </button>
               ) : (
-                <div className="px-2.5 py-1 rounded-lg bg-zinc-900/60 border border-dashed border-zinc-800 text-zinc-500 text-[11px] flex items-center gap-1 shrink-0">
+                <div className="px-2.5 py-1 rounded-lg bg-white/60 border border-dashed border-zinc-300 text-zinc-400 text-[11px] flex items-center gap-1 shrink-0">
                   <span>3. ใบเสร็จมัดจำ (ยังไม่ชำระ)</span>
                 </div>
               )}
 
               {/* Step 4: Balance Invoice */}
-              <ChevronRight className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               {balanceInvoice ? (
                 <button
                   type="button"
                   onClick={() => onSelectDoc && onSelectDoc(balanceInvoice)}
                   className={`px-3 py-1.5 rounded-lg border flex items-center gap-1.5 transition-all shrink-0 ${
                     doc.id === balanceInvoice.id
-                      ? 'bg-white text-zinc-950 font-extrabold border-zinc-300 ring-2 ring-zinc-500/40 shadow-sm'
-                      : 'bg-zinc-900 hover:bg-slate-850 text-zinc-300 border-zinc-700 hover:border-zinc-500'
+                      ? 'bg-[#EAF1FF] text-[#003BB3] font-extrabold border-[#003BB3] ring-2 ring-[#003BB3]/20 shadow-sm'
+                      : 'bg-white hover:bg-zinc-100 text-zinc-700 border-zinc-300 hover:border-zinc-500'
                   }`}
                 >
                   <Receipt className="w-3.5 h-3.5 text-zinc-500" />
                   <span>4. บิลคงเหลือ ({balanceInvoice.docNumber})</span>
-                  <span className="text-[10px] bg-zinc-950/60 px-1.5 py-0.5 rounded text-zinc-300 font-mono font-bold">
+                  <span className="text-[10px] bg-zinc-100 px-1.5 py-0.5 rounded text-zinc-700 font-mono font-bold">
                     ฿{formatCurrency(balanceInvoice.grandTotal)}
                   </span>
                 </button>
               ) : (
-                <div className="px-2.5 py-1 rounded-lg bg-zinc-900/60 border border-dashed border-zinc-800 text-zinc-500 text-[11px] flex items-center gap-1 shrink-0">
+                <div className="px-2.5 py-1 rounded-lg bg-white/60 border border-dashed border-zinc-300 text-zinc-400 text-[11px] flex items-center gap-1 shrink-0">
                   <span>4. บิลคงเหลือ</span>
                 </div>
               )}
 
               {/* Step 5: Balance Receipt */}
-              <ChevronRight className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               {balanceReceipt ? (
                 <button
                   type="button"
                   onClick={() => onSelectDoc && onSelectDoc(balanceReceipt)}
                   className={`px-3 py-1.5 rounded-lg border flex items-center gap-1.5 transition-all shrink-0 ${
                     doc.id === balanceReceipt.id
-                      ? 'bg-white text-zinc-950 font-extrabold border-emerald-300 ring-2 ring-emerald-400/40 shadow-sm'
-                      : 'bg-zinc-900 hover:bg-slate-850 text-emerald-400 border-emerald-800/80 hover:border-emerald-400'
+                      ? 'bg-emerald-50 text-emerald-800 font-extrabold border-emerald-500 ring-2 ring-emerald-400/30 shadow-sm'
+                      : 'bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-300 hover:border-emerald-400'
                   }`}
                 >
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                   <span>5. ใบเสร็จงวดสุดท้าย ({balanceReceipt.docNumber})</span>
-                  <span className="text-[10px] bg-emerald-950 px-1.5 py-0.5 rounded text-emerald-300 font-mono font-bold">
+                  <span className="text-[10px] bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-800 font-mono font-bold">
                     ✓ จบงาน
                   </span>
                 </button>
               ) : (
-                <div className="px-2.5 py-1 rounded-lg bg-zinc-900/60 border border-dashed border-zinc-800 text-zinc-500 text-[11px] flex items-center gap-1 shrink-0">
+                <div className="px-2.5 py-1 rounded-lg bg-white/60 border border-dashed border-zinc-300 text-zinc-400 text-[11px] flex items-center gap-1 shrink-0">
                   <span>5. ใบเสร็จจบงาน</span>
                 </div>
               )}
@@ -633,10 +633,10 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
         )}
 
         {/* Scrollable Document Canvas Container */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-zinc-900 print:bg-white print:p-0 print:m-0 print:overflow-visible">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-zinc-200 print:bg-white print:p-0 print:m-0 print:overflow-visible">
           <div
             id="printable-document-container"
-            className="bg-white text-zinc-900 p-6 sm:p-10 max-w-3xl mx-auto font-sans shadow-md print:shadow-none print:max-w-full print:p-6 print:m-0 print:border-none print:rounded-none space-y-6"
+            className="bg-white text-zinc-900 p-6 sm:p-10 max-w-3xl mx-auto font-sans shadow-lg print:shadow-none print:max-w-full print:p-6 print:m-0 print:border-none print:rounded-none space-y-6"
           >
             {/* 1. SHARED DOCUMENT HEADER */}
             <DocumentHeader
@@ -831,7 +831,12 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                   </div>
                 )}
 
-                {/* Payment History Record in Document */}
+                {/* Payment History Record in Document — แสดงเฉพาะเมื่อมีการชำระเงินจริงแล้ว */}
+                {(allRecordedPayments.length > 0 ||
+                  doc.type === 'RECEIPT' ||
+                  doc.status === 'PAID' ||
+                  doc.status === 'DEPOSIT_PAID' ||
+                  doc.status === 'PARTIALLY_PAID') && (
                 <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-3.5 space-y-2.5">
                   <div className="flex items-center justify-between border-b border-zinc-200 pb-1.5">
                     <span className="text-[11px] font-bold text-zinc-800 uppercase tracking-wider flex items-center gap-1.5">
@@ -917,6 +922,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                     )}
                   </div>
                 </div>
+                )}
               </div>
 
               {/* Grand Total Breakdown */}
@@ -1024,10 +1030,10 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
           </div>
 
           {/* Deposit & Document Action Bar */}
-          <div className="max-w-3xl mx-auto mt-6 bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-4 no-print">
+          <div className="max-w-3xl mx-auto mt-6 bg-white border border-zinc-300 rounded-lg p-4 shadow-sm space-y-4 no-print">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-                <FileCheck className="w-4 h-4 text-emerald-400" />
+              <h4 className="text-xs font-bold text-zinc-700 uppercase tracking-wider flex items-center gap-2">
+                <FileCheck className="w-4 h-4 text-[#003BB3]" />
                 <span>การดำเนินการและการออกเอกสารในระบบ</span>
               </h4>
 
@@ -1042,7 +1048,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                           <button
                             type="button"
                             onClick={() => onCreateDepositInvoice(doc)}
-                            className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 text-xs font-bold rounded-lg flex items-center gap-1 shadow transition-all active:scale-95"
+                            className="px-3 py-1.5 bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-300 text-xs font-bold rounded-lg flex items-center gap-1 shadow transition-all active:scale-95"
                           >
                             <Receipt className="w-3.5 h-3.5" />
                             <span>1. ออกบิลมัดจำ (Deposit Invoice)</span>
@@ -1052,7 +1058,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                         <button
                           type="button"
                           onClick={() => openReceivePaymentModal('DEPOSIT')}
-                          className="px-3.5 py-1.5 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-bold rounded-lg flex items-center gap-1.5 shadow transition-all active:scale-95"
+                          className="px-3.5 py-1.5 bg-[#003BB3] hover:bg-[#002E8C] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow transition-all active:scale-95"
                         >
                           <CreditCard className="w-3.5 h-3.5" />
                           <span>บันทึกรับเงินมัดจำ (฿{formatCurrency(depositAmount)})</span>
@@ -1062,7 +1068,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                           <button
                             type="button"
                             onClick={() => onCreateBalanceInvoice(doc)}
-                            className="px-3 py-1.5 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-bold rounded-lg flex items-center gap-1 shadow transition-all active:scale-95"
+                            className="px-3 py-1.5 bg-[#003BB3] hover:bg-[#002E8C] text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow transition-all active:scale-95"
                           >
                             <Receipt className="w-3.5 h-3.5" />
                             <span>2. ออกบิลคงเหลือ (Balance Invoice)</span>
@@ -1074,7 +1080,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onConvertDoc(doc, 'INVOICE')}
-                          className="px-3.5 py-1.5 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-bold rounded-lg flex items-center gap-1 shadow"
+                          className="px-3.5 py-1.5 bg-[#003BB3] hover:bg-[#002E8C] text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow"
                         >
                           <span>แปลงเป็นใบแจ้งหนี้</span>
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -1082,7 +1088,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                         <button
                           type="button"
                           onClick={() => openReceivePaymentModal('FULL')}
-                          className="px-3.5 py-1.5 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-bold rounded-lg flex items-center gap-1 shadow"
+                          className="px-3.5 py-1.5 bg-[#003BB3] hover:bg-[#002E8C] text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow"
                         >
                           <span>รับชำระ & ออกใบเสร็จ</span>
                           <CheckCircle className="w-3.5 h-3.5" />
@@ -1105,7 +1111,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                           : 'FULL'
                       )
                     }
-                    className="px-4 py-2 bg-white hover:bg-zinc-200 text-zinc-900 text-xs font-extrabold rounded-lg flex items-center gap-1.5 shadow-lg active:scale-95 transition-all"
+                    className="px-4 py-2 bg-[#003BB3] hover:bg-[#002E8C] text-white text-xs font-extrabold rounded-lg flex items-center gap-1.5 shadow-lg active:scale-95 transition-all"
                   >
                     <CheckCircle className="w-4 h-4" />
                     <span>
@@ -1121,9 +1127,9 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             </div>
 
             {/* Slip Uploader and Interactive Edit */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-zinc-800">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-zinc-200">
               <div className="flex items-center gap-3 w-full sm:w-auto">
-                <label className="cursor-pointer px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-emerald-400 text-xs font-semibold rounded-lg border border-zinc-700 flex items-center gap-2 transition-all">
+                <label className="cursor-pointer px-4 py-2 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-300 flex items-center gap-2 transition-all">
                   <Upload className="w-4 h-4" />
                   <span>แนบสลิปชำระเงิน</span>
                   <input
@@ -1149,7 +1155,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               {doc.status !== 'PAID' && (
                 <button
                   onClick={() => onUpdateStatus(doc.id, 'PAID')}
-                  className="px-3.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold rounded-lg border border-zinc-700"
+                  className="px-3.5 py-1.5 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-bold rounded-lg border border-zinc-300"
                 >
                   ตั้งสถานะเป็นชำระแล้ว
                 </button>
