@@ -178,6 +178,11 @@
     break-after: avoid !important;
   }
 
+  /* พิมพ์เฉพาะเอกสาร (printOnlyElement): ซ่อนหน้าแอปทั้งหมด ไม่ให้เกิดหน้าว่าง */
+  body.printing-only-doc > *:not(#print-only-holder) {
+    display: none !important;
+  }
+
   /* Printable receipts document container */
   #printable-document-container,
   #printable-document-container * {

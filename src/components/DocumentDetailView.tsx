@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { PaymentRecord, PaymentStage, SalesDocument, SellerProfile } from '../types';
 import { generatePromptPayQRDataUrl } from '../utils/promptpay';
-import { exportElementToPdf, printDocument } from '../utils/pdf';
+import { exportElementToPdf, printOnlyElement } from '../utils/pdf';
 import { formatDocumentForLine } from '../utils/line';
 import { formatCurrency, formatDate } from '../utils/format';
 import { DatePicker } from './DatePicker';
@@ -473,7 +473,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             </button>
 
             <button
-              onClick={printDocument}
+              onClick={() => printOnlyElement('printable-document-container')}
               className="px-3 py-1.5 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-semibold rounded-lg border border-zinc-300 flex items-center gap-1.5"
             >
               <Printer className="w-3.5 h-3.5" />
@@ -792,11 +792,14 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
             </div>
 
             {/* Summary & PromptPay / Payment Info Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6 pt-4 border-t border-zinc-200">
+            {/* แถวบน: ยอดรวม/ส่วนลด/VAT (ขวา) · แถวล่าง: กล่อง QR (ซ้าย) เริ่มตรงกับกล่องยอดสุทธิ (ขวา) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-x-6 gap-y-2 pt-4 border-t border-zinc-200">
+              <div className="hidden sm:block print:block sm:col-start-1 sm:row-start-1 print:col-start-1 print:row-start-1" />
+
               {/* Payment Info & PromptPay QR */}
-              <div className="space-y-3">
+              <div className="order-1 sm:order-none sm:col-start-1 sm:row-start-2 print:col-start-1 print:row-start-2 flex flex-col gap-3">
                 {doc.type !== 'RECEIPT' && seller.promptPayNumber && (
-                  <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-lg flex items-center gap-4">
+                  <div className="flex-1 p-3 bg-zinc-50 border border-zinc-200 rounded-lg flex items-center gap-4">
                     {qrCodeDataUrl ? (
                       <img
                         src={qrCodeDataUrl}
@@ -926,7 +929,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
               </div>
 
               {/* Grand Total Breakdown */}
-              <div className="space-y-2 text-xs text-zinc-600">
+              <div className="order-2 sm:order-none sm:col-start-2 sm:row-start-1 print:col-start-2 print:row-start-1 space-y-2 text-xs text-zinc-600">
                 <div className="flex justify-between py-1 px-3 border-b border-zinc-100">
                   <span className="font-medium text-zinc-700">รวมเป็นเงินทั้งสิ้น:</span>
                   <span className="font-bold text-zinc-900">{formatCurrency(doc.subtotal)}</span>
@@ -957,7 +960,10 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                   </div>
                 )}
 
-                <div className="flex justify-between py-2 border-t-2 border-zinc-900 text-sm font-black text-zinc-900 bg-zinc-100 px-3 rounded-lg mt-2">
+              </div>
+
+              <div className="order-3 sm:order-none sm:col-start-2 sm:row-start-2 print:col-start-2 print:row-start-2 space-y-2 text-xs text-zinc-600">
+                <div className="flex justify-between py-2 border-t-2 border-zinc-900 text-sm font-black text-zinc-900 bg-zinc-100 px-3 rounded-lg">
                   <span>{doc.type === 'QUOTATION' ? 'มูลค่าโครงการรวมทั้งสิ้น:' : 'จำนวนเงินสุทธิตามเอกสารนี้:'}</span>
                   <span className="text-emerald-700 text-base font-black">
                     {formatCurrency(doc.grandTotal)}
@@ -966,7 +972,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
 
                 {/* Deposit Terms Breakdown on Quotation / Invoice (ใบแจ้งหนี้ที่กำหนดมัดจำ) */}
                 {(doc.type === 'QUOTATION' || (doc.type === 'INVOICE' && doc.paymentStage !== 'DEPOSIT' && doc.paymentStage !== 'BALANCE')) && hasDepositTerms && (
-                  <div className="bg-amber-50/80 border border-amber-200 rounded-lg p-2.5 space-y-1.5 mt-2">
+                  <div className="bg-amber-50/80 border border-amber-200 rounded-lg p-2.5 space-y-1.5">
                     <div className="text-[11px] font-bold text-amber-900 flex items-center justify-between border-b border-amber-200/80 pb-1">
                       <span>เงื่อนไขการชำระเงิน (มัดจำ & ยอดคงเหลือ):</span>
                       <span className="text-[10px] bg-amber-200/60 text-amber-900 px-1.5 py-0.5 rounded font-mono">

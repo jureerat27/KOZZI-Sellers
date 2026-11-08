@@ -170,6 +170,34 @@ export function printDocument(): void {
 }
 
 /**
+ * พิมพ์เฉพาะเอกสาร: คัดลอกเอกสารไปไว้ใต้ body แล้วซ่อนหน้าแอปทั้งหมด (display:none) ระหว่างพิมพ์
+ * ไม่ให้เนื้อหาที่ซ่อนอยู่ด้านหลังกินพื้นที่จนเกิดหน้าว่างหน้าที่ 2
+ */
+export function printOnlyElement(elementId: string): void {
+  const el = document.getElementById(elementId);
+  if (!el) {
+    window.print();
+    return;
+  }
+  const holder = document.createElement('div');
+  holder.id = 'print-only-holder';
+  holder.appendChild(el.cloneNode(true));
+  document.body.appendChild(holder);
+  document.body.classList.add('printing-only-doc');
+  let done = false;
+  const cleanup = () => {
+    if (done) return;
+    done = true;
+    document.body.classList.remove('printing-only-doc');
+    holder.remove();
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(cleanup, 60000);
+  window.print();
+}
+
+/**
  * Cleanly prints a target DOM element in an isolated hidden iframe
  * ensuring no background dashboard or outer layout elements ever leak into the printout,
  * while matching the preview layout and colors 100%.
