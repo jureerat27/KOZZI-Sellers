@@ -64,6 +64,8 @@ import {
   saveOrderCloud,
   deleteOrderCloud,
 } from './services/firestoreService';
+import { ExportKind } from './components/ExportCsvMenu';
+import { customersCsv, documentsCsv, downloadCsv, expensesCsv, ordersCsv, productsCsv } from './utils/exportCsv';
 import { getOrderOptions, warrantyAlerts, orderItems, deductedOf, itemsTitle, productLinesOf } from './utils/orders';
 import { subscribeAuthState, logOut, User } from './services/authService';
 import { Loader2, ShoppingBag, Lock } from 'lucide-react';
@@ -178,56 +180,18 @@ export default function App() {
   const orderOptions = getOrderOptions(seller);
   const warrantyAlertCount = warrantyAlerts(orders, orderOptions).length;
 
-  // Google Sheets Auto / Manual Sync
-  const syncToGoogleSheets = async () => {
-    setSyncLog((prev) => ({ ...prev, status: 'SYNCING', message: 'กำลังซิงก์ข้อมูล...' }));
-    try {
-      const res = await fetch('/api/sheets/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          products,
-          customers,
-          documents,
-          expenses,
-          spreadsheetId: seller.googleSheetId,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        const newLog: SyncLog = {
-          lastSynced: new Date().toISOString(),
-          status: 'SUCCESS',
-          message: 'ซิงก์สำเร็จเรียบร้อยแล้ว',
-          spreadsheetUrl: data.spreadsheetUrl,
-        };
-        setSyncLog(newLog);
-        saveSyncLog(newLog);
-
-        if (data.spreadsheetId && data.spreadsheetId !== seller.googleSheetId) {
-          const updatedSeller = { ...seller, googleSheetId: data.spreadsheetId };
-          setSeller(updatedSeller);
-          saveSellerProfileCloud(updatedSeller);
-        }
-      } else {
-        const errLog: SyncLog = {
-          lastSynced: syncLog.lastSynced,
-          status: 'ERROR',
-          message: data.error || 'การซิงก์ล้มเหลว',
-        };
-        setSyncLog(errLog);
-        saveSyncLog(errLog);
-      }
-    } catch (err: any) {
-      const errLog: SyncLog = {
-        lastSynced: syncLog.lastSynced,
-        status: 'ERROR',
-        message: err?.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
-      };
-      setSyncLog(errLog);
-      saveSyncLog(errLog);
-    }
+  // Export CSV (แทนการซิงก์ Google Sheets)
+  const exportCsv = (kind: ExportKind) => {
+    const map: Record<ExportKind, [string, () => string]> = {
+      orders: ['Orders', () => ordersCsv(orders)],
+      documents: ['Documents', () => documentsCsv(documents)],
+      expenses: ['Expenses', () => expensesCsv(expenses)],
+      products: ['Inventory', () => productsCsv(products)],
+      customers: ['Customers', () => customersCsv(customers)],
+    };
+    // ชื่อไฟล์ภาษาอังกฤษ (บางเบราว์เซอร์ไม่รับชื่อไฟล์ภาษาไทย)
+    const [name, build] = map[kind];
+    downloadCsv(name, build());
   };
 
   // Handlers
@@ -278,11 +242,6 @@ export default function App() {
         const updatedProds = getProducts();
         setProducts(updatedProds);
         saveProductsBatchCloud(updatedProds);
-      }
-
-      // 5. Auto sync to sheets if enabled
-      if (seller.autoSync) {
-        syncToGoogleSheets().catch(console.error);
       }
 
       return result;
@@ -987,12 +946,11 @@ export default function App() {
         {/* Top Header */}
         <Navbar
           seller={seller}
-          syncLog={syncLog}
           isOnline={isOnline}
           activeTab={activeTab}
           onChangeTab={setActiveTab}
           onOpenSettings={() => setIsSettingsOpen(true)}
-          onSyncGoogleSheets={syncToGoogleSheets}
+          onExportCsv={exportCsv}
           lowStockCount={lowStockCount}
           orderAlertCount={warrantyAlertCount}
           onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
@@ -1157,10 +1115,9 @@ export default function App() {
       {isSettingsOpen && (
         <SettingsModal
           seller={seller}
-          syncLog={syncLog}
           onClose={() => setIsSettingsOpen(false)}
           onSaveSeller={handleSaveSeller}
-          onSyncGoogleSheets={syncToGoogleSheets}
+          onExportCsv={exportCsv}
           onExportBackupJson={handleExportBackupJson}
           onImportBackupJson={handleImportBackupJson}
         />

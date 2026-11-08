@@ -4,13 +4,13 @@ import {
   Settings,
   Bell,
   ChevronDown,
-  FileSpreadsheet,
   Search,
   Menu,
   LogOut,
   User as UserIcon,
 } from 'lucide-react';
-import { SellerProfile, SyncLog } from '../types';
+import { SellerProfile } from '../types';
+import { ExportCsvMenu, ExportKind } from './ExportCsvMenu';
 import { User } from 'firebase/auth';
 
 export type TabType = 'dashboard' | 'documents' | 'orders' | 'products' | 'expenses' | 'customers' | 'reports';
@@ -18,12 +18,11 @@ export type ActiveTab = TabType;
 
 interface NavbarProps {
   seller: SellerProfile;
-  syncLog: SyncLog;
   isOnline: boolean;
   activeTab: TabType;
   onChangeTab: (tab: TabType) => void;
   onOpenSettings: () => void;
-  onSyncGoogleSheets: () => void;
+  onExportCsv: (kind: ExportKind) => void;
   lowStockCount: number;
   orderAlertCount?: number;
   onOpenMobileMenu?: () => void;
@@ -32,11 +31,10 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  syncLog,
   isOnline,
   onChangeTab,
   onOpenSettings,
-  onSyncGoogleSheets,
+  onExportCsv,
   lowStockCount,
   orderAlertCount = 0,
   onOpenMobileMenu,
@@ -98,18 +96,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>ออนไลน์</span>
           </div>
 
-          {/* Sync to Google Sheets Button */}
-          <button
-            onClick={onSyncGoogleSheets}
-            disabled={syncLog.status === 'SYNCING'}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#F0FDF4] hover:bg-[#DCFCE7] border border-[#BBF7D0] text-[#15803D] text-xs font-extrabold transition-all shadow-2xs disabled:opacity-50 active:scale-98"
-            title="เชื่อมต่อ Google Sheet"
-          >
-            <FileSpreadsheet className="w-4 h-4 text-[#15803D]" />
-            <span className="hidden sm:inline">
-              {syncLog.status === 'SYNCING' ? 'กำลังส่ง...' : 'เชื่อมต่อ Google Sheet'}
-            </span>
-          </button>
+          {/* Export CSV (แทนการเชื่อมต่อ Google Sheet) */}
+          <ExportCsvMenu onExport={onExportCsv} />
 
           {/* Bell Notifications */}
           <div

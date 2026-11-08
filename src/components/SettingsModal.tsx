@@ -18,24 +18,23 @@ import {
   NotebookPen,
   PenLine,
 } from 'lucide-react';
-import { SellerProfile, SyncLog } from '../types';
+import { SellerProfile } from '../types';
+import { EXPORT_OPTIONS, ExportKind } from './ExportCsvMenu';
 
 interface SettingsModalProps {
   seller: SellerProfile;
-  syncLog: SyncLog;
   onClose: () => void;
   onSaveSeller: (profile: SellerProfile) => void;
-  onSyncGoogleSheets: () => void;
+  onExportCsv: (kind: ExportKind) => void;
   onExportBackupJson: () => void;
   onImportBackupJson: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   seller,
-  syncLog,
   onClose,
   onSaveSeller,
-  onSyncGoogleSheets,
+  onExportCsv,
   onExportBackupJson,
   onImportBackupJson,
 }) => {
@@ -146,7 +145,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 ตั้งค่าระบบร้านค้า & สำรองข้อมูล
               </h2>
               <p className="text-xs text-zinc-500">
-                จัดการโลโก้ร้านค้า, ข้อมูลผู้ขาย, พร้อมเพย์ และ Google Sheets Sync
+                จัดการโลโก้ร้านค้า, ข้อมูลผู้ขาย, พร้อมเพย์ และส่งออกข้อมูล (Export CSV)
               </p>
             </div>
           </div>
@@ -557,51 +556,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* Section 4: Google Sheets & Cloud Backup */}
+          {/* Section 4: Export CSV (แทนการซิงก์ Google Sheets) */}
           <div className="bg-[#FAFAFA] border border-[#E4E4E7] rounded-xl p-5 space-y-3">
             <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-2">
               <FileSpreadsheet className="w-4 h-4 text-[#71717A]" />
-              <span>สำรองข้อมูลขึ้นคลาวด์ Google Sheets</span>
+              <span>ส่งออกข้อมูลเป็นไฟล์ CSV (เปิดด้วย Excel / Google Sheets ได้)</span>
             </h3>
-
-            <div className="p-4 bg-white rounded-lg border border-[#E4E4E7] space-y-2 shadow-2xs">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-zinc-600 font-medium">สถานะการเชื่อมต่อ Google Sheets:</span>
-                <span className="font-bold text-emerald-600 flex items-center gap-1">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-                  พร้อมซิงก์เรียบร้อย
-                </span>
-              </div>
-
-              {syncLog.lastSynced && (
-                <p className="text-[11px] text-zinc-500">
-                  ซิงก์ล่าสุดเมื่อ: {new Date(syncLog.lastSynced).toLocaleString('th-TH-u-ca-gregory')}
-                </p>
-              )}
-
-              <div className="flex items-center gap-2 pt-2">
+            <div className="flex flex-wrap gap-2">
+              {EXPORT_OPTIONS.map((o) => (
                 <button
+                  key={o.kind}
                   type="button"
-                  onClick={onSyncGoogleSheets}
-                  disabled={syncLog.status === 'SYNCING'}
-                  className="px-4 py-2 bg-[#71717A] hover:bg-[#27272A] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs transition-all active:scale-98"
+                  onClick={() => onExportCsv(o.kind)}
+                  className="px-3.5 py-2 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold rounded-lg border border-zinc-200 flex items-center gap-1.5"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${syncLog.status === 'SYNCING' ? 'animate-spin' : ''}`} />
-                  <span>{syncLog.status === 'SYNCING' ? 'กำลังซิงก์...' : 'ซิงก์ข้อมูลไปที่ Google Sheets เดี๋ยวนี้'}</span>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{o.label}</span>
                 </button>
-
-                {syncLog.spreadsheetUrl && (
-                  <a
-                    href={syncLog.spreadsheetUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3.5 py-2 bg-zinc-50 hover:bg-zinc-100 text-[#71717A] text-xs font-bold rounded-lg border border-zinc-200 flex items-center gap-1 transition-all"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>เปิด Google Sheet</span>
-                  </a>
-                )}
-              </div>
+              ))}
             </div>
           </div>
 
