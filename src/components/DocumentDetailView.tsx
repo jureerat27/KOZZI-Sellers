@@ -24,8 +24,9 @@ import {
   PlusCircle,
   Clock,
   MessageSquare,
+  Link2,
 } from 'lucide-react';
-import { PaymentRecord, PaymentStage, SalesDocument, SellerProfile } from '../types';
+import { Order, PaymentRecord, PaymentStage, SalesDocument, SellerProfile } from '../types';
 import { generatePromptPayQRDataUrl } from '../utils/promptpay';
 import { docFileName, exportElementToPdf, printOnlyElement } from '../utils/pdf';
 import { formatDocumentForLine } from '../utils/line';
@@ -61,6 +62,8 @@ interface DocumentDetailViewProps {
   onEditDoc?: (doc: SalesDocument) => void;
   onSaveDocument?: (updatedDoc: SalesDocument) => void;
   onDeleteDoc?: (docId: string) => void;
+  linkedOrder?: Order | null;              // ออเดอร์ที่ผูกกับเอกสารนี้ → รับเงินที่ออเดอร์
+  onGoToOrder?: (orderId: string) => void;
 }
 
 export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
@@ -78,6 +81,8 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
   onEditDoc,
   onSaveDocument,
   onDeleteDoc,
+  linkedOrder = null,
+  onGoToOrder,
 }) => {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
@@ -244,9 +249,15 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
           : Math.max(0, (rootQuotation?.grandTotal || doc.grandTotal) - depositAmount));
 
   // ยอดเงินใน QR พร้อมเพย์: ใบแจ้งหนี้ที่ตั้งมัดจำไว้ ใช้ยอดมัดจำ (ถ้ารับมัดจำแล้ว ใช้ยอดคงเหลือ) ใบอื่นใช้ยอดเต็ม
+  const payViaOrder = !!linkedOrder && (doc.type === 'INVOICE' || doc.type === 'QUOTATION');
+
   const qrInfo = (() => {
     const isDepositInvoice =
       doc.type === 'INVOICE' && hasDepositTerms && doc.paymentStage !== 'DEPOSIT' && doc.paymentStage !== 'BALANCE' && depositAmount > 0;
+    // รับเงินแล้วบางส่วน: QR = ยอดค้างจริง (ยอดมัดจำที่รับจริงอาจไม่เท่ากับที่ตั้งไว้)
+    const owed = Number(doc.remainingAmount);
+    if ((doc.status === 'DEPOSIT_PAID' || doc.status === 'PARTIALLY_PAID') && owed > 0 && (Number(doc.paidAmount) || 0) > 0)
+      return { amount: owed, label: 'ยอดคงเหลือ' };
     if (isDepositInvoice && doc.status === 'DEPOSIT_PAID') return { amount: balanceAmount, label: 'ยอดคงเหลือ' };
     if (isDepositInvoice)
       return { amount: depositAmount, label: `เงินมัดจำ${doc.depositPercent ? ` ${doc.depositPercent}%` : ''}` };
@@ -325,6 +336,11 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
 
   // Open Receive Payment Modal with smart preset defaults
   const openReceivePaymentModal = (stage: PaymentStage) => {
+    // เอกสารที่ผูกกับออเดอร์: รับเงินและออกใบเสร็จที่ออเดอร์ (กันใบเสร็จซ้ำ)
+    if (payViaOrder && onGoToOrder) {
+      onGoToOrder(linkedOrder!.id);
+      return;
+    }
     setPaymentModalStage(stage);
     let defaultAmount = doc.grandTotal;
     if (stage === 'DEPOSIT') {
@@ -1014,9 +1030,25 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                 <FileCheck className="w-4 h-4 text-[#003BB3]" />
                 <span>การดำเนินการและการออกเอกสารในระบบ</span>
               </h4>
+              {payViaOrder && (
+                <p className="w-full text-[11px] text-zinc-600">
+                  เอกสารนี้ผูกกับออเดอร์ <strong className="text-[#003BB3]">{linkedOrder!.orderNumber}</strong> · รับเงินและออกใบเสร็จที่ออเดอร์
+                  ยอดรับเงินจะบันทึกกลับมาที่เอกสารนี้อัตโนมัติ
+                </p>
+              )}
 
               {/* Action Buttons based on Document Lifecycle */}
               <div className="flex items-center gap-2 flex-wrap">
+                {payViaOrder && (
+                  <button
+                    type="button"
+                    onClick={() => onGoToOrder?.(linkedOrder!.id)}
+                    className="px-4 py-2 bg-[#003BB3] hover:bg-[#002E8C] text-white text-xs font-extrabold rounded-lg flex items-center gap-1.5 shadow-lg active:scale-95 transition-all"
+                  >
+                    <Link2 className="w-4 h-4" />
+                    <span>รับเงิน & ออกใบเสร็จที่ออเดอร์ {linkedOrder!.orderNumber}</span>
+                  </button>
+                )}
                 {/* 1. QUOTATION ACTIONS */}
                 {doc.type === 'QUOTATION' && (
                   <>
@@ -1033,6 +1065,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                           </button>
                         )}
 
+                        {!payViaOrder && (
                         <button
                           type="button"
                           onClick={() => openReceivePaymentModal('DEPOSIT')}
@@ -1041,6 +1074,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                           <CreditCard className="w-3.5 h-3.5" />
                           <span>บันทึกรับเงินมัดจำ (฿{formatCurrency(depositAmount)})</span>
                         </button>
+                        )}
 
                         {onCreateBalanceInvoice && !balanceInvoice && (
                           <button
@@ -1063,6 +1097,7 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                           <span>แปลงเป็นใบแจ้งหนี้</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
+                        {!payViaOrder && (
                         <button
                           type="button"
                           onClick={() => openReceivePaymentModal('FULL')}
@@ -1071,13 +1106,14 @@ export const DocumentDetailView: React.FC<DocumentDetailViewProps> = ({
                           <span>รับชำระ & ออกใบเสร็จ</span>
                           <CheckCircle className="w-3.5 h-3.5" />
                         </button>
+                        )}
                       </>
                     )}
                   </>
                 )}
 
                 {/* 2. INVOICE ACTIONS */}
-                {doc.type === 'INVOICE' && doc.status !== 'PAID' && (
+                {doc.type === 'INVOICE' && doc.status !== 'PAID' && !payViaOrder && (
                   <button
                     type="button"
                     onClick={() =>

@@ -141,6 +141,8 @@ export interface SalesDocument {
   sourceInvoiceDocNumber?: string;   // Doc number of source invoice
   linkedReceiptNumbers?: string[];   // Receipts issued for this document
   paymentRecords?: PaymentRecord[];  // History of payments received for this doc
+  linkedOrderId?: string;            // ออเดอร์ที่ผูกกับเอกสารนี้ (รับเงินที่ออเดอร์)
+  linkedOrderNumber?: string;
 
   createdAt: string;
   updatedAt: string;
@@ -304,6 +306,7 @@ export interface Order {
   warrantyNumber?: string;   // เลขที่ใบรับประกัน เช่น KZ-WR-2606-001
 
   serviceTickets: ServiceTicket[];
+  linkedDocIds?: string[];    // ใบเสนอราคา/ใบแจ้งหนี้ที่ผูกกับออเดอร์นี้
   note?: string;
   cancelled?: boolean;
   createdAt: string;

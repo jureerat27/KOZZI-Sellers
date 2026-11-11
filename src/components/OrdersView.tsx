@@ -23,7 +23,7 @@ import {
   ShieldCheck,
   Wrench,
 } from 'lucide-react';
-import { Order, OrderNumberDateFormat, OrderOptions, Product } from '../types';
+import { Order, OrderNumberDateFormat, OrderOptions, Product, SalesDocument } from '../types';
 import {
   balanceDue,
   fmtDate,
@@ -56,6 +56,11 @@ interface OrdersViewProps {
   onCreateStockProduct: (p: Product) => void;
   onIssueReceipt: (order: Order, paymentId: string) => void;
   onOpenDoc: (docId: string) => void;
+  documents?: SalesDocument[];
+  onLinkDoc?: (order: Order, docId: string) => Promise<void>;
+  onUnlinkDoc?: (order: Order, docId: string) => Promise<void>;
+  openOrderId?: string | null;          // เปิดรายละเอียดออเดอร์นี้ (มาจากหน้าเอกสาร)
+  onOpenOrderHandled?: () => void;
 }
 
 type SubTab = 'list' | 'queue' | 'aftersales';
@@ -194,6 +199,11 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
   onCreateStockProduct,
   onIssueReceipt,
   onOpenDoc,
+  documents = [],
+  onLinkDoc,
+  onUnlinkDoc,
+  openOrderId,
+  onOpenOrderHandled,
 }) => {
   const [tab, setTab] = useState<SubTab>('list');
   const [formOrder, setFormOrder] = useState<Order | null | undefined>(undefined); // undefined = closed, null = new
@@ -211,6 +221,16 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
     window.addEventListener('app:go-orders', back);
     return () => window.removeEventListener('app:go-orders', back);
   }, []);
+
+  // เปิดออเดอร์ที่ถูกเรียกจากหน้าเอกสาร
+  useEffect(() => {
+    if (!openOrderId) return;
+    setFormOrder(undefined);
+    setDetailTicket(false);
+    setDetailId(openOrderId);
+    onOpenOrderHandled?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openOrderId]);
 
   // filters
   const [q, setQ] = useState('');
@@ -616,6 +636,9 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
           onClose={() => setDetailId(null)}
           onIssueReceipt={onIssueReceipt}
           onOpenDoc={onOpenDoc}
+          documents={documents}
+          onLinkDoc={onLinkDoc}
+          onUnlinkDoc={onUnlinkDoc}
           startWithTicketForm={detailTicket}
         />
       )}

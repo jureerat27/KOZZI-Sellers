@@ -688,6 +688,157 @@ export default function App() {
     saveProductCloud(p);
   };
 
+  // ===== ผูกออเดอร์กับใบเสนอราคา/ใบแจ้งหนี้ (รับเงินที่ออเดอร์ที่เดียว) =====
+
+  const orderPayStage = (type: string): PaymentStage =>
+    type === 'มัดจำ' ? 'DEPOSIT' : type === 'ชำระหน้างาน' ? 'BALANCE' : 'FULL';
+
+  /** เลือกเอกสารที่จะบันทึกยอดรับเงินของออเดอร์: ใบแจ้งหนี้ตามงวดก่อน ถ้าไม่มีใช้ใบเสนอราคา */
+  /** เอกสารที่ผูก + ใบแจ้งหนี้ที่ออกจากใบเสนอราคาที่ผูกไว้ */
+  const expandLinked = (linkedIds: string[], docs: SalesDocument[]) => [
+    ...new Set([
+      ...linkedIds,
+      ...docs.filter((d) => d.type === 'INVOICE' && d.parentQuotationId && linkedIds.includes(d.parentQuotationId)).map((d) => d.id),
+    ]),
+  ];
+
+  const pickLinkedTarget = (linkedIdsRaw: string[], stage: PaymentStage, docs: SalesDocument[]) => {
+    const linkedIds = expandLinked(linkedIdsRaw, docs);
+    const linked = docs.filter((d) => linkedIds.includes(d.id) && d.status !== 'CANCELLED' && d.status !== 'PAID');
+    const inv = linked.filter((d) => d.type === 'INVOICE');
+    return (
+      (stage !== 'FULL' && inv.find((d) => d.paymentStage === stage)) ||
+      inv.find((d) => !d.paymentStage || d.paymentStage === 'FULL') ||
+      inv[0] ||
+      linked.find((d) => d.type === 'QUOTATION') ||
+      null
+    );
+  };
+
+  /** บันทึกยอดรับเงินลงเอกสาร (และใบเสนอราคาต้นทาง) แบบเดียวกับการรับเงินที่ใบแจ้งหนี้ — คืนเอกสารที่เปลี่ยน */
+  const applyPaymentToDoc = (
+    target: SalesDocument,
+    record: PaymentRecord,
+    stage: PaymentStage,
+    docs: SalesDocument[]
+  ): SalesDocument[] => {
+    const now = new Date().toISOString();
+    const apply = (d: SalesDocument, isParent: boolean): SalesDocument => {
+      const paid = (Number(d.paidAmount) || 0) + record.amount;
+      const remaining = Math.max(0, d.grandTotal - paid);
+      const status: DocumentStatus =
+        remaining < 0.01 || (isParent && stage === 'BALANCE')
+          ? 'PAID'
+          : stage === 'DEPOSIT'
+          ? 'DEPOSIT_PAID'
+          : 'PARTIALLY_PAID';
+      return {
+        ...d,
+        status,
+        paidAmount: paid,
+        remainingAmount: remaining,
+        paymentRecords: [...(d.paymentRecords || []), record],
+        linkedReceiptNumbers: [...(d.linkedReceiptNumbers || []), record.receiptDocNumber || ''].filter(Boolean),
+        paymentDate: record.date,
+        updatedAt: now,
+      };
+    };
+    const out = [apply(target, false)];
+    const parent =
+      target.parentQuotationId && target.parentQuotationId !== target.id
+        ? docs.find((d) => d.id === target.parentQuotationId)
+        : null;
+    if (parent && !(parent.paymentRecords || []).some((r) => r.receiptId === record.receiptId)) out.push(apply(parent, true));
+    return out;
+  };
+
+  /** ใบเสร็จที่เคยออกจากออเดอร์แล้ว ยังไม่ได้บันทึกลงเอกสารที่ผูก → บันทึกให้ (ไม่ออกใบเสร็จใหม่) */
+  const syncOrderReceiptsToDocs = (order: Order, docs: SalesDocument[]): SalesDocument[] => {
+    const linkedIds = expandLinked(order.linkedDocIds || [], docs);
+    let cur = docs;
+    const changed = new Map<string, SalesDocument>();
+    const put = (d: SalesDocument) => {
+      changed.set(d.id, d);
+      cur = cur.map((x) => (x.id === d.id ? d : x));
+    };
+    for (const p of order.payments || []) {
+      if (!p.receiptDocId) continue;
+      const already = cur.some((d) => linkedIds.includes(d.id) && (d.paymentRecords || []).some((r) => r.receiptId === p.receiptDocId));
+      if (already) continue;
+      const stage = orderPayStage(p.type);
+      const target = pickLinkedTarget(linkedIds, stage, cur);
+      if (!target) continue;
+      const record: PaymentRecord = {
+        id: `pay-${p.id}`,
+        date: p.date,
+        amount: p.amount,
+        method: p.method,
+        payerName: order.customerName,
+        receiptDocNumber: p.receiptDocNumber,
+        receiptId: p.receiptDocId,
+        notes: `รับเงินที่ออเดอร์ ${order.orderNumber}`,
+        stage,
+        createdAt: new Date().toISOString(),
+      };
+      applyPaymentToDoc(target, record, stage, cur).forEach(put);
+      // ใบเสร็จเดิม: เติมเลขเอกสารอ้างอิง
+      const rc = cur.find((d) => d.id === p.receiptDocId);
+      if (rc && !rc.referenceDocNumber) {
+        put({
+          ...rc,
+          referenceDocNumber: target.docNumber,
+          sourceInvoiceId: target.type === 'INVOICE' ? target.id : rc.sourceInvoiceId,
+          sourceInvoiceDocNumber: target.type === 'INVOICE' ? target.docNumber : rc.sourceInvoiceDocNumber,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    }
+    return [...changed.values()];
+  };
+
+  const commitDocs = async (list: SalesDocument[]) => {
+    if (list.length === 0) return;
+    const byId = new Map(list.map((d) => [d.id, d]));
+    setDocuments((prev) => prev.map((d) => byId.get(d.id) || d));
+    if (selectedDoc && byId.has(selectedDoc.id)) setSelectedDoc(byId.get(selectedDoc.id)!);
+    // บันทึกตรงลงฐานข้อมูล (ไม่ผ่าน handleSaveDocument เพื่อไม่ให้ตัดสต็อกซ้ำ)
+    await Promise.all(list.map((d) => saveDocumentCloud(d)));
+  };
+
+  const handleLinkOrderDoc = async (order: Order, docId: string) => {
+    const doc = documents.find((d) => d.id === docId);
+    if (!doc) return;
+    const next: Order = { ...order, linkedDocIds: [...new Set([...(order.linkedDocIds || []), docId])] };
+    await handleSaveOrder(next);
+    const linkedDoc: SalesDocument = {
+      ...doc,
+      linkedOrderId: order.id,
+      linkedOrderNumber: order.orderNumber,
+      updatedAt: new Date().toISOString(),
+    };
+    const docsNow = documents.map((d) => (d.id === docId ? linkedDoc : d));
+    const synced = syncOrderReceiptsToDocs(next, docsNow);
+    const all = new Map<string, SalesDocument>([[linkedDoc.id, linkedDoc]]);
+    synced.forEach((d) => all.set(d.id, d));
+    await commitDocs([...all.values()]);
+  };
+
+  const handleUnlinkOrderDoc = async (order: Order, docId: string) => {
+    await handleSaveOrder({ ...order, linkedDocIds: (order.linkedDocIds || []).filter((id) => id !== docId) });
+    const doc = documents.find((d) => d.id === docId);
+    if (doc && doc.linkedOrderId === order.id) {
+      await commitDocs([{ ...doc, linkedOrderId: undefined, linkedOrderNumber: undefined, updatedAt: new Date().toISOString() }]);
+    }
+  };
+
+  // เปิดออเดอร์จากหน้าเอกสาร (เอกสารที่ผูกออเดอร์: รับเงินที่ออเดอร์)
+  const [openOrderId, setOpenOrderId] = useState<string | null>(null);
+  const handleGoToOrder = (orderId: string) => {
+    setSelectedDoc(null);
+    setActiveTab('orders');
+    setOpenOrderId(orderId);
+  };
+
   /** ออกใบเสร็จรับเงินในระบบเอกสารขาย จากรายการรับเงินของออเดอร์ */
   const handleIssueOrderReceipt = async (order: Order, paymentId: string) => {
     const pay = order.payments.find((p) => p.id === paymentId);
@@ -701,6 +852,8 @@ export default function App() {
     }
     const stage: PaymentStage =
       pay.type === 'มัดจำ' ? 'DEPOSIT' : pay.type === 'ชำระหน้างาน' ? 'BALANCE' : 'FULL';
+    // เอกสารที่ผูกกับออเดอร์ (ใบแจ้งหนี้/ใบเสนอราคา) จะถูกบันทึกยอดรับเงินด้วย
+    const target = pickLinkedTarget(order.linkedDocIds || [], stage, documents);
     const docNumber = generateDocNumber('RECEIPT', documents);
     const now = new Date().toISOString();
     const itemName = `${productLinesOf(order)} ${itemsTitle(order)}`.trim();
@@ -719,7 +872,7 @@ export default function App() {
           // ไม่ผูก productId: สต็อกถูกตัดไปแล้วตอนยืนยันออเดอร์ ถ้าผูกไว้ระบบเอกสารจะตัดซ้ำ
           productName: `${pay.type === 'มัดจำ' ? 'รับชำระเงินมัดจำ' : pay.type === 'ชำระหน้างาน' ? 'รับชำระยอดคงเหลือ' : 'รับชำระค่าสินค้า'} ${itemName}`,
           sku: order.orderNumber,
-          description: `ออเดอร์ ${order.orderNumber} · ราคาเต็ม ฿${order.price.toLocaleString()}${order.fulfillment === 'ติดตั้ง' ? ' (รวมติดตั้ง)' : ''}`,
+          description: `ออเดอร์ ${order.orderNumber}${target ? ` · อ้างอิง${target.type === 'INVOICE' ? 'ใบแจ้งหนี้' : 'ใบเสนอราคา'} ${target.docNumber}` : ''} · ราคาเต็ม ฿${order.price.toLocaleString()}${order.fulfillment === 'ติดตั้ง' ? ' (รวมติดตั้ง)' : ''}`,
           unit: 'รายการ',
           price: pay.amount,
           costPrice: 0,
@@ -742,10 +895,32 @@ export default function App() {
       paidAmount: pay.amount,
       remainingAmount: 0,
       notes: pay.note || seller.defaultReceiptNotes || `อ้างอิงออเดอร์ ${order.orderNumber}`,
+      referenceDocNumber: target?.docNumber,
+      sourceInvoiceId: target?.type === 'INVOICE' ? target.id : undefined,
+      sourceInvoiceDocNumber: target?.type === 'INVOICE' ? target.docNumber : undefined,
+      parentQuotationId: target ? target.parentQuotationId || (target.type === 'QUOTATION' ? target.id : undefined) : undefined,
+      parentQuotationDocNumber: target
+        ? target.parentQuotationDocNumber || (target.type === 'QUOTATION' ? target.docNumber : undefined)
+        : undefined,
       createdAt: now,
       updatedAt: now,
     };
     await handleSaveDocument(receipt);
+    if (target) {
+      const record: PaymentRecord = {
+        id: `pay-${pay.id}`,
+        date: pay.date,
+        amount: pay.amount,
+        method: pay.method,
+        payerName: order.customerName,
+        receiptDocNumber: docNumber,
+        receiptId: receipt.id,
+        notes: `รับเงินที่ออเดอร์ ${order.orderNumber}`,
+        stage,
+        createdAt: now,
+      };
+      await commitDocs(applyPaymentToDoc(target, record, stage, documents));
+    }
     await handleSaveOrder({
       ...order,
       payments: order.payments.map((p) =>
@@ -1032,6 +1207,11 @@ export default function App() {
             onCreateStockProduct={handleCreateStockProduct}
             onIssueReceipt={handleIssueOrderReceipt}
             onOpenDoc={handleOpenDocById}
+            documents={documents}
+            onLinkDoc={handleLinkOrderDoc}
+            onUnlinkDoc={handleUnlinkOrderDoc}
+            openOrderId={openOrderId}
+            onOpenOrderHandled={() => setOpenOrderId(null)}
           />
         )}
 
@@ -1095,6 +1275,17 @@ export default function App() {
           onCreateDepositInvoice={handleCreateDepositInvoice}
           onCreateBalanceInvoice={handleCreateBalanceInvoice}
           onReceivePayment={handleReceivePayment}
+          linkedOrder={
+            orders.find(
+              (o) =>
+                !o.cancelled &&
+                ((o.linkedDocIds || []).includes(selectedDoc.id) ||
+                  (selectedDoc.type === 'INVOICE' &&
+                    !!selectedDoc.parentQuotationId &&
+                    (o.linkedDocIds || []).includes(selectedDoc.parentQuotationId)))
+            ) || null
+          }
+          onGoToOrder={handleGoToOrder}
           onEditDoc={handleEditDocument}
           onSaveDocument={handleSaveDocument}
           onDeleteDoc={handleDeleteDocument}

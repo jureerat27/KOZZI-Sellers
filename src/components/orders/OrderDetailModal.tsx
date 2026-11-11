@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Ban, CheckCircle2, FileText, Pencil, Plus, Receipt, RotateCcw, ShieldCheck, Trash2, Wrench, X, Award } from 'lucide-react';
-import { Order, OrderOptions, OrderPayment, OrderPaymentType, ServiceTicket, ServiceTicketStatus } from '../../types';
+import { Ban, CheckCircle2, FileText, Link2, Pencil, Plus, Receipt, RotateCcw, ShieldCheck, Trash2, Wrench, X, Award } from 'lucide-react';
+import { Order, OrderOptions, OrderPayment, OrderPaymentType, SalesDocument, ServiceTicket, ServiceTicketStatus } from '../../types';
 import {
   balanceDue,
   fmtDate,
@@ -29,8 +29,24 @@ interface Props {
   onClose: () => void;
   onIssueReceipt: (order: Order, paymentId: string) => void;
   onOpenDoc: (docId: string) => void;
+  documents?: SalesDocument[];
+  onLinkDoc?: (order: Order, docId: string) => Promise<void>;
+  onUnlinkDoc?: (order: Order, docId: string) => Promise<void>;
   startWithTicketForm?: boolean;
 }
+
+const DOC_TYPE_TH: Record<string, string> = { QUOTATION: 'ใบเสนอราคา', INVOICE: 'ใบแจ้งหนี้', RECEIPT: 'ใบเสร็จ' };
+const DOC_STATUS_TH: Record<string, { label: string; tone: 'green' | 'amber' | 'neutral' | 'red' | 'dark' }> = {
+  DRAFT: { label: 'ร่าง', tone: 'neutral' },
+  SENT: { label: 'รอชำระ', tone: 'amber' },
+  PENDING_DEPOSIT: { label: 'รอมัดจำ', tone: 'amber' },
+  APPROVED: { label: 'อนุมัติแล้ว', tone: 'neutral' },
+  DEPOSIT_PAID: { label: 'ชำระมัดจำแล้ว', tone: 'dark' },
+  PARTIALLY_PAID: { label: 'ชำระบางส่วน', tone: 'dark' },
+  PAID: { label: 'ชำระครบแล้ว', tone: 'green' },
+  CANCELLED: { label: 'ยกเลิก', tone: 'red' },
+};
+const normName = (s?: string) => (s || '').replace(/^(คุณ|นาย|นางสาว|นาง)\s*/, '').replace(/\s+/g, '').toLowerCase();
 
 const PAY_TYPES: OrderPaymentType[] = ['มัดจำ', 'ชำระหน้างาน', 'ชำระเต็มจำนวน', 'ได้รับเงินจาก Shopee'];
 const TICKET_STATUS: ServiceTicketStatus[] = ['รอดำเนินการ', 'กำลังดำเนินการ', 'เสร็จแล้ว'];
@@ -65,6 +81,9 @@ export const OrderDetailModal: React.FC<Props> = ({
   onClose,
   onIssueReceipt,
   onOpenDoc,
+  documents = [],
+  onLinkDoc,
+  onUnlinkDoc,
   startWithTicketForm,
 }) => {
   const o = order;
@@ -81,6 +100,50 @@ export const OrderDetailModal: React.FC<Props> = ({
   const [photo, setPhoto] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [cardOrder, setCardOrder] = useState<Order | null>(null);
+  const [linkPick, setLinkPick] = useState<string | null>(null); // null = ปิดตัวเลือก
+
+  // เอกสารที่ผูกกับออเดอร์นี้ และเอกสารที่ผูกได้ (ใบเสนอราคา/ใบแจ้งหนี้ ที่ยังไม่ผูกกับออเดอร์อื่น)
+  const explicitDocs = (o.linkedDocIds || [])
+    .map((id) => documents.find((d) => d.id === id))
+    .filter((d): d is SalesDocument => !!d);
+  // ใบแจ้งหนี้ที่ออกจากใบเสนอราคาที่ผูกไว้ นับว่าผูกด้วย
+  const childInvoices = documents.filter(
+    (d) =>
+      d.type === 'INVOICE' &&
+      !!d.parentQuotationId &&
+      (o.linkedDocIds || []).includes(d.parentQuotationId) &&
+      !(o.linkedDocIds || []).includes(d.id)
+  );
+  const linkedDocs = [...explicitDocs, ...childInvoices];
+  const custKey = normName(o.customerName);
+  const linkCandidates = documents
+    .filter(
+      (d) =>
+        (d.type === 'QUOTATION' || d.type === 'INVOICE') &&
+        d.status !== 'CANCELLED' &&
+        !(o.linkedDocIds || []).includes(d.id) &&
+        !childInvoices.some((c) => c.id === d.id) &&
+        (!d.linkedOrderId || d.linkedOrderId === o.id || !orders.some((x) => x.id === d.linkedOrderId))
+    )
+    .map((d) => ({ d, same: !!custKey && normName(d.customerName) === custKey }))
+    .sort((a, b) => Number(b.same) - Number(a.same) || (b.d.date + b.d.docNumber).localeCompare(a.d.date + a.d.docNumber));
+  const linkedInvoice = linkedDocs.find((d) => d.type === 'INVOICE') || linkedDocs[0];
+
+  const doLink = async () => {
+    if (!linkPick || !onLinkDoc) return;
+    setBusy(true);
+    await onLinkDoc(o, linkPick);
+    setBusy(false);
+    setLinkPick(null);
+  };
+
+  const doUnlink = async (d: SalesDocument) => {
+    if (!onUnlinkDoc) return;
+    if (!confirm(`ยกเลิกการผูก ${DOC_TYPE_TH[d.type] || ''} ${d.docNumber}?\nยอดรับเงินที่บันทึกลงเอกสารไปแล้วจะยังอยู่เหมือนเดิม`)) return;
+    setBusy(true);
+    await onUnlinkDoc(o, d.id);
+    setBusy(false);
+  };
 
   const save = async (next: Order) => {
     setBusy(true);
@@ -298,6 +361,91 @@ export const OrderDetailModal: React.FC<Props> = ({
 
         <div className="space-y-4">
           <Section
+            title="เอกสารที่ผูก (ใบเสนอราคา / ใบแจ้งหนี้)"
+            action={
+              onLinkDoc &&
+              linkPick === null && (
+                <button className={btn.small} onClick={() => setLinkPick(linkCandidates[0]?.d.id || '')} disabled={busy}>
+                  <Link2 className="w-3.5 h-3.5" /> ผูกเอกสาร
+                </button>
+              )
+            }
+          >
+            {linkedDocs.length === 0 ? (
+              <p className="text-xs text-zinc-500">
+                ยังไม่ได้ผูกเอกสาร · ถ้าลูกค้าขอใบเสนอราคา/ใบแจ้งหนี้ ให้ผูกไว้ที่นี่ แล้วรับเงินและออกใบเสร็จที่ออเดอร์นี้ ใบแจ้งหนี้จะอัปเดตยอดให้อัตโนมัติ
+              </p>
+            ) : (
+              <div className="divide-y divide-zinc-100 border border-zinc-200 rounded-lg">
+                {linkedDocs.map((d) => {
+                  const st = DOC_STATUS_TH[d.status] || { label: d.status, tone: 'neutral' as const };
+                  return (
+                    <div key={d.id} className="flex flex-wrap items-center gap-2 px-3 py-2 text-sm">
+                      <div className="min-w-0 mr-auto">
+                        <div className="font-semibold text-zinc-900 flex flex-wrap items-center gap-1.5">
+                          {DOC_TYPE_TH[d.type] || d.type} {d.docNumber}
+                          <Badge tone={st.tone}>{st.label}</Badge>
+                          {!(o.linkedDocIds || []).includes(d.id) && (
+                            <span className="text-[10px] font-normal text-zinc-500">(จาก {d.parentQuotationDocNumber || 'ใบเสนอราคา'})</span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-zinc-500">
+                          {fmtDate(d.date)} · ยอด ฿{fmtMoney(d.grandTotal)}
+                          {(Number(d.paidAmount) || 0) > 0 && ` · รับแล้ว ฿${fmtMoney(Number(d.paidAmount))}`}
+                        </div>
+                      </div>
+                      <button className={btn.small} onClick={() => onOpenDoc(d.id)}>
+                        <FileText className="w-3.5 h-3.5" /> เปิด
+                      </button>
+                      {onUnlinkDoc && (o.linkedDocIds || []).includes(d.id) && (
+                        <button
+                          className="p-1 text-zinc-400 hover:text-rose-600"
+                          onClick={() => doUnlink(d)}
+                          disabled={busy}
+                          aria-label="ยกเลิกการผูกเอกสาร"
+                          title="ยกเลิกการผูก"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {linkPick !== null && (
+              <div className="mt-3 rounded-lg border border-zinc-300 p-3 space-y-2 bg-zinc-50">
+                {linkCandidates.length === 0 ? (
+                  <p className="text-xs text-zinc-500">ไม่มีใบเสนอราคา/ใบแจ้งหนี้ที่ผูกได้</p>
+                ) : (
+                  <Field label="เลือกเอกสาร (เอกสารของลูกค้าคนนี้อยู่ด้านบน)">
+                    <select className={inputCls} value={linkPick} onChange={(e) => setLinkPick(e.target.value)}>
+                      {linkCandidates.map(({ d, same }) => (
+                        <option key={d.id} value={d.id}>
+                          {same ? '★ ' : ''}
+                          {d.docNumber} · {DOC_TYPE_TH[d.type]} · {d.customerName} · ฿{fmtMoney(d.grandTotal)} · {fmtDate(d.date)}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                )}
+                <p className="text-[11px] text-zinc-500">
+                  ใบเสร็จที่ออกจากออเดอร์นี้ไปแล้ว จะถูกบันทึกลงเอกสารที่ผูกให้อัตโนมัติ (ไม่ออกใบเสร็จใหม่)
+                </p>
+                <div className="flex justify-end gap-2">
+                  <button className={btn.secondary} onClick={() => setLinkPick(null)}>
+                    ยกเลิก
+                  </button>
+                  <button className={btn.primary} onClick={doLink} disabled={busy || !linkPick}>
+                    <Link2 className="w-4 h-4" /> ผูกเอกสาร
+                  </button>
+                </div>
+              </div>
+            )}
+          </Section>
+
+          <Section
             title="การเงิน"
             action={
               !o.cancelled && (
@@ -326,6 +474,11 @@ export const OrderDetailModal: React.FC<Props> = ({
 
             <div className="mt-3">
               <div className="text-xs font-semibold text-zinc-600 mb-1.5">ประวัติรับเงิน</div>
+              {linkedInvoice && (
+                <p className="text-[11px] text-[#003BB3] mb-1.5">
+                  ออกใบเสร็จที่นี่ ระบบจะบันทึกยอดลง{DOC_TYPE_TH[linkedInvoice.type]} {linkedInvoice.docNumber} ให้อัตโนมัติ
+                </p>
+              )}
               {(o.payments || []).length === 0 ? (
                 <p className="text-xs text-zinc-400">ยังไม่มีการรับเงิน</p>
               ) : (
