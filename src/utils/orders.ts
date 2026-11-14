@@ -116,6 +116,27 @@ export function deductedOf(o?: Order | null): { id: string; qty: number }[] {
   return o.productId ? [{ id: o.productId, qty: Number(o.quantity) || 1 }] : [];
 }
 
+export interface RestockLine {
+  item: OrderItem;
+  qty: number;
+  product?: Product; // สินค้าในคลังที่ตรงกัน (ไม่มี = สร้างใหม่)
+}
+
+/**
+ * ยกเลิกออเดอร์พรีออเดอร์ที่ซื้อสินค้ามาแล้ว: รายการที่จะนำเข้าคลัง
+ * (ไม่รวมสินค้าที่ออเดอร์ตัดสต็อกไว้ เพราะการยกเลิกคืนสต็อกส่วนนั้นให้อยู่แล้ว)
+ */
+export function restockPlan(o: Order, products: Product[]): RestockLine[] {
+  const deducted = new Set(deductedOf(o).map((d) => d.id));
+  return orderItems(o)
+    .filter((it) => !(it.productId && deducted.has(it.productId)))
+    .map((it) => ({
+      item: it,
+      qty: Math.max(1, Number(it.quantity) || 1),
+      product: (it.productId && products.find((p) => p.id === it.productId)) || findStockProduct(products, it),
+    }));
+}
+
 /** ปีรับประกัน: ถ้ามีหลายรุ่น ใช้ระยะที่นานที่สุด */
 export function warrantyYearsFor(o: Order, opts: OrderOptions): number {
   return Math.max(

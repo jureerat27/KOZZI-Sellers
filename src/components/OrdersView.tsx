@@ -22,6 +22,9 @@ import {
   Settings2,
   ShieldCheck,
   Wrench,
+  Ban,
+  RotateCcw,
+  PackagePlus,
 } from 'lucide-react';
 import { Order, OrderNumberDateFormat, OrderOptions, Product, SalesDocument } from '../types';
 import {
@@ -38,6 +41,9 @@ import {
   warrantyAlerts,
   warrantyState,
   Tone,
+  deductedOf,
+  productTitle,
+  restockPlan,
 } from '../utils/orders';
 import { OrderFormModal } from './orders/OrderFormModal';
 import { OrderDetailModal } from './orders/OrderDetailModal';
@@ -52,6 +58,7 @@ interface OrdersViewProps {
   options: OrderOptions;
   onSaveOrder: (order: Order) => Promise<Order>;
   onDeleteOrder: (order: Order) => void;
+  onCancelOrder: (order: Order, restock: boolean) => Promise<void>;
   onSaveOptions: (opts: OrderOptions) => void;
   onCreateStockProduct: (p: Product) => void;
   onIssueReceipt: (order: Order, paymentId: string) => void;
@@ -113,13 +120,103 @@ const SortHead: React.FC<{
   );
 };
 
-/** ปุ่ม ••• ท้ายแถว: แก้ไขข้อมูล / ใบรับประกัน / ลบออเดอร์ */
-const RowMenu: React.FC<{ order: Order; onEdit: () => void; onWarranty: () => void; onDelete: () => void }> = ({
-  order,
-  onEdit,
-  onWarranty,
-  onDelete,
-}) => {
+interface CancelProps {
+  order: Order;
+  products: Product[];
+  onConfirm: (restock: boolean) => Promise<void>;
+  onClose: () => void;
+}
+
+/** ยืนยันยกเลิกออเดอร์ (เก็บข้อมูลและเลขออเดอร์ไว้) + เลือกนำสินค้าที่ซื้อมาแล้วเข้าคลัง */
+const CancelOrderModal: React.FC<CancelProps> = ({ order, products, onConfirm, onClose }) => {
+  const [restock, setRestock] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const plan = useMemo(() => (order.restockedItems ? [] : restockPlan(order, products)), [order, products]);
+  const returned = deductedOf(order);
+
+  const go = async () => {
+    setBusy(true);
+    try {
+      await onConfirm(restock && plan.length > 0);
+      onClose();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Modal
+      title={`ยกเลิกออเดอร์ ${order.orderNumber}`}
+      subtitle={`${order.customerName} · ข้อมูลและเลขออเดอร์จะยังอยู่ในระบบ (แสดงสถานะ "ยกเลิก")`}
+      onClose={onClose}
+      footer={
+        <>
+          <button className={btn.secondary} onClick={onClose} disabled={busy}>
+            ไม่ยกเลิก
+          </button>
+          <button className={btn.danger} onClick={go} disabled={busy}>
+            <Ban className="w-4 h-4" /> ยืนยันยกเลิกออเดอร์
+          </button>
+        </>
+      }
+    >
+      {returned.length > 0 && (
+        <div className="px-4 py-3 rounded-lg border border-zinc-200 bg-white text-sm text-zinc-700">
+          สินค้าที่ออเดอร์นี้ตัดสต็อกไว้ จะคืนเข้าคลังอัตโนมัติ
+        </div>
+      )}
+
+      {plan.length > 0 && (
+        <div className="rounded-lg border border-zinc-200 bg-white p-4 space-y-3">
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-0.5 w-4 h-4 accent-[#003BB3]"
+              checked={restock}
+              onChange={(e) => setRestock(e.target.checked)}
+            />
+            <span className="text-sm">
+              <b className="text-zinc-900">สั่งซื้อสินค้ามาแล้ว — นำเข้าคลังสินค้า</b>
+              <span className="block text-xs text-zinc-500 mt-0.5">
+                ติ๊กเมื่อสินค้าพรีออเดอร์ของลูกค้ารายนี้ซื้อมาแล้ว ระบบจะเพิ่มจำนวนเข้าคลังให้ เก็บไว้ขายต่อได้
+              </span>
+            </span>
+          </label>
+          <ul className={`space-y-1.5 text-xs ${restock ? '' : 'opacity-50'}`}>
+            {plan.map((l, i) => (
+              <li key={i} className="flex flex-wrap items-center gap-2 px-3 py-2 rounded-md bg-zinc-50 border border-zinc-200">
+                <PackagePlus className="w-3.5 h-3.5 text-[#003BB3]" />
+                <span className="font-semibold text-zinc-800">
+                  {productTitle(l.item)} ×{l.qty}
+                </span>
+                <span className="text-zinc-500">
+                  {l.product
+                    ? `→ เข้าคลัง "${l.product.name}" (คงเหลือ ${l.product.stock} → ${l.product.stock + l.qty})`
+                    : '→ ยังไม่มีในคลัง ระบบจะสร้างรายการสินค้าใหม่ให้'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {order.restockedItems && order.restockedItems.length > 0 && (
+        <div className="px-4 py-3 rounded-lg border border-zinc-200 bg-white text-xs text-zinc-600">
+          ออเดอร์นี้เคยนำสินค้าเข้าคลังไปแล้ว จะไม่เพิ่มซ้ำ
+        </div>
+      )}
+    </Modal>
+  );
+};
+
+/** ปุ่ม ••• ท้ายแถว: แก้ไขข้อมูล / ใบรับประกัน / ยกเลิกออเดอร์ / ลบออเดอร์ */
+const RowMenu: React.FC<{
+  order: Order;
+  onEdit: () => void;
+  onWarranty: () => void;
+  onToggleCancel: () => void;
+  onDelete: () => void;
+}> = ({ order, onEdit, onWarranty, onToggleCancel, onDelete }) => {
   // เมนูลอยแบบ fixed เพื่อไม่ให้ถูกตารางที่เลื่อนแนวนอนตัดหรือถูกแถวอื่นทับ
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
   const open = !!pos;
@@ -179,6 +276,10 @@ const RowMenu: React.FC<{ order: Order; onEdit: () => void; onWarranty: () => vo
           >
             <Award className="w-4 h-4" /> ใบรับประกัน
           </button>
+          <button className={`${item} text-zinc-800 hover:bg-zinc-50`} onClick={run(onToggleCancel)}>
+            {order.cancelled ? <RotateCcw className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+            {order.cancelled ? 'เปิดออเดอร์อีกครั้ง' : 'ยกเลิกออเดอร์'}
+          </button>
           <button className={`${item} text-rose-600 hover:bg-rose-50`} onClick={run(onDelete)}>
             <Trash2 className="w-4 h-4" /> ลบออเดอร์
           </button>
@@ -195,6 +296,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
   options,
   onSaveOrder,
   onDeleteOrder,
+  onCancelOrder,
   onSaveOptions,
   onCreateStockProduct,
   onIssueReceipt,
@@ -246,6 +348,12 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: 'default', dir: 1 });
   const [pageRaw, setPage] = useState(1);
   const [cardOrder, setCardOrder] = useState<Order | null>(null);
+  const [cancelOrder, setCancelOrder] = useState<Order | null>(null);
+  const toggleCancel = async (o: Order) => {
+    if (!o.cancelled) return setCancelOrder(o);
+    if (!confirm(`เปิดออเดอร์ ${o.orderNumber} อีกครั้ง?`)) return;
+    await onSaveOrder({ ...o, cancelled: false });
+  };
   // เปลี่ยนตัวกรองแล้วกลับไปหน้าแรก
   useEffect(() => setPage(1), [q, month, channel, status, payFilter]);
 
@@ -513,6 +621,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                               order={o}
                               onEdit={() => setFormOrder(o)}
                               onWarranty={() => setCardOrder(o)}
+                              onToggleCancel={() => toggleCancel(o)}
                               onDelete={() => {
                                 if (!confirm(`ลบออเดอร์ ${o.orderNumber} ถาวร?${o.stockDeducted ? '\nสต็อกที่ตัดไปจะถูกคืนเข้าคลัง' : ''}`)) return;
                                 onDeleteOrder(o);
@@ -633,6 +742,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
           onSave={onSaveOrder}
           onEdit={() => setFormOrder(detailOrder)}
           onDelete={onDeleteOrder}
+          onRequestCancel={(o) => setCancelOrder(o)}
           onClose={() => setDetailId(null)}
           onIssueReceipt={onIssueReceipt}
           onOpenDoc={onOpenDoc}
@@ -649,6 +759,15 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
           orders={orders}
           onSave={onSaveOrder}
           onClose={() => setCardOrder(null)}
+        />
+      )}
+
+      {cancelOrder && (
+        <CancelOrderModal
+          order={orders.find((x) => x.id === cancelOrder.id) || cancelOrder}
+          products={products}
+          onConfirm={(restock) => onCancelOrder(orders.find((x) => x.id === cancelOrder.id) || cancelOrder, restock)}
+          onClose={() => setCancelOrder(null)}
         />
       )}
 

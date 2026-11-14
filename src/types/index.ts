@@ -307,6 +307,7 @@ export interface Order {
 
   serviceTickets: ServiceTicket[];
   linkedDocIds?: string[];    // ใบเสนอราคา/ใบแจ้งหนี้ที่ผูกกับออเดอร์นี้
+  restockedItems?: { id: string; qty: number; name?: string }[]; // ยกเลิกแล้วนำสินค้า (ที่ซื้อมาแล้ว) เข้าคลัง
   note?: string;
   cancelled?: boolean;
   createdAt: string;

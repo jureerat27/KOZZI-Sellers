@@ -26,6 +26,7 @@ interface Props {
   onSave: (order: Order) => Promise<Order>;
   onEdit: () => void;
   onDelete: (order: Order) => void;
+  onRequestCancel?: (order: Order) => void;
   onClose: () => void;
   onIssueReceipt: (order: Order, paymentId: string) => void;
   onOpenDoc: (docId: string) => void;
@@ -78,6 +79,7 @@ export const OrderDetailModal: React.FC<Props> = ({
   onSave,
   onEdit,
   onDelete,
+  onRequestCancel,
   onClose,
   onIssueReceipt,
   onOpenDoc,
@@ -226,6 +228,7 @@ export const OrderDetailModal: React.FC<Props> = ({
 
   const toggleCancel = async () => {
     if (!o.cancelled) {
+      if (onRequestCancel) return onRequestCancel(o);
       if (!confirm(`ยกเลิกออเดอร์ ${o.orderNumber}?${o.stockDeducted ? '\nสต็อกที่ตัดไปจะถูกคืนเข้าคลัง' : ''}`)) return;
       await save({ ...o, cancelled: true });
     } else {
@@ -270,6 +273,11 @@ export const OrderDetailModal: React.FC<Props> = ({
       {o.cancelled && (
         <div className="px-4 py-2.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-800 text-sm">
           ออเดอร์นี้ถูกยกเลิกแล้ว · ไม่ตัดสต็อก (ถ้าเคยตัดไว้ ระบบคืนเข้าคลังแล้ว)
+          {o.restockedItems && o.restockedItems.length > 0 && (
+            <div className="mt-1 text-xs">
+              นำสินค้าเข้าคลังแล้ว: {o.restockedItems.map((r) => `${r.name || 'สินค้า'} ×${r.qty}`).join(', ')}
+            </div>
+          )}
         </div>
       )}
 

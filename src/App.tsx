@@ -66,7 +66,8 @@ import {
 } from './services/firestoreService';
 import { ExportKind } from './components/ExportCsvMenu';
 import { customersCsv, documentsCsv, downloadCsv, expensesCsv, ordersCsv, productsCsv } from './utils/exportCsv';
-import { getOrderOptions, warrantyAlerts, orderItems, deductedOf, itemsTitle, productLinesOf } from './utils/orders';
+import { getOrderOptions, warrantyAlerts, orderItems, deductedOf, itemsTitle, productLinesOf, restockPlan, findStockProduct, productTitle } from './utils/orders';
+import { notify } from './components/AppNotifier';
 import { subscribeAuthState, logOut, User } from './services/authService';
 import { Loader2, ShoppingBag, Lock } from 'lucide-react';
 
@@ -683,6 +684,65 @@ export default function App() {
     handleSaveSeller({ ...seller, orderOptions: opts });
   };
 
+  /**
+   * ยกเลิกออเดอร์ (ไม่ลบ เลขออเดอร์ไม่ข้าม) — สต็อกที่ตัดไว้คืนอัตโนมัติผ่าน handleSaveOrder
+   * restock = สินค้าพรีออเดอร์ที่ซื้อมาแล้ว นำเข้าคลัง (ไม่มีในคลัง → สร้างรายการใหม่)
+   */
+  const handleCancelOrder = async (order: Order, restock: boolean) => {
+    const plan = restock && !order.restockedItems ? restockPlan(order, products) : [];
+    const now = new Date().toISOString();
+    const returned = new Map<string, number>();
+    deductedOf(order).forEach((d) => returned.set(d.id, (returned.get(d.id) || 0) + d.qty));
+
+    const updated = new Map<string, Product>();
+    const created: Product[] = [];
+    const record: { id: string; qty: number; name?: string }[] = [];
+    plan.forEach((l, i) => {
+      const it = l.item;
+      const base =
+        (l.product && (updated.get(l.product.id) || created.find((c) => c.id === l.product!.id))) || null;
+      const existing =
+        base ||
+        (l.product ? { ...l.product, stock: l.product.stock + (returned.get(l.product.id) || 0) } : null) ||
+        created.find((c) => findStockProduct([c], it));
+      if (existing) {
+        const next = { ...existing, stock: existing.stock + l.qty, updatedAt: now };
+        if (created.some((c) => c.id === next.id)) created.splice(created.findIndex((c) => c.id === next.id), 1, next);
+        else updated.set(next.id, next);
+        record.push({ id: next.id, qty: l.qty, name: next.name });
+      } else {
+        const items = orderItems(order);
+        const unitCost = items.length === 1 && order.costPrice ? Math.round((order.costPrice / l.qty) * 100) / 100 : 0;
+        const p: Product = {
+          id: `prod-${Date.now()}-${i}`,
+          sku: `${it.model}-${it.color}-${it.size}`.replace(/\s+/g, ''),
+          name: [it.model, it.color, it.size].filter(Boolean).join(' ') || productTitle(it),
+          category: it.productLine || 'ราวตากผ้า',
+          price: Number(it.unitPrice) || 0,
+          costPrice: unitCost,
+          stock: l.qty,
+          minStock: 1,
+          unit: 'ชุด',
+          productLine: it.productLine || undefined,
+          model: it.model,
+          color: it.color,
+          size: it.size,
+          updatedAt: now,
+        };
+        created.push(p);
+        record.push({ id: p.id, qty: l.qty, name: p.name });
+      }
+    });
+
+    await handleSaveOrder({ ...order, cancelled: true, restockedItems: record.length ? record : order.restockedItems });
+
+    if (updated.size || created.length) {
+      setProducts((list) => [...created, ...list.map((p) => updated.get(p.id) || p)]);
+      [...updated.values(), ...created].forEach((p) => saveProductCloud(p));
+      notify(`ยกเลิกออเดอร์ ${order.orderNumber} แล้ว · นำสินค้าเข้าคลัง ${record.reduce((a, r) => a + r.qty, 0)} ชิ้น`);
+    }
+  };
+
   const handleCreateStockProduct = (p: Product) => {
     setProducts((list) => [p, ...list]);
     saveProductCloud(p);
@@ -1203,6 +1263,7 @@ export default function App() {
             options={orderOptions}
             onSaveOrder={handleSaveOrder}
             onDeleteOrder={handleDeleteOrder}
+            onCancelOrder={handleCancelOrder}
             onSaveOptions={handleSaveOrderOptions}
             onCreateStockProduct={handleCreateStockProduct}
             onIssueReceipt={handleIssueOrderReceipt}
