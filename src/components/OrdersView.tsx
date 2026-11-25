@@ -85,7 +85,7 @@ const Td: React.FC<{ children?: React.ReactNode; className?: string }> = ({ chil
   <td className={`px-3 py-2.5 text-xs text-zinc-800 whitespace-nowrap ${className}`}>{children ?? ''}</td>
 );
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 /** ช่องการชำระเงินในตาราง: ถ้ามีหลายส่วน (มัดจำ · เก็บหน้างาน) แยกเป็นบรรทัดละส่วน ตัวอักษรเล็ก */
 const PayCell: React.FC<{ label: string; tone: Tone }> = ({ label, tone }) => {
@@ -635,7 +635,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                 </table>
               </div>
               <div className="border-t border-zinc-100">
-                <Pager page={page} pageSize={PAGE_SIZE} total={listRows.length} onPage={setPage} />
+                <Pager page={page} pageSize={PAGE_SIZE} total={listRows.length} onPage={setPage} textButtons />
               </div>
             </>
           )}

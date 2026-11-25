@@ -263,12 +263,13 @@ export function TabButtons<T extends string>({
 }
 
 /** แถบเลขหน้า: แสดง x - y จาก n รายการ + ปุ่มก่อนหน้า/ถัดไป */
-export const Pager: React.FC<{ page: number; pageSize: number; total: number; onPage: (p: number) => void }> = ({
-  page,
-  pageSize,
-  total,
-  onPage,
-}) => {
+export const Pager: React.FC<{
+  page: number;
+  pageSize: number;
+  total: number;
+  onPage: (p: number) => void;
+  textButtons?: boolean; // ปุ่มก่อนหน้า/ถัดไปแบบมีข้อความ
+}> = ({ page, pageSize, total, onPage, textButtons }) => {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(total, page * pageSize);
@@ -282,6 +283,7 @@ export const Pager: React.FC<{ page: number; pageSize: number; total: number; on
       <div className="flex items-center gap-1.5">
         <button className={`${cell} border-zinc-200 text-zinc-500 disabled:opacity-40`} disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="หน้าก่อน">
           <ChevronLeft className="w-4 h-4" />
+          {textButtons && <span className="ml-1 pr-1">หน้าก่อน</span>}
         </button>
         {nums.map((n, i) => (
           <React.Fragment key={n}>
@@ -295,6 +297,7 @@ export const Pager: React.FC<{ page: number; pageSize: number; total: number; on
           </React.Fragment>
         ))}
         <button className={`${cell} border-zinc-200 text-zinc-500 disabled:opacity-40`} disabled={page >= pages} onClick={() => onPage(page + 1)} aria-label="หน้าถัดไป">
+          {textButtons && <span className="mr-1 pl-1">หน้าถัดไป</span>}
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
