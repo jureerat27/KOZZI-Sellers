@@ -526,6 +526,9 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                       <Th>#</Th>
                       <Th>สถานะสินค้า</Th>
                       <Th>การชำระเงิน</Th>
+                      <Th className="text-right">
+                        <SortHead label="ยอดเงิน" k="price" sort={sort} onSort={toggleSort} />
+                      </Th>
                       <Th>วันที่สั่งซื้อ</Th>
                       <Th>นัดวันที่</Th>
                       <Th>
@@ -583,6 +586,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                           <Td>
                             <PayCell label={pay.label} tone={pay.tone} />
                           </Td>
+                          <Td className="text-right font-semibold tabular-nums">฿{fmtMoney(Number(o.price) || 0)}</Td>
                           <Td>{fmtDate(o.orderDate)}</Td>
                           <Td className={o.scheduledDate && o.scheduledDate < today && o.queueStatus !== 'เสร็จแล้ว' ? 'text-rose-700 font-semibold' : ''}>
                             {o.scheduledDate ? fmtDate(o.scheduledDate) : ''}
